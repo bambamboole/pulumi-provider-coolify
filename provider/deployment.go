@@ -18,6 +18,10 @@ type DeploymentArgs struct {
 	Application string `pulumi:"application"`
 	// Force a rebuild even when there are no new commits.
 	Force bool `pulumi:"force,optional"`
+	// Deploy a preview of the given pull request instead of the default branch.
+	PullRequestID int `pulumi:"pullRequestId,optional"`
+	// Override the Docker image tag to deploy.
+	DockerTag string `pulumi:"dockerTag,optional"`
 }
 
 type DeploymentState struct {
@@ -31,6 +35,10 @@ type DeploymentState struct {
 	Commit string `pulumi:"commit,optional"`
 	// Whether a forced rebuild was requested.
 	Force bool `pulumi:"force"`
+	// Pull request this preview belongs to, if any.
+	PullRequestID int `pulumi:"pullRequestId,optional"`
+	// Docker image tag override used for this deployment, if any.
+	DockerTag string `pulumi:"dockerTag,optional"`
 }
 
 func (r *Deployment) Annotate(a infer.Annotator) {
@@ -41,13 +49,15 @@ func (r *Deployment) Annotate(a infer.Annotator) {
 func (args *DeploymentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.Application, "UUID of the Coolify application to deploy (the uuid output of an Application resource).")
 	a.Describe(&args.Force, "Force a rebuild even when there are no new commits.")
+	a.Describe(&args.PullRequestID, "Deploy a preview of the given pull request instead of the default branch.")
+	a.Describe(&args.DockerTag, "Override the Docker image tag to deploy.")
 }
 
 func (Deployment) Create(ctx context.Context, req infer.CreateRequest[DeploymentArgs]) (infer.CreateResponse[DeploymentState], error) {
 	if req.DryRun {
 		return infer.CreateResponse[DeploymentState]{
 			ID:     "pending",
-			Output: DeploymentState{UUID: "pending", Application: req.Inputs.Application, Force: req.Inputs.Force},
+			Output: deploymentStateFromArgs(req.Inputs),
 		}, nil
 	}
 	state, err := runDeployment(ctx, req.Inputs)
@@ -58,14 +68,17 @@ func (Deployment) Create(ctx context.Context, req infer.CreateRequest[Deployment
 }
 
 func (Deployment) Diff(ctx context.Context, req infer.DiffRequest[DeploymentArgs, DeploymentState]) (infer.DiffResponse, error) {
-	changes := req.Inputs.Application != req.State.Application || req.Inputs.Force != req.State.Force
+	changes := req.Inputs.Application != req.State.Application ||
+		req.Inputs.Force != req.State.Force ||
+		req.Inputs.PullRequestID != req.State.PullRequestID ||
+		req.Inputs.DockerTag != req.State.DockerTag
 	return infer.DiffResponse{HasChanges: changes}, nil
 }
 
 func (Deployment) Update(ctx context.Context, req infer.UpdateRequest[DeploymentArgs, DeploymentState]) (infer.UpdateResponse[DeploymentState], error) {
 	if req.DryRun {
 		return infer.UpdateResponse[DeploymentState]{
-			Output: DeploymentState{UUID: req.State.UUID, Application: req.Inputs.Application, Force: req.Inputs.Force, Status: req.State.Status},
+			Output: deploymentStateFromArgs(req.Inputs),
 		}, nil
 	}
 	state, err := runDeployment(ctx, req.Inputs)
@@ -85,11 +98,13 @@ func (Deployment) Read(ctx context.Context, req infer.ReadRequest[DeploymentArgs
 		ID:     req.ID,
 		Inputs: req.Inputs,
 		State: DeploymentState{
-			UUID:        deployment.DeploymentUUID,
-			Application: ifEmpty(req.Inputs.Application, req.State.Application),
-			Status:      deployment.Status,
-			Commit:      deployment.Commit,
-			Force:       req.Inputs.Force,
+			UUID:          deployment.DeploymentUUID,
+			Application:   ifEmpty(req.Inputs.Application, req.State.Application),
+			Status:        deployment.Status,
+			Commit:        deployment.Commit,
+			Force:         req.State.Force,
+			PullRequestID: req.State.PullRequestID,
+			DockerTag:     req.State.DockerTag,
 		},
 	}, nil
 }
@@ -102,7 +117,11 @@ func (Deployment) Delete(ctx context.Context, req infer.DeleteRequest[Deployment
 
 func runDeployment(ctx context.Context, inputs DeploymentArgs) (DeploymentState, error) {
 	c := client(ctx)
-	items, err := c.DeployApplication(ctx, inputs.Application, inputs.Force)
+	items, err := c.DeployApplication(ctx, inputs.Application, DeployOptions{
+		Force:         inputs.Force,
+		PullRequestID: inputs.PullRequestID,
+		DockerTag:     inputs.DockerTag,
+	})
 	if err != nil {
 		return DeploymentState{}, err
 	}
@@ -117,7 +136,19 @@ func runDeployment(ctx context.Context, inputs DeploymentArgs) (DeploymentState,
 	}
 	state.Application = inputs.Application
 	state.Force = inputs.Force
+	state.PullRequestID = inputs.PullRequestID
+	state.DockerTag = inputs.DockerTag
 	return state, nil
+}
+
+func deploymentStateFromArgs(inputs DeploymentArgs) DeploymentState {
+	return DeploymentState{
+		UUID:          "pending",
+		Application:   inputs.Application,
+		Force:         inputs.Force,
+		PullRequestID: inputs.PullRequestID,
+		DockerTag:     inputs.DockerTag,
+	}
 }
 
 func waitForDeployment(ctx context.Context, uuid string) (DeploymentState, error) {

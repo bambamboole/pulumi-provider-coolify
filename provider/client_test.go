@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -106,5 +107,44 @@ func TestClientBaseURLNormalization(t *testing.T) {
 	c := NewClient("https://coolify.example.com/", "token")
 	if c.BaseURL != "https://coolify.example.com" {
 		t.Fatalf("base URL not trimmed: %q", c.BaseURL)
+	}
+}
+
+func TestClientDeployApplicationQuery(t *testing.T) {
+	var sawQuery string
+	c := testServer(t, map[string]func(http.ResponseWriter, *http.Request){
+		"/api/v1/deploy": requireBearer(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				http.Error(w, "expected POST", http.StatusMethodNotAllowed)
+				return
+			}
+			sawQuery = r.URL.RawQuery
+			jsonResponse(w, http.StatusOK, map[string]any{
+				"deployments": []map[string]string{{
+					"message":         "Deployment request queued.",
+					"resource_uuid":   "u-app-1",
+					"deployment_uuid": "dep-1",
+				}},
+			})
+		}),
+	})
+	items, err := c.DeployApplication(context.Background(), "u-app-1", DeployOptions{
+		Force:         true,
+		PullRequestID: 42,
+		DockerTag:     "v1.2.3",
+	})
+	if err != nil {
+		t.Fatalf("DeployApplication: %v", err)
+	}
+	if len(items) != 1 || items[0].DeploymentUUID != "dep-1" {
+		t.Fatalf("unexpected queue items: %+v", items)
+	}
+	query, err := url.ParseQuery(sawQuery)
+	if err != nil {
+		t.Fatalf("parse query: %v", err)
+	}
+	if query.Get("uuid") != "u-app-1" || query.Get("force") != "true" ||
+		query.Get("pull_request_id") != "42" || query.Get("docker_tag") != "v1.2.3" {
+		t.Fatalf("unexpected deploy query: %q", sawQuery)
 	}
 }

@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"net/url"
+	"strconv"
 )
 
 func path(segment string) string {
@@ -263,17 +264,34 @@ func (c *Client) GetDeployment(ctx context.Context, uuid string) (CoolifyDeploym
 	return out, err
 }
 
-// DeployApplication triggers a deployment for the given resources and returns
+// DeployOptions configures a deployment trigger.
+type DeployOptions struct {
+	// Force rebuilds even when there are no new commits.
+	Force bool
+	// PullRequestID deploys a preview of the given pull request.
+	PullRequestID int
+	// DockerTag overrides the Docker image tag to deploy.
+	DockerTag string
+}
+
+// DeployApplication triggers a deployment for the given resource and returns
 // the queue items Coolify started.
-func (c *Client) DeployApplication(ctx context.Context, uuid string, force bool) ([]QueueItem, error) {
+func (c *Client) DeployApplication(ctx context.Context, uuid string, opts DeployOptions) ([]QueueItem, error) {
+	query := url.Values{}
+	query.Set("uuid", uuid)
+	if opts.Force {
+		query.Set("force", "true")
+	}
+	if opts.PullRequestID > 0 {
+		query.Set("pull_request_id", strconv.Itoa(opts.PullRequestID))
+	}
+	if opts.DockerTag != "" {
+		query.Set("docker_tag", opts.DockerTag)
+	}
 	var out struct {
 		Deployments []QueueItem `json:"deployments"`
 	}
-	query := "?uuid=" + url.PathEscape(uuid)
-	if force {
-		query += "&force=true"
-	}
-	err := c.Do(ctx, "POST", "/deploy"+query, map[string]any{}, &out)
+	err := c.Do(ctx, "POST", "/deploy?"+query.Encode(), map[string]any{}, &out)
 	return out.Deployments, err
 }
 
