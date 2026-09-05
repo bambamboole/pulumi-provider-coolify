@@ -1,10 +1,10 @@
 name: release
 
 # Fired by the tag release-please creates when a release PR is merged:
-#   pulumi-provider-coolify-vX.Y.Z
+#   vX.Y.Z
 on:
   push:
-    tags: ["pulumi-provider-coolify-v*"]
+    tags: ["v*"]
 
 permissions:
   contents: write
@@ -43,8 +43,8 @@ jobs:
       - name: Set release version
         id: version
         run: |
-          # Strip the release-please tag prefix: pulumi-provider-coolify-v0.3.1 -> 0.3.1
-          PLUGIN_VERSION="${GITHUB_REF_NAME#pulumi-provider-coolify-v}"
+          # Strip the v prefix: v0.3.1 -> 0.3.1
+          PLUGIN_VERSION="${GITHUB_REF_NAME#v}"
           echo "PLUGIN_VERSION=${PLUGIN_VERSION}" >> "$GITHUB_ENV"
           echo "version=${PLUGIN_VERSION}" >> "$GITHUB_OUTPUT"
 
