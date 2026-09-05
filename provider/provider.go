@@ -26,10 +26,10 @@ func New() (p.Provider, error) {
 		WithHomepage("https://coolify.io").
 		WithLicense("Apache-2.0").
 		// Let Pulumi download the plugin binary from GitHub Releases on demand.
-		// The tag is created by release-please (pulumi-provider-coolify-vX.Y.Z)
-		// and the archive is named pulumi-resource-coolify-vX.Y.Z-<os>-<arch>.tar.gz,
+		// release-please tags releases vX.Y.Z (no component prefix), and the
+		// archive is named pulumi-resource-coolify-vX.Y.Z-<os>-<arch>.tar.gz,
 		// matching Pulumi's standard plugin asset naming. The $%7BVERSION%7D
 		// placeholder is interpolated by the Pulumi CLI on download.
-		WithPluginDownloadURL("https://github.com/bambamboole/pulumi-provider-coolify/releases/download/pulumi-provider-coolify-v$%7BVERSION%7D").
+		WithPluginDownloadURL("https://github.com/bambamboole/pulumi-provider-coolify/releases/download/v$%7BVERSION%7D").
 		Build()
 }

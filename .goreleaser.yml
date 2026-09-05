@@ -4,10 +4,10 @@
 #
 # Release engineering flow:
 #   1. release-please (release-please.yml) bumps versions, maintains CHANGELOG,
-#      and on merge creates the version tag (pulumi-provider-oolify-vX.Y.Z) and
+#      and on merge creates the version tag (vX.Y.Z, no component prefix) and
 #      a GitHub release.
 #   2. This file runs on that tag and uploads the plugin binaries. Because the
-#      GitHub release already exists (creared by release-please), we use
+#      GitHub release already exists (created by release-please), we use
 #      mode: keep-existing so goreleaser attaches artifacts without clobbering
 #      the changelog release notes.
 #

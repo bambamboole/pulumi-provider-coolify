@@ -19,7 +19,7 @@
     "resource": true,
     "name": "coolify",
     "version": "0.1.0",
-    "server": "https://github.com/bambamboole/pulumi-provider-coolify/releases/download/pulumi-provider-coolify-v$%7BVERSION%7D"
+    "server": "https://github.com/bambamboole/pulumi-provider-coolify/releases/download/v$%7BVERSION%7D"
   },
   "main": "index.js",
   "typings": "index.d.ts",
