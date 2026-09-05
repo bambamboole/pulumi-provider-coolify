@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/pulumi-provider-coolify-v0.3.0...pulumi-provider-coolify-v0.3.1) (2026-09-05)
+
+
+### Bug Fixes
+
+* build release artifacts on the release-please tag ([afe2845](https://github.com/bambamboole/pulumi-provider-coolify/commit/afe2845c4a2d4ad608f0770510324effd2b53914))
+
 ## [0.3.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/pulumi-provider-coolify-v0.2.1...pulumi-provider-coolify-v0.3.0) (2026-09-05)
 
 
