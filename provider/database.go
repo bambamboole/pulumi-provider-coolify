@@ -47,7 +47,7 @@ type DatabaseState struct {
 	// Whether the database is exposed publicly.
 	IsPublic bool `pulumi:"isPublic"`
 	// Public port, if exposed.
-	PublicPort *int `pulumi:"publicPort"`
+	PublicPort *int `pulumi:"publicPort,optional"`
 	// Name of the Coolify project.
 	Project string `pulumi:"project"`
 	// Name of the environment.

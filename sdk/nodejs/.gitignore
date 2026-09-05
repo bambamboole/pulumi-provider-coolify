@@ -1,7 +1,5 @@
 node_modules/
 bin/
-
-# Compiled SDK output (built at npm install/publish time via the prepare script)
 *.js
 *.js.map
 *.d.ts

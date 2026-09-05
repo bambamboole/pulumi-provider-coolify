@@ -38,6 +38,7 @@ export class Application extends pulumi.CustomResource {
     declare public readonly buildPack: pulumi.Output<string>;
     declare public readonly description: pulumi.Output<string>;
     declare public readonly environment: pulumi.Output<string>;
+    declare public readonly environmentVariables: pulumi.Output<{[key: string]: string}>;
     /**
      * The FQDN Coolify exposes the application at.
      */
@@ -85,6 +86,7 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["dockerfileLocation"] = args?.dockerfileLocation;
             resourceInputs["domains"] = args?.domains;
             resourceInputs["environment"] = args?.environment;
+            resourceInputs["environmentVariables"] = args?.environmentVariables;
             resourceInputs["forceHttpsEnabled"] = args?.forceHttpsEnabled;
             resourceInputs["gitBranch"] = args?.gitBranch;
             resourceInputs["gitCommitSha"] = args?.gitCommitSha;
@@ -117,6 +119,7 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["buildPack"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
             resourceInputs["environment"] = undefined /*out*/;
+            resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["fqdn"] = undefined /*out*/;
             resourceInputs["gitBranch"] = undefined /*out*/;
             resourceInputs["gitRepository"] = undefined /*out*/;
@@ -147,6 +150,10 @@ export interface ApplicationArgs {
     dockerfileLocation?: pulumi.Input<string | undefined>;
     domains?: pulumi.Input<string | undefined>;
     environment: pulumi.Input<string>;
+    /**
+     * Environment variables applied to the application. Declared keys missing on the Coolify side are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     */
+    environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     forceHttpsEnabled?: pulumi.Input<boolean | undefined>;
     gitBranch?: pulumi.Input<string | undefined>;
     gitCommitSha?: pulumi.Input<string | undefined>;

@@ -82,6 +82,16 @@ type CoolifyDeployment struct {
 	DeploymentURL  string `json:"deployment_url"`
 }
 
+// CoolifyEnvironmentVariable is an environment variable attached to an
+// application or service. Hidden variables (is_shown_once) may have their
+// value masked by the API on subsequent reads.
+type CoolifyEnvironmentVariable struct {
+	UUID      string `json:"uuid"`
+	Key       string `json:"key"`
+	Value     string `json:"value"`
+	IsPreview bool   `json:"is_preview"`
+}
+
 type CoolifyApplication struct {
 	ID                      int                  `json:"id"`
 	UUID                    string               `json:"uuid"`

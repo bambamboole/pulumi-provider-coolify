@@ -50,7 +50,7 @@ export class Database extends pulumi.CustomResource {
     declare public /*out*/ readonly postgresUser: pulumi.Output<string | undefined>;
     declare public readonly project: pulumi.Output<string>;
     declare public /*out*/ readonly projectUuid: pulumi.Output<string>;
-    declare public readonly publicPort: pulumi.Output<number>;
+    declare public readonly publicPort: pulumi.Output<number | undefined>;
     declare public readonly serverUuid: pulumi.Output<string>;
     declare public readonly type: pulumi.Output<string>;
     declare public /*out*/ readonly uuid: pulumi.Output<string>;

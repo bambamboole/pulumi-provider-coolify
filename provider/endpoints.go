@@ -330,3 +330,44 @@ func (c *Client) UpdateApplication(ctx context.Context, uuid string, changes map
 func (c *Client) DeleteApplication(ctx context.Context, uuid string) error {
 	return c.Do(ctx, "DELETE", "/applications/"+path(uuid), nil, nil)
 }
+
+// Application environment variables
+func (c *Client) ListApplicationEnvVars(ctx context.Context, uuid string) ([]CoolifyEnvironmentVariable, error) {
+	var out []CoolifyEnvironmentVariable
+	return out, c.Do(ctx, "GET", "/applications/"+path(uuid)+"/envs", nil, &out)
+}
+
+// CreateApplicationEnvVarInput describes an environment variable to create or
+// patch on an application.
+type CreateApplicationEnvVarInput struct {
+	Key         string
+	Value       string
+	IsPreview   bool
+	IsShownOnce bool
+}
+
+func (c *Client) CreateApplicationEnvVar(ctx context.Context, uuid string, in CreateApplicationEnvVarInput) (string, error) {
+	var out struct {
+		UUID string `json:"uuid"`
+	}
+	err := c.Do(ctx, "POST", "/applications/"+path(uuid)+"/envs", applicationEnvVarBody(in), &out)
+	return out.UUID, err
+}
+
+func (c *Client) UpdateApplicationEnvVar(ctx context.Context, uuid, envUUID string, in CreateApplicationEnvVarInput) error {
+	return c.Do(ctx, "PATCH", "/applications/"+path(uuid)+"/envs/"+path(envUUID), applicationEnvVarBody(in), nil)
+}
+
+func (c *Client) DeleteApplicationEnvVar(ctx context.Context, uuid, envUUID string) error {
+	return c.Do(ctx, "DELETE", "/applications/"+path(uuid)+"/envs/"+path(envUUID), nil, nil)
+}
+
+func applicationEnvVarBody(in CreateApplicationEnvVarInput) map[string]any {
+	return map[string]any{
+		"key":           in.Key,
+		"value":         in.Value,
+		"is_literal":    true,
+		"is_preview":    in.IsPreview,
+		"is_shown_once": in.IsShownOnce,
+	}
+}

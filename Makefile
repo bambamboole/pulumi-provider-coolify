@@ -13,7 +13,7 @@ vet:
 	go vet ./...
 
 schema: build
-	pulumi package get-schema $(BIN) > schema.json
+	pulumi package get-schema ./$(BIN) > schema.json
 
 # Regenerate the checked-in TypeScript SDK and normalize its package name so it
 # can be consumed either from the local path or published to npm.

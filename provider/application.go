@@ -83,6 +83,11 @@ type ApplicationArgs struct {
 	LimitsCPUs   string `pulumi:"limitsCPUs,optional"`
 	// Tags assigned to the application.
 	Tags []string `pulumi:"tags,optional"`
+
+	// Environment variables applied to the application. Declared keys missing on
+	// the Coolify side are created (is_shown_once so Coolify hides them);
+	// existing keys are never patched and undeclared keys are left untouched.
+	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 }
 
 type ApplicationState struct {
@@ -112,11 +117,19 @@ type ApplicationState struct {
 	Status string `pulumi:"status"`
 	// Whether the app is configured to auto-deploy on git push.
 	AutoDeployEnabled bool `pulumi:"autoDeployEnabled"`
+	// Environment variables set on the application, keyed by name. Values are
+	// read back from Coolify, so hidden variables (is_shown_once) may come back
+	// masked. Diffing is additive by key: values are never compared or patched.
+	EnvironmentVariables map[string]string `pulumi:"environmentVariables"`
 }
 
 func (r *Application) Annotate(a infer.Annotator) {
 	a.SetToken("index", "Application")
 	a.Describe(&r, "A Coolify application built from a git repository, a Docker image, or a Dockerfile.")
+}
+
+func (args *ApplicationArgs) Annotate(a infer.Annotator) {
+	a.Describe(&args.EnvironmentVariables, "Environment variables applied to the application. Declared keys missing on the Coolify side are created as hidden values; existing keys are never patched and undeclared keys are left untouched.")
 }
 
 func (state *ApplicationState) Annotate(a infer.Annotator) {
@@ -152,7 +165,23 @@ func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationAr
 	changed("name", req.State.Name, effectiveAppName(req.Inputs))
 	changed("description", req.State.Description, req.Inputs.Description)
 	changed("autoDeployEnabled", req.State.AutoDeployEnabled, req.Inputs.AutoDeployEnabled)
+	if environmentVariablesNeedUpdate(req.State.EnvironmentVariables, req.Inputs.EnvironmentVariables) {
+		diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+	}
 	return infer.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
+}
+
+// environmentVariablesNeedUpdate reports whether a declared key is missing from
+// the current state. Existing keys are never patched and value changes alone do
+// not trigger an update, mirroring the additive-by-key behavior of the legacy
+// dynamic resource.
+func environmentVariablesNeedUpdate(olds, news map[string]string) bool {
+	for key := range news {
+		if _, ok := olds[key]; !ok {
+			return true
+		}
+	}
+	return false
 }
 
 func (Application) Update(ctx context.Context, req infer.UpdateRequest[ApplicationArgs, ApplicationState]) (infer.UpdateResponse[ApplicationState], error) {
@@ -175,7 +204,7 @@ func (Application) Read(ctx context.Context, req infer.ReadRequest[ApplicationAr
 	if err != nil {
 		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
 	}
-	state, err := normalizeApplication(app, req.Inputs)
+	state, err := normalizeApplication(ctx, c, app, req.Inputs)
 	if err != nil {
 		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
 	}
@@ -221,7 +250,13 @@ func syncApplication(ctx context.Context, c *Client, inputs ApplicationArgs) (Ap
 		if err != nil {
 			return ApplicationState{}, err
 		}
-		return applicationState(app, identity, inputs), nil
+		state := applicationState(app, identity, inputs)
+		envVars, err := syncApplicationEnvVars(ctx, c, app.UUID, inputs.EnvironmentVariables)
+		if err != nil {
+			return ApplicationState{}, err
+		}
+		state.EnvironmentVariables = envVars
+		return state, nil
 	}
 
 	changes, err := applicationChanges(existing, inputs)
@@ -236,10 +271,69 @@ func syncApplication(ctx context.Context, c *Client, inputs ApplicationArgs) (Ap
 		if err != nil {
 			return ApplicationState{}, err
 		}
-		return applicationState(app, identity, inputs), nil
+		state := applicationState(app, identity, inputs)
+		envVars, err := syncApplicationEnvVars(ctx, c, app.UUID, inputs.EnvironmentVariables)
+		if err != nil {
+			return ApplicationState{}, err
+		}
+		state.EnvironmentVariables = envVars
+		return state, nil
 	}
 
-	return applicationState(*existing, identity, inputs), nil
+	state := applicationState(*existing, identity, inputs)
+	envVars, err := syncApplicationEnvVars(ctx, c, existing.UUID, inputs.EnvironmentVariables)
+	if err != nil {
+		return ApplicationState{}, err
+	}
+	state.EnvironmentVariables = envVars
+	return state, nil
+}
+
+// syncApplicationEnvVars reconciles the application's environment variables
+// additively by key: declared keys missing on the Coolify side are created as
+// non-preview, hidden (is_shown_once) values. Existing keys are never patched,
+// and env vars not declared are left untouched. It returns the full set of
+// non-preview variables currently attached to the application.
+func syncApplicationEnvVars(ctx context.Context, c *Client, applicationUUID string, desired map[string]string) (map[string]string, error) {
+	existing, err := c.ListApplicationEnvVars(ctx, applicationUUID)
+	if err != nil {
+		return nil, err
+	}
+	existingKeys := make(map[string]bool, len(existing))
+	for _, env := range existing {
+		if !env.IsPreview {
+			existingKeys[env.Key] = true
+		}
+	}
+	for key, value := range desired {
+		if !existingKeys[key] {
+			if _, err := c.CreateApplicationEnvVar(ctx, applicationUUID, CreateApplicationEnvVarInput{
+				Key:         key,
+				Value:       value,
+				IsShownOnce: true,
+			}); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return applicationEnvVarMap(ctx, c, applicationUUID)
+}
+
+// applicationEnvVarMap lists the application's environment variables and
+// returns the non-preview ones keyed by name. Values are as reported by
+// Coolify; hidden variables (is_shown_once) may be masked by the API.
+func applicationEnvVarMap(ctx context.Context, c *Client, applicationUUID string) (map[string]string, error) {
+	envs, err := c.ListApplicationEnvVars(ctx, applicationUUID)
+	if err != nil {
+		return nil, err
+	}
+	out := make(map[string]string, len(envs))
+	for _, env := range envs {
+		if !env.IsPreview {
+			out[env.Key] = env.Value
+		}
+	}
+	return out, nil
 }
 
 func resolveApplicationIdentity(ctx context.Context, c *Client, inputs ApplicationArgs) (databaseIdentity, error) {
@@ -409,8 +503,14 @@ func applicationChanges(existing *CoolifyApplication, inputs ApplicationArgs) (m
 	return changes, nil
 }
 
-func normalizeApplication(app CoolifyApplication, inputs ApplicationArgs) (ApplicationState, error) {
-	return applicationState(app, databaseIdentity{}, inputs), nil
+func normalizeApplication(ctx context.Context, c *Client, app CoolifyApplication, inputs ApplicationArgs) (ApplicationState, error) {
+	state := applicationState(app, databaseIdentity{}, inputs)
+	envVars, err := applicationEnvVarMap(ctx, c, app.UUID)
+	if err != nil {
+		return ApplicationState{}, err
+	}
+	state.EnvironmentVariables = envVars
+	return state, nil
 }
 
 func applicationState(app CoolifyApplication, identity databaseIdentity, inputs ApplicationArgs) ApplicationState {
@@ -446,11 +546,14 @@ func applicationStateFromRead(uuid string, prev ApplicationState, inputs Applica
 	state.GitRepository = ifEmpty(inputs.GitRepository, prev.GitRepository)
 	state.GitBranch = ifEmpty(inputs.GitBranch, prev.GitBranch)
 	state.BuildPack = ifEmpty(inputs.BuildPack, prev.BuildPack)
+	state.EnvironmentVariables = inputs.EnvironmentVariables
 	return state
 }
 
 func applicationPlaceholder(inputs ApplicationArgs) ApplicationState {
-	return applicationState(CoolifyApplication{Name: effectiveAppName(inputs)}, databaseIdentity{}, inputs)
+	state := applicationState(CoolifyApplication{Name: effectiveAppName(inputs)}, databaseIdentity{}, inputs)
+	state.EnvironmentVariables = inputs.EnvironmentVariables
+	return state
 }
 
 func ifEmpty(value, fallback string) string {

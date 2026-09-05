@@ -16,7 +16,7 @@ pkg.typings = "index.d.ts";
 pkg.scripts = pkg.scripts || {};
 pkg.scripts.prepare = "tsc";
 pkg.scripts.build = "tsc";
-pkg.files = ["*.js", "*.d.ts", "*.ts", "README.md", "LICENSE"];
+pkg.files = ["*.js", "*.d.ts", "*.ts", "config", "README.md", "LICENSE"];
 pkg.publishConfig = { access: "public" };
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
 
