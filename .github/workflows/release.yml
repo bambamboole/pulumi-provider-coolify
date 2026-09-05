@@ -32,10 +32,13 @@ jobs:
           echo "$HOME/.pulumi/bin" >> "$GITHUB_PATH"
           "$HOME/.pulumi/bin/pulumi" version
 
+      # Only install goreleaser here; the actual `goreleaser release` is run in
+      # the "Release plugin binaries" step so we can pass PLUGIN_VERSION.
       - name: Install goreleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           version: latest
+          install-only: true
 
       - name: Set release version
         id: version
