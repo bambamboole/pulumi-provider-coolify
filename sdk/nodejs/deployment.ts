@@ -36,7 +36,9 @@ export class Deployment extends pulumi.CustomResource {
 
     declare public readonly application: pulumi.Output<string>;
     declare public /*out*/ readonly commit: pulumi.Output<string | undefined>;
+    declare public readonly dockerTag: pulumi.Output<string | undefined>;
     declare public readonly force: pulumi.Output<boolean>;
+    declare public readonly pullRequestId: pulumi.Output<number | undefined>;
     declare public /*out*/ readonly status: pulumi.Output<string>;
     declare public /*out*/ readonly uuid: pulumi.Output<string>;
 
@@ -55,14 +57,18 @@ export class Deployment extends pulumi.CustomResource {
                 throw new Error("Missing required property 'application'");
             }
             resourceInputs["application"] = args?.application;
+            resourceInputs["dockerTag"] = args?.dockerTag;
             resourceInputs["force"] = args?.force;
+            resourceInputs["pullRequestId"] = args?.pullRequestId;
             resourceInputs["commit"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
             resourceInputs["application"] = undefined /*out*/;
             resourceInputs["commit"] = undefined /*out*/;
+            resourceInputs["dockerTag"] = undefined /*out*/;
             resourceInputs["force"] = undefined /*out*/;
+            resourceInputs["pullRequestId"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         }
@@ -80,7 +86,15 @@ export interface DeploymentArgs {
      */
     application: pulumi.Input<string>;
     /**
+     * Override the Docker image tag to deploy.
+     */
+    dockerTag?: pulumi.Input<string | undefined>;
+    /**
      * Force a rebuild even when there are no new commits.
      */
     force?: pulumi.Input<boolean | undefined>;
+    /**
+     * Deploy a preview of the given pull request instead of the default branch.
+     */
+    pullRequestId?: pulumi.Input<number | undefined>;
 }
