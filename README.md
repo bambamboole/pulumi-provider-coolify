@@ -1,0 +1,1 @@
+# pulumi-provider-coolify
