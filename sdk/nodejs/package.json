@@ -1,6 +1,9 @@
 {
   "name": "@bambamboole/coolify",
   "version": "0.3.0",
+  "homepage": "https://coolify.io",
+  "repository": "https://github.com/bambamboole/pulumi-provider-coolify",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
     "prepare": "tsc"
@@ -15,7 +18,8 @@
   "pulumi": {
     "resource": true,
     "name": "coolify",
-    "version": "0.1.0"
+    "version": "0.1.0",
+    "server": "https://github.com/bambamboole/pulumi-provider-coolify/releases/download/pulumi-provider-coolify-v$%7BVERSION%7D"
   },
   "main": "index.js",
   "typings": "index.d.ts",

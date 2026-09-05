@@ -53,7 +53,7 @@ export function getVersion(): string {
 
 /** @internal */
 export function resourceOptsDefaults(): any {
-    return { version: getVersion() };
+    return { version: getVersion(), pluginDownloadURL: "https://github.com/bambamboole/pulumi-provider-coolify/releases/download/pulumi-provider-coolify-v$%7BVERSION%7D" };
 }
 
 /** @internal */

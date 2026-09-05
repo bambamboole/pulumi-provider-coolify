@@ -1,8 +1,10 @@
 name: release
 
+# Fired by the tag release-please creates when a release PR is merged:
+#   pulumi-provider-coolify-vX.Y.Z
 on:
   push:
-    tags: ["v*"]
+    tags: ["pulumi-provider-coolify-v*"]
 
 permissions:
   contents: write
@@ -35,8 +37,18 @@ jobs:
         with:
           version: latest
 
-      - name: Build provider
-        run: go build -o bin/pulumi-resource-coolify ./cmd/pulumi-resource-coolify
+      - name: Set release version
+        id: version
+        run: |
+          # Strip the release-please tag prefix: pulumi-provider-coolify-v0.3.1 -> 0.3.1
+          PLUGIN_VERSION="${GITHUB_REF_NAME#pulumi-provider-coolify-v}"
+          echo "PLUGIN_VERSION=${PLUGIN_VERSION}" >> "$GITHUB_ENV"
+          echo "version=${PLUGIN_VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Build with the real version so both the binary and the generated schema
+      # report exactly what Pulumi expects for this release.
+      - name: Build provider with release version
+        run: go build -ldflags "-X main.version=${PLUGIN_VERSION}" -o bin/pulumi-resource-coolify ./cmd/pulumi-resource-coolify
 
       - name: Generate schema
         run: pulumi package get-schema ./bin/pulumi-resource-coolify > schema.json
@@ -46,16 +58,15 @@ jobs:
         # release-please (mode: keep-existing in .goreleaser.yml).
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PLUGIN_VERSION: ${{ env.PLUGIN_VERSION }}
         run: goreleaser release --clean
 
-      # Publish the TypeScript SDK to npm only when an NPM_TOKEN is configured.
       - name: Publish SDK to npm
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         working-directory: sdk/nodejs
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          node -e "const fs=require('fs');const p='package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${version}';fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n')"
+          node -e "const fs=require('fs');const p='package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${PLUGIN_VERSION}';fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n')"
           npm ci
           if [ -n "$NPM_TOKEN" ]; then
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
