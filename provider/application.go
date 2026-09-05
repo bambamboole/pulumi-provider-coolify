@@ -160,8 +160,13 @@ func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationAr
 	changed("environment", req.State.Environment, req.Inputs.Environment)
 	changed("serverUuid", req.State.ServerUUID, req.Inputs.ServerUUID)
 	changed("source", string(req.State.Source), string(req.Inputs.Source))
-	changed("gitRepository", req.State.GitRepository, req.Inputs.GitRepository)
-	changed("gitBranch", req.State.GitBranch, req.Inputs.GitBranch)
+	changedDeclaredGitField := func(name, current, desired string) {
+		if desired != "" && current != desired {
+			diff[name] = p.PropertyDiff{Kind: p.Update}
+		}
+	}
+	changedDeclaredGitField("gitRepository", req.State.GitRepository, req.Inputs.GitRepository)
+	changedDeclaredGitField("gitBranch", req.State.GitBranch, req.Inputs.GitBranch)
 	changed("name", req.State.Name, effectiveAppName(req.Inputs))
 	changed("description", req.State.Description, req.Inputs.Description)
 	changed("autoDeployEnabled", req.State.AutoDeployEnabled, req.Inputs.AutoDeployEnabled)
