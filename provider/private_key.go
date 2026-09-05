@@ -20,7 +20,7 @@ type PrivateKeyArgs struct {
 	Description string `pulumi:"description,optional"`
 	// PEM encoded private key material. Required to create a key that does not
 	// exist yet. Never stored in state; adopted keys stay read-only.
-	PrivateKey string `pulumi:"privateKey,optional,provider:secret"`
+	PrivateKey string `pulumi:"privateKey,optional" provider:"secret"`
 }
 
 type PrivateKeyState struct {

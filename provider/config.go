@@ -11,7 +11,7 @@ type Config struct {
 	// optionally port, without the API path (e.g. https://coolify.example.com).
 	BaseURL string `pulumi:"baseUrl"`
 	// ApiToken is the Coolify read/write API token.
-	ApiToken string `pulumi:"apiToken,optional,provider:secret"`
+	ApiToken string `pulumi:"apiToken,optional" provider:"secret"`
 }
 
 func (c *Config) Annotate(a infer.Annotator) {

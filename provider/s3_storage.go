@@ -23,9 +23,9 @@ type S3StorageArgs struct {
 	// S3 region ("auto" for R2).
 	Region string `pulumi:"region,optional"`
 	// S3 access key.
-	AccessKey string `pulumi:"accessKey,provider:secret"`
+	AccessKey string `pulumi:"accessKey" provider:"secret"`
 	// S3 secret key.
-	SecretKey string `pulumi:"secretKey,provider:secret"`
+	SecretKey string `pulumi:"secretKey" provider:"secret"`
 }
 
 type S3StorageState struct {

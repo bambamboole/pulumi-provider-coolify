@@ -1,0 +1,32 @@
+{
+  "name": "@bambamboole/coolify",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "tsc"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "^3.142.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^4.7.0"
+  },
+  "pulumi": {
+    "resource": true,
+    "name": "coolify",
+    "version": "0.1.0"
+  },
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "files": [
+    "*.js",
+    "*.d.ts",
+    "*.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,71 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Pulumi CLI
+        run: |
+          curl -fsSL https://get.pulumi.com | sh
+          echo "$HOME/.pulumi/bin" >> "$GITHUB_PATH"
+          "$HOME/.pulumi/bin/pulumi" version
+
+      - name: Install goreleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+
+      - name: Build provider
+        run: go build -o bin/pulumi-resource-coolify ./cmd/pulumi-resource-coolify
+
+      - name: Generate schema
+        run: pulumi package get-schema ./bin/pulumi-resource-coolify > schema.json
+
+      - name: Release plugin binaries
+        # goreleaser attaches artifacts to the GitHub release created by
+        # release-please (mode: keep-existing in .goreleaser.yml).
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: goreleaser release --clean
+
+      # Publish the TypeScript SDK to npm only when an NPM_TOKEN is configured
+      # (set it as a repo secret). Otherwise the dry-run verifies the package.
+      - name: Publish SDK to npm
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        working-directory: sdk/nodejs
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          node -e "const fs=require('fs');const p='package.json';const j=JSON.parse(fs.readFileSync(p));j.version='${version}';fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n')"
+          npm ci
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          npm publish --access public
+
+      - name: Dry-run SDK package (no token)
+        if: ${{ secrets.NPM_TOKEN == '' }}
+        working-directory: sdk/nodejs
+        run: |
+          npm ci
+          npm run build
+          npm pack --dry-run

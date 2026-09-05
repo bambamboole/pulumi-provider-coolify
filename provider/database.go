@@ -67,7 +67,7 @@ type DatabaseState struct {
 	// PostgreSQL database name (never compared or patched).
 	PostgresDatabase *string `pulumi:"postgresDatabase,optional"`
 	// Database password (never compared or patched).
-	Password *string `pulumi:"password,optional,provider:secret"`
+	Password *string `pulumi:"password,optional" provider:"secret"`
 }
 
 func (r *Database) Annotate(a infer.Annotator) {

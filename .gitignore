@@ -1,4 +1,6 @@
 bin/
-sdk/
 schema.json
+sdk/nodejs/bin/
+sdk/nodejs/node_modules/
 *.test
+.DS_Store
