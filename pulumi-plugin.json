@@ -1,7 +1,7 @@
 {
     "resource": true,
     "name": "coolify",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "apiVersion": "v1",
     "server": {
         "grpc": true
