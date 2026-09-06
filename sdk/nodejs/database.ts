@@ -38,6 +38,10 @@ export class Database extends pulumi.CustomResource {
     }
 
     /**
+     * Tags the provider attached: the provider's default tags plus the declared ones.
+     */
+    declare public /*out*/ readonly appliedTags: pulumi.Output<string[]>;
+    /**
      * Name of the default database, for engines that have one.
      */
     declare public /*out*/ readonly databaseName: pulumi.Output<string>;
@@ -98,6 +102,10 @@ export class Database extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     /**
+     * Tags attached to the database in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.
+     */
+    declare public readonly tags: pulumi.Output<string[] | undefined>;
+    /**
      * Database engine.
      */
     declare public readonly type: pulumi.Output<enums.DatabaseType>;
@@ -145,7 +153,9 @@ export class Database extends pulumi.CustomResource {
             resourceInputs["projectUuid"] = args?.projectUuid;
             resourceInputs["publicPort"] = args?.publicPort;
             resourceInputs["serverUuid"] = args?.serverUuid;
+            resourceInputs["tags"] = args?.tags;
             resourceInputs["type"] = args?.type;
+            resourceInputs["appliedTags"] = undefined /*out*/;
             resourceInputs["databaseName"] = undefined /*out*/;
             resourceInputs["environmentId"] = undefined /*out*/;
             resourceInputs["externalUrl"] = undefined /*out*/;
@@ -155,6 +165,7 @@ export class Database extends pulumi.CustomResource {
             resourceInputs["username"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
+            resourceInputs["appliedTags"] = undefined /*out*/;
             resourceInputs["databaseName"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
             resourceInputs["environmentId"] = undefined /*out*/;
@@ -170,6 +181,7 @@ export class Database extends pulumi.CustomResource {
             resourceInputs["publicPort"] = undefined /*out*/;
             resourceInputs["serverUuid"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
+            resourceInputs["tags"] = undefined /*out*/;
             resourceInputs["type"] = undefined /*out*/;
             resourceInputs["username"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
@@ -221,6 +233,10 @@ export interface DatabaseArgs {
      * UUID of the server hosting the database (the uuid output of a Server resource).
      */
     serverUuid: pulumi.Input<string>;
+    /**
+     * Tags attached to the database in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.
+     */
+    tags?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
      * Database engine.
      */

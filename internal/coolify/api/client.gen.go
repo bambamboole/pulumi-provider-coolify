@@ -1375,6 +1375,14 @@ type Service struct {
 	Uuid *string `json:"uuid,omitempty"`
 }
 
+// Tag Tag model
+type Tag struct {
+	CreatedAt *string `json:"created_at,omitempty"`
+	Name      *string `json:"name,omitempty"`
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	Uuid      *string `json:"uuid,omitempty"`
+}
+
 // VolumeBackupScheduleRequest defines model for VolumeBackupScheduleRequest.
 type VolumeBackupScheduleRequest struct {
 	DisableLocalBackup         *bool    `json:"disable_local_backup,omitempty"`
@@ -3402,6 +3410,15 @@ type CreateStorageByApplicationUuidJSONBody struct {
 // CreateStorageByApplicationUuidJSONBodyType defines parameters for CreateStorageByApplicationUuid.
 type CreateStorageByApplicationUuidJSONBodyType string
 
+// CreateTagByApplicationUuidJSONBody defines parameters for CreateTagByApplicationUuid.
+type CreateTagByApplicationUuidJSONBody struct {
+	// TagName The tag name (min 2 characters). Required if tag_names is not provided.
+	TagName *string `json:"tag_name,omitempty"`
+
+	// TagNames Array of tag names (each min 2 characters). Required if tag_name is not provided.
+	TagNames *[]string `json:"tag_names,omitempty"`
+}
+
 // CreateDatabaseClickhouseJSONBody defines parameters for CreateDatabaseClickhouse.
 type CreateDatabaseClickhouseJSONBody struct {
 	// ClickhouseAdminPassword Clickhouse admin password
@@ -4293,6 +4310,15 @@ type CreateStorageByDatabaseUuidJSONBody struct {
 // CreateStorageByDatabaseUuidJSONBodyType defines parameters for CreateStorageByDatabaseUuid.
 type CreateStorageByDatabaseUuidJSONBodyType string
 
+// CreateTagByDatabaseUuidJSONBody defines parameters for CreateTagByDatabaseUuid.
+type CreateTagByDatabaseUuidJSONBody struct {
+	// TagName The tag name (min 2 characters). Required if tag_names is not provided.
+	TagName *string `json:"tag_name,omitempty"`
+
+	// TagNames Array of tag names (each min 2 characters). Required if tag_name is not provided.
+	TagNames *[]string `json:"tag_names,omitempty"`
+}
+
 // DeployByTagOrUuidParams defines parameters for DeployByTagOrUuid.
 type DeployByTagOrUuidParams struct {
 	// Tag Tag name(s). Comma separated list is also accepted.
@@ -4706,6 +4732,15 @@ type MoveServiceByUuidJSONBody struct {
 	EnvironmentUuid string `json:"environment_uuid"`
 }
 
+// CreateTagByServiceUuidJSONBody defines parameters for CreateTagByServiceUuid.
+type CreateTagByServiceUuidJSONBody struct {
+	// TagName The tag name (min 2 characters). Required if tag_names is not provided.
+	TagName *string `json:"tag_name,omitempty"`
+
+	// TagNames Array of tag names (each min 2 characters). Required if tag_name is not provided.
+	TagNames *[]string `json:"tag_names,omitempty"`
+}
+
 // CreateDockerfileApplicationJSONRequestBody defines body for CreateDockerfileApplication for application/json ContentType.
 type CreateDockerfileApplicationJSONRequestBody CreateDockerfileApplicationJSONBody
 
@@ -4747,6 +4782,9 @@ type CreateStorageByApplicationUuidJSONRequestBody CreateStorageByApplicationUui
 
 // SetApplicationStorageBackupScheduleJSONRequestBody defines body for SetApplicationStorageBackupSchedule for application/json ContentType.
 type SetApplicationStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleRequest
+
+// CreateTagByApplicationUuidJSONRequestBody defines body for CreateTagByApplicationUuid for application/json ContentType.
+type CreateTagByApplicationUuidJSONRequestBody CreateTagByApplicationUuidJSONBody
 
 // CreateDatabaseClickhouseJSONRequestBody defines body for CreateDatabaseClickhouse for application/json ContentType.
 type CreateDatabaseClickhouseJSONRequestBody CreateDatabaseClickhouseJSONBody
@@ -4792,6 +4830,9 @@ type CreateStorageByDatabaseUuidJSONRequestBody CreateStorageByDatabaseUuidJSONB
 
 // SetDatabaseStorageBackupScheduleJSONRequestBody defines body for SetDatabaseStorageBackupSchedule for application/json ContentType.
 type SetDatabaseStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleRequest
+
+// CreateTagByDatabaseUuidJSONRequestBody defines body for CreateTagByDatabaseUuid for application/json ContentType.
+type CreateTagByDatabaseUuidJSONRequestBody CreateTagByDatabaseUuidJSONBody
 
 // CreateGithubAppJSONRequestBody defines body for CreateGithubApp for application/json ContentType.
 type CreateGithubAppJSONRequestBody CreateGithubAppJSONBody
@@ -4840,6 +4881,9 @@ type MoveServiceByUuidJSONRequestBody MoveServiceByUuidJSONBody
 
 // SetServiceStorageBackupScheduleJSONRequestBody defines body for SetServiceStorageBackupSchedule for application/json ContentType.
 type SetServiceStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleRequest
+
+// CreateTagByServiceUuidJSONRequestBody defines body for CreateTagByServiceUuid for application/json ContentType.
+type CreateTagByServiceUuidJSONRequestBody CreateTagByServiceUuidJSONBody
 
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -5244,6 +5288,38 @@ type ClientInterface interface {
 	// Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
 	RunApplicationStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListTagsByApplicationUuid List Tags
+	//
+	// List tags for an application by UUID.
+	//
+	// Corresponds with GET /applications/{uuid}/tags (the `ListTagsByApplicationUuid` operationId).
+	ListTagsByApplicationUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagByApplicationUuidWithBody Create Tag
+	//
+	// Add tag(s) to an application by UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+	CreateTagByApplicationUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagByApplicationUuid Create Tag
+	//
+	// Add tag(s) to an application by UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+	CreateTagByApplicationUuid(ctx context.Context, uuid string, body CreateTagByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteTagByApplicationUuid Delete Tag
+	//
+	// Remove a tag from an application by UUID.
+	//
+	// Corresponds with DELETE /applications/{uuid}/tags/{tag_uuid} (the `DeleteTagByApplicationUuid` operationId).
+	DeleteTagByApplicationUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListDatabases List
 	//
 	// List all databases.
@@ -5576,6 +5652,38 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
 	RunDatabaseStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTagsByDatabaseUuid List Tags
+	//
+	// List tags for a database by UUID.
+	//
+	// Corresponds with GET /databases/{uuid}/tags (the `ListTagsByDatabaseUuid` operationId).
+	ListTagsByDatabaseUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagByDatabaseUuidWithBody Create Tag
+	//
+	// Add tag(s) to a database by UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+	CreateTagByDatabaseUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagByDatabaseUuid Create Tag
+	//
+	// Add tag(s) to a database by UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+	CreateTagByDatabaseUuid(ctx context.Context, uuid string, body CreateTagByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteTagByDatabaseUuid Delete Tag
+	//
+	// Remove a tag from a database by UUID.
+	//
+	// Corresponds with DELETE /databases/{uuid}/tags/{tag_uuid} (the `DeleteTagByDatabaseUuid` operationId).
+	DeleteTagByDatabaseUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeployByTagOrUuid Deploy
 	//
@@ -6046,6 +6154,38 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
 	RunServiceStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTagsByServiceUuid List Tags
+	//
+	// List tags for a service by UUID.
+	//
+	// Corresponds with GET /services/{uuid}/tags (the `ListTagsByServiceUuid` operationId).
+	ListTagsByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagByServiceUuidWithBody Create Tag
+	//
+	// Add tag(s) to a service by UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+	CreateTagByServiceUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTagByServiceUuid Create Tag
+	//
+	// Add tag(s) to a service by UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+	CreateTagByServiceUuid(ctx context.Context, uuid string, body CreateTagByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteTagByServiceUuid Delete Tag
+	//
+	// Remove a tag from a service by UUID.
+	//
+	// Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
+	DeleteTagByServiceUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // ListApplications List
@@ -6757,6 +6897,78 @@ func (c *Client) SetApplicationStorageBackupSchedule(ctx context.Context, uuid s
 // Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
 func (c *Client) RunApplicationStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunApplicationStorageBackupRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListTagsByApplicationUuid List Tags
+//
+// List tags for an application by UUID.
+//
+// Corresponds with GET /applications/{uuid}/tags (the `ListTagsByApplicationUuid` operationId).
+func (c *Client) ListTagsByApplicationUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTagsByApplicationUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTagByApplicationUuidWithBody Create Tag
+//
+// Add tag(s) to an application by UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+func (c *Client) CreateTagByApplicationUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagByApplicationUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTagByApplicationUuid Create Tag
+//
+// Add tag(s) to an application by UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+func (c *Client) CreateTagByApplicationUuid(ctx context.Context, uuid string, body CreateTagByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagByApplicationUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteTagByApplicationUuid Delete Tag
+//
+// Remove a tag from an application by UUID.
+//
+// Corresponds with DELETE /applications/{uuid}/tags/{tag_uuid} (the `DeleteTagByApplicationUuid` operationId).
+func (c *Client) DeleteTagByApplicationUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteTagByApplicationUuidRequest(c.Server, uuid, tagUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -7480,6 +7692,78 @@ func (c *Client) SetDatabaseStorageBackupSchedule(ctx context.Context, uuid stri
 // Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
 func (c *Client) RunDatabaseStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunDatabaseStorageBackupRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListTagsByDatabaseUuid List Tags
+//
+// List tags for a database by UUID.
+//
+// Corresponds with GET /databases/{uuid}/tags (the `ListTagsByDatabaseUuid` operationId).
+func (c *Client) ListTagsByDatabaseUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTagsByDatabaseUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTagByDatabaseUuidWithBody Create Tag
+//
+// Add tag(s) to a database by UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+func (c *Client) CreateTagByDatabaseUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagByDatabaseUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTagByDatabaseUuid Create Tag
+//
+// Add tag(s) to a database by UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+func (c *Client) CreateTagByDatabaseUuid(ctx context.Context, uuid string, body CreateTagByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagByDatabaseUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteTagByDatabaseUuid Delete Tag
+//
+// Remove a tag from a database by UUID.
+//
+// Corresponds with DELETE /databases/{uuid}/tags/{tag_uuid} (the `DeleteTagByDatabaseUuid` operationId).
+func (c *Client) DeleteTagByDatabaseUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteTagByDatabaseUuidRequest(c.Server, uuid, tagUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -8530,6 +8814,78 @@ func (c *Client) SetServiceStorageBackupSchedule(ctx context.Context, uuid strin
 // Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
 func (c *Client) RunServiceStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewRunServiceStorageBackupRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListTagsByServiceUuid List Tags
+//
+// List tags for a service by UUID.
+//
+// Corresponds with GET /services/{uuid}/tags (the `ListTagsByServiceUuid` operationId).
+func (c *Client) ListTagsByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTagsByServiceUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTagByServiceUuidWithBody Create Tag
+//
+// Add tag(s) to a service by UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+func (c *Client) CreateTagByServiceUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagByServiceUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTagByServiceUuid Create Tag
+//
+// Add tag(s) to a service by UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+func (c *Client) CreateTagByServiceUuid(ctx context.Context, uuid string, body CreateTagByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTagByServiceUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteTagByServiceUuid Delete Tag
+//
+// Remove a tag from a service by UUID.
+//
+// Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
+func (c *Client) DeleteTagByServiceUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteTagByServiceUuidRequest(c.Server, uuid, tagUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -9669,6 +10025,128 @@ func NewRunApplicationStorageBackupRequest(server string, uuid string, storageUu
 	return req, nil
 }
 
+// NewListTagsByApplicationUuidRequest constructs an http.Request for the ListTagsByApplicationUuid method
+func NewListTagsByApplicationUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateTagByApplicationUuidRequest calls the generic CreateTagByApplicationUuid builder with application/json body
+func NewCreateTagByApplicationUuidRequest(server string, uuid string, body CreateTagByApplicationUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTagByApplicationUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateTagByApplicationUuidRequestWithBody constructs an http.Request for the CreateTagByApplicationUuid method, with any body, and a specified content type
+func NewCreateTagByApplicationUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteTagByApplicationUuidRequest constructs an http.Request for the DeleteTagByApplicationUuid method
+func NewDeleteTagByApplicationUuidRequest(server string, uuid string, tagUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "tag_uuid", tagUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/tags/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListDatabasesRequest constructs an http.Request for the ListDatabases method
 func NewListDatabasesRequest(server string) (*http.Request, error) {
 	var err error
@@ -10742,6 +11220,128 @@ func NewRunDatabaseStorageBackupRequest(server string, uuid string, storageUuid 
 	}
 
 	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewListTagsByDatabaseUuidRequest constructs an http.Request for the ListTagsByDatabaseUuid method
+func NewListTagsByDatabaseUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateTagByDatabaseUuidRequest calls the generic CreateTagByDatabaseUuid builder with application/json body
+func NewCreateTagByDatabaseUuidRequest(server string, uuid string, body CreateTagByDatabaseUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTagByDatabaseUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateTagByDatabaseUuidRequestWithBody constructs an http.Request for the CreateTagByDatabaseUuid method, with any body, and a specified content type
+func NewCreateTagByDatabaseUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteTagByDatabaseUuidRequest constructs an http.Request for the DeleteTagByDatabaseUuid method
+func NewDeleteTagByDatabaseUuidRequest(server string, uuid string, tagUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "tag_uuid", tagUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/tags/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -12472,6 +13072,128 @@ func NewRunServiceStorageBackupRequest(server string, uuid string, storageUuid s
 	return req, nil
 }
 
+// NewListTagsByServiceUuidRequest constructs an http.Request for the ListTagsByServiceUuid method
+func NewListTagsByServiceUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateTagByServiceUuidRequest calls the generic CreateTagByServiceUuid builder with application/json body
+func NewCreateTagByServiceUuidRequest(server string, uuid string, body CreateTagByServiceUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTagByServiceUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateTagByServiceUuidRequestWithBody constructs an http.Request for the CreateTagByServiceUuid method, with any body, and a specified content type
+func NewCreateTagByServiceUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/tags", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteTagByServiceUuidRequest constructs an http.Request for the DeleteTagByServiceUuid method
+func NewDeleteTagByServiceUuidRequest(server string, uuid string, tagUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "tag_uuid", tagUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/tags/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -12867,6 +13589,42 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
 	RunApplicationStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunApplicationStorageBackupResponse, error)
 
+	// ListTagsByApplicationUuidWithResponse List Tags
+	//
+	// List tags for an application by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /applications/{uuid}/tags (the `ListTagsByApplicationUuid` operationId).
+	ListTagsByApplicationUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListTagsByApplicationUuidResponse, error)
+
+	// CreateTagByApplicationUuidWithBodyWithResponse Create Tag
+	//
+	// Add tag(s) to an application by UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+	CreateTagByApplicationUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagByApplicationUuidResponse, error)
+
+	// CreateTagByApplicationUuidWithResponse Create Tag
+	//
+	// Add tag(s) to an application by UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+	CreateTagByApplicationUuidWithResponse(ctx context.Context, uuid string, body CreateTagByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagByApplicationUuidResponse, error)
+
+	// DeleteTagByApplicationUuidWithResponse Delete Tag
+	//
+	// Remove a tag from an application by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /applications/{uuid}/tags/{tag_uuid} (the `DeleteTagByApplicationUuid` operationId).
+	DeleteTagByApplicationUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByApplicationUuidResponse, error)
+
 	// ListDatabasesWithResponse List
 	//
 	// List all databases.
@@ -13217,6 +13975,42 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
 	RunDatabaseStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunDatabaseStorageBackupResponse, error)
+
+	// ListTagsByDatabaseUuidWithResponse List Tags
+	//
+	// List tags for a database by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /databases/{uuid}/tags (the `ListTagsByDatabaseUuid` operationId).
+	ListTagsByDatabaseUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListTagsByDatabaseUuidResponse, error)
+
+	// CreateTagByDatabaseUuidWithBodyWithResponse Create Tag
+	//
+	// Add tag(s) to a database by UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+	CreateTagByDatabaseUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagByDatabaseUuidResponse, error)
+
+	// CreateTagByDatabaseUuidWithResponse Create Tag
+	//
+	// Add tag(s) to a database by UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+	CreateTagByDatabaseUuidWithResponse(ctx context.Context, uuid string, body CreateTagByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagByDatabaseUuidResponse, error)
+
+	// DeleteTagByDatabaseUuidWithResponse Delete Tag
+	//
+	// Remove a tag from a database by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /databases/{uuid}/tags/{tag_uuid} (the `DeleteTagByDatabaseUuid` operationId).
+	DeleteTagByDatabaseUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByDatabaseUuidResponse, error)
 
 	// DeployByTagOrUuidWithResponse Deploy
 	//
@@ -13739,6 +14533,42 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
 	RunServiceStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunServiceStorageBackupResponse, error)
+
+	// ListTagsByServiceUuidWithResponse List Tags
+	//
+	// List tags for a service by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /services/{uuid}/tags (the `ListTagsByServiceUuid` operationId).
+	ListTagsByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListTagsByServiceUuidResponse, error)
+
+	// CreateTagByServiceUuidWithBodyWithResponse Create Tag
+	//
+	// Add tag(s) to a service by UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+	CreateTagByServiceUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagByServiceUuidResponse, error)
+
+	// CreateTagByServiceUuidWithResponse Create Tag
+	//
+	// Add tag(s) to a service by UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+	CreateTagByServiceUuidWithResponse(ctx context.Context, uuid string, body CreateTagByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagByServiceUuidResponse, error)
+
+	// DeleteTagByServiceUuidWithResponse Delete Tag
+	//
+	// Remove a tag from a service by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
+	DeleteTagByServiceUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByServiceUuidResponse, error)
 }
 
 type ListApplicationsResponse struct {
@@ -15471,6 +16301,192 @@ func (r RunApplicationStorageBackupResponse) ContentType() string {
 	return ""
 }
 
+type ListTagsByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *[]Tag
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListTagsByApplicationUuidResponse) GetJSON200() *[]Tag {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListTagsByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListTagsByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListTagsByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListTagsByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTagsByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTagsByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTagsByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateTagByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *[]Tag
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateTagByApplicationUuidResponse) GetJSON201() *[]Tag {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateTagByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateTagByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateTagByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateTagByApplicationUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateTagByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTagByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTagByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateTagByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteTagByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r DeleteTagByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteTagByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteTagByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteTagByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteTagByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteTagByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteTagByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListDatabasesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -16935,6 +17951,192 @@ func (r RunDatabaseStorageBackupResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r RunDatabaseStorageBackupResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListTagsByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *[]Tag
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListTagsByDatabaseUuidResponse) GetJSON200() *[]Tag {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListTagsByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListTagsByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListTagsByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListTagsByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTagsByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTagsByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTagsByDatabaseUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateTagByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *[]Tag
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateTagByDatabaseUuidResponse) GetJSON201() *[]Tag {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateTagByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateTagByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateTagByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateTagByDatabaseUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateTagByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTagByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTagByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateTagByDatabaseUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteTagByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r DeleteTagByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteTagByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteTagByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteTagByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteTagByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteTagByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteTagByDatabaseUuidResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -19795,6 +20997,192 @@ func (r RunServiceStorageBackupResponse) ContentType() string {
 	return ""
 }
 
+type ListTagsByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *[]Tag
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListTagsByServiceUuidResponse) GetJSON200() *[]Tag {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListTagsByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListTagsByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListTagsByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListTagsByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTagsByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTagsByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTagsByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateTagByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *[]Tag
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateTagByServiceUuidResponse) GetJSON201() *[]Tag {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateTagByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateTagByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateTagByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateTagByServiceUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateTagByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTagByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTagByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateTagByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteTagByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r DeleteTagByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteTagByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteTagByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteTagByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteTagByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteTagByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteTagByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // ListApplicationsWithResponse List
 //
 // List all applications.
@@ -20380,6 +21768,66 @@ func (c *ClientWithResponses) RunApplicationStorageBackupWithResponse(ctx contex
 	return ParseRunApplicationStorageBackupResponse(rsp)
 }
 
+// ListTagsByApplicationUuidWithResponse List Tags
+//
+// List tags for an application by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /applications/{uuid}/tags (the `ListTagsByApplicationUuid` operationId).
+func (c *ClientWithResponses) ListTagsByApplicationUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListTagsByApplicationUuidResponse, error) {
+	rsp, err := c.ListTagsByApplicationUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTagsByApplicationUuidResponse(rsp)
+}
+
+// CreateTagByApplicationUuidWithBodyWithResponse Create Tag
+//
+// Add tag(s) to an application by UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+func (c *ClientWithResponses) CreateTagByApplicationUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagByApplicationUuidResponse, error) {
+	rsp, err := c.CreateTagByApplicationUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagByApplicationUuidResponse(rsp)
+}
+
+// CreateTagByApplicationUuidWithResponse Create Tag
+//
+// Add tag(s) to an application by UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/tags (the `CreateTagByApplicationUuid` operationId).
+func (c *ClientWithResponses) CreateTagByApplicationUuidWithResponse(ctx context.Context, uuid string, body CreateTagByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagByApplicationUuidResponse, error) {
+	rsp, err := c.CreateTagByApplicationUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagByApplicationUuidResponse(rsp)
+}
+
+// DeleteTagByApplicationUuidWithResponse Delete Tag
+//
+// Remove a tag from an application by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /applications/{uuid}/tags/{tag_uuid} (the `DeleteTagByApplicationUuid` operationId).
+func (c *ClientWithResponses) DeleteTagByApplicationUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByApplicationUuidResponse, error) {
+	rsp, err := c.DeleteTagByApplicationUuid(ctx, uuid, tagUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteTagByApplicationUuidResponse(rsp)
+}
+
 // ListDatabasesWithResponse List
 //
 // List all databases.
@@ -20963,6 +22411,66 @@ func (c *ClientWithResponses) RunDatabaseStorageBackupWithResponse(ctx context.C
 		return nil, err
 	}
 	return ParseRunDatabaseStorageBackupResponse(rsp)
+}
+
+// ListTagsByDatabaseUuidWithResponse List Tags
+//
+// List tags for a database by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /databases/{uuid}/tags (the `ListTagsByDatabaseUuid` operationId).
+func (c *ClientWithResponses) ListTagsByDatabaseUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListTagsByDatabaseUuidResponse, error) {
+	rsp, err := c.ListTagsByDatabaseUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTagsByDatabaseUuidResponse(rsp)
+}
+
+// CreateTagByDatabaseUuidWithBodyWithResponse Create Tag
+//
+// Add tag(s) to a database by UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+func (c *ClientWithResponses) CreateTagByDatabaseUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagByDatabaseUuidResponse, error) {
+	rsp, err := c.CreateTagByDatabaseUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagByDatabaseUuidResponse(rsp)
+}
+
+// CreateTagByDatabaseUuidWithResponse Create Tag
+//
+// Add tag(s) to a database by UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/tags (the `CreateTagByDatabaseUuid` operationId).
+func (c *ClientWithResponses) CreateTagByDatabaseUuidWithResponse(ctx context.Context, uuid string, body CreateTagByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagByDatabaseUuidResponse, error) {
+	rsp, err := c.CreateTagByDatabaseUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagByDatabaseUuidResponse(rsp)
+}
+
+// DeleteTagByDatabaseUuidWithResponse Delete Tag
+//
+// Remove a tag from a database by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /databases/{uuid}/tags/{tag_uuid} (the `DeleteTagByDatabaseUuid` operationId).
+func (c *ClientWithResponses) DeleteTagByDatabaseUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByDatabaseUuidResponse, error) {
+	rsp, err := c.DeleteTagByDatabaseUuid(ctx, uuid, tagUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteTagByDatabaseUuidResponse(rsp)
 }
 
 // DeployByTagOrUuidWithResponse Deploy
@@ -21833,6 +23341,66 @@ func (c *ClientWithResponses) RunServiceStorageBackupWithResponse(ctx context.Co
 		return nil, err
 	}
 	return ParseRunServiceStorageBackupResponse(rsp)
+}
+
+// ListTagsByServiceUuidWithResponse List Tags
+//
+// List tags for a service by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /services/{uuid}/tags (the `ListTagsByServiceUuid` operationId).
+func (c *ClientWithResponses) ListTagsByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListTagsByServiceUuidResponse, error) {
+	rsp, err := c.ListTagsByServiceUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTagsByServiceUuidResponse(rsp)
+}
+
+// CreateTagByServiceUuidWithBodyWithResponse Create Tag
+//
+// Add tag(s) to a service by UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+func (c *ClientWithResponses) CreateTagByServiceUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTagByServiceUuidResponse, error) {
+	rsp, err := c.CreateTagByServiceUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagByServiceUuidResponse(rsp)
+}
+
+// CreateTagByServiceUuidWithResponse Create Tag
+//
+// Add tag(s) to a service by UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/tags (the `CreateTagByServiceUuid` operationId).
+func (c *ClientWithResponses) CreateTagByServiceUuidWithResponse(ctx context.Context, uuid string, body CreateTagByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTagByServiceUuidResponse, error) {
+	rsp, err := c.CreateTagByServiceUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTagByServiceUuidResponse(rsp)
+}
+
+// DeleteTagByServiceUuidWithResponse Delete Tag
+//
+// Remove a tag from a service by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
+func (c *ClientWithResponses) DeleteTagByServiceUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByServiceUuidResponse, error) {
+	rsp, err := c.DeleteTagByServiceUuid(ctx, uuid, tagUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteTagByServiceUuidResponse(rsp)
 }
 
 // ParseListApplicationsResponse parses an HTTP response from a ListApplicationsWithResponse call
@@ -23115,6 +24683,150 @@ func ParseRunApplicationStorageBackupResponse(rsp *http.Response) (*RunApplicati
 	return response, nil
 }
 
+// ParseListTagsByApplicationUuidResponse parses an HTTP response from a ListTagsByApplicationUuidWithResponse call
+func ParseListTagsByApplicationUuidResponse(rsp *http.Response) (*ListTagsByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTagsByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Tag
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTagByApplicationUuidResponse parses an HTTP response from a CreateTagByApplicationUuidWithResponse call
+func ParseCreateTagByApplicationUuidResponse(rsp *http.Response) (*CreateTagByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTagByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest []Tag
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteTagByApplicationUuidResponse parses an HTTP response from a DeleteTagByApplicationUuidWithResponse call
+func ParseDeleteTagByApplicationUuidResponse(rsp *http.Response) (*DeleteTagByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTagByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListDatabasesResponse parses an HTTP response from a ListDatabasesWithResponse call
 func ParseListDatabasesResponse(rsp *http.Response) (*ListDatabasesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -24231,6 +25943,150 @@ func ParseRunDatabaseStorageBackupResponse(rsp *http.Response) (*RunDatabaseStor
 	switch {
 	case rsp.StatusCode == 200:
 		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListTagsByDatabaseUuidResponse parses an HTTP response from a ListTagsByDatabaseUuidWithResponse call
+func ParseListTagsByDatabaseUuidResponse(rsp *http.Response) (*ListTagsByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTagsByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Tag
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTagByDatabaseUuidResponse parses an HTTP response from a CreateTagByDatabaseUuidWithResponse call
+func ParseCreateTagByDatabaseUuidResponse(rsp *http.Response) (*CreateTagByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTagByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest []Tag
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteTagByDatabaseUuidResponse parses an HTTP response from a DeleteTagByDatabaseUuidWithResponse call
+func ParseDeleteTagByDatabaseUuidResponse(rsp *http.Response) (*DeleteTagByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTagByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest N401
@@ -26360,6 +28216,150 @@ func ParseRunServiceStorageBackupResponse(rsp *http.Response) (*RunServiceStorag
 	switch {
 	case rsp.StatusCode == 200:
 		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListTagsByServiceUuidResponse parses an HTTP response from a ListTagsByServiceUuidWithResponse call
+func ParseListTagsByServiceUuidResponse(rsp *http.Response) (*ListTagsByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTagsByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Tag
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTagByServiceUuidResponse parses an HTTP response from a CreateTagByServiceUuidWithResponse call
+func ParseCreateTagByServiceUuidResponse(rsp *http.Response) (*CreateTagByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTagByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest []Tag
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteTagByServiceUuidResponse parses an HTTP response from a DeleteTagByServiceUuidWithResponse call
+func ParseDeleteTagByServiceUuidResponse(rsp *http.Response) (*DeleteTagByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTagByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest N401

@@ -168,11 +168,11 @@ func (Storage) Delete(ctx context.Context, req infer.DeleteRequest[StorageState]
 	return infer.DeleteResponse{}, nil
 }
 
-func storageArgsOwner(args StorageArgs) coolify.StorageOwner {
+func storageArgsOwner(args StorageArgs) coolify.Owner {
 	if args.DatabaseUUID != "" {
-		return coolify.StorageOwner{Kind: coolify.OwnerDatabase, UUID: args.DatabaseUUID}
+		return coolify.Owner{Kind: coolify.OwnerDatabase, UUID: args.DatabaseUUID}
 	}
-	return coolify.StorageOwner{Kind: coolify.OwnerApplication, UUID: args.ApplicationUUID}
+	return coolify.Owner{Kind: coolify.OwnerApplication, UUID: args.ApplicationUUID}
 }
 
 // createStorage adopts the storage with the same mount path on the owner or
@@ -212,7 +212,7 @@ func createStorage(ctx context.Context, c *coolify.Client, inputs StorageArgs) (
 }
 
 // applyStorage patches the fields of current that differ from the inputs.
-func applyStorage(ctx context.Context, c *coolify.Client, owner coolify.StorageOwner, current coolify.Storage, inputs StorageArgs) (coolify.Storage, error) {
+func applyStorage(ctx context.Context, c *coolify.Client, owner coolify.Owner, current coolify.Storage, inputs StorageArgs) (coolify.Storage, error) {
 	body := coolify.UpdateStorageInput{UUID: current.UUID, Type: "file"}
 	if current.Type() == coolify.StoragePersistent {
 		body.Type = "persistent"
@@ -233,12 +233,12 @@ func applyStorage(ctx context.Context, c *coolify.Client, owner coolify.StorageO
 
 // volumeShortName strips the owner prefix Coolify adds to volume names created
 // through the API, so names compare against what the program declared.
-func volumeShortName(owner coolify.StorageOwner, name string) string {
+func volumeShortName(owner coolify.Owner, name string) string {
 	return strings.TrimPrefix(name, owner.UUID+"-")
 }
 
 // storageInputs derives the inputs from the storage Coolify reports.
-func storageInputs(previous StorageArgs, owner coolify.StorageOwner, storage coolify.Storage) StorageArgs {
+func storageInputs(previous StorageArgs, owner coolify.Owner, storage coolify.Storage) StorageArgs {
 	inputs := previous
 	inputs.Type = StorageType(storage.Type())
 	inputs.MountPath = storage.MountPath

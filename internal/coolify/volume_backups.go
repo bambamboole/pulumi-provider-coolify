@@ -14,7 +14,7 @@ type VolumeBackup = api.VolumeBackupScheduleResponse
 
 // SetVolumeBackup creates or replaces the backup schedule of a storage. The
 // body is total: fields left nil fall back to Coolify's defaults.
-func (c *Client) SetVolumeBackup(ctx context.Context, owner StorageOwner, storageUUID string, body api.VolumeBackupScheduleRequest) (VolumeBackup, error) {
+func (c *Client) SetVolumeBackup(ctx context.Context, owner Owner, storageUUID string, body api.VolumeBackupScheduleRequest) (VolumeBackup, error) {
 	var resp *http.Response
 	var err error
 	switch owner.Kind {
@@ -31,7 +31,7 @@ func (c *Client) SetVolumeBackup(ctx context.Context, owner StorageOwner, storag
 }
 
 // RunVolumeBackup queues an immediate backup of a storage that has a schedule.
-func (c *Client) RunVolumeBackup(ctx context.Context, owner StorageOwner, storageUUID string) error {
+func (c *Client) RunVolumeBackup(ctx context.Context, owner Owner, storageUUID string) error {
 	switch owner.Kind {
 	case OwnerApplication:
 		return check(c.api.RunApplicationStorageBackup(ctx, owner.UUID, storageUUID))
@@ -46,7 +46,7 @@ func (c *Client) RunVolumeBackup(ctx context.Context, owner StorageOwner, storag
 
 // DeleteVolumeBackup deletes the schedule of a storage together with all its
 // local and S3 archives. Coolify answers 409 while a backup is running.
-func (c *Client) DeleteVolumeBackup(ctx context.Context, owner StorageOwner, storageUUID string) error {
+func (c *Client) DeleteVolumeBackup(ctx context.Context, owner Owner, storageUUID string) error {
 	switch owner.Kind {
 	case OwnerApplication:
 		return check(c.api.DeleteApplicationStorageBackupSchedule(ctx, owner.UUID, storageUUID))

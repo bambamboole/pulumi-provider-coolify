@@ -29,3 +29,25 @@ Object.defineProperty(exports, "baseUrl", {
     enumerable: true,
 });
 
+/**
+ * Tags attached to every application, database and service in addition to their own tags. Defaults to ["pulumi"]; use disableDefaultTags to attach none.
+ */
+export declare const defaultTags: string[] | undefined;
+Object.defineProperty(exports, "defaultTags", {
+    get() {
+        return __config.getObject<string[]>("defaultTags");
+    },
+    enumerable: true,
+});
+
+/**
+ * Attach no default tags at all. Needed because an empty defaultTags list is indistinguishable from an unset one.
+ */
+export declare const disableDefaultTags: boolean | undefined;
+Object.defineProperty(exports, "disableDefaultTags", {
+    get() {
+        return __config.getObject<boolean>("disableDefaultTags");
+    },
+    enumerable: true,
+});
+

@@ -40,10 +40,14 @@ type ServiceArgs struct {
 	ConnectToDockerNetwork bool `pulumi:"connectToDockerNetwork,optional"`
 	// Environment variables managed by key, see Application.
 	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
+	// Tags attached to the service in addition to the provider's default tags.
+	Tags []string `pulumi:"tags,optional"`
 }
 
 type ServiceState struct {
 	ServiceArgs
+	// Tags the provider attached: the provider's default tags plus the declared ones.
+	AppliedTags []string `pulumi:"appliedTags"`
 	// UUID of the service in Coolify.
 	UUID string `pulumi:"uuid"`
 }
@@ -65,9 +69,11 @@ func (args *ServiceArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.InstantDeploy, "Start the service right after creating it. Only relevant on create.")
 	a.Describe(&args.ConnectToDockerNetwork, "Connect the service to Coolify's predefined Docker network.")
 	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.")
+	a.Describe(&args.Tags, "Tags attached to the service in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.")
 }
 
 func (state *ServiceState) Annotate(a infer.Annotator) {
+	a.Describe(&state.AppliedTags, "Tags the provider attached: the provider's default tags plus the declared ones.")
 	a.Describe(&state.UUID, "UUID of the service in Coolify.")
 }
 
@@ -82,6 +88,8 @@ func (Service) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckRe
 	if (args.Type == "") == (args.DockerCompose == "") {
 		failures = append(failures, p.CheckFailure{Property: "type", Reason: "exactly one of type and dockerCompose must be set"})
 	}
+	failures = append(failures, checkTags("tags", args.Tags)...)
+	args.Tags = normalizeTags(args.Tags)
 	return infer.CheckResponse[ServiceArgs]{Inputs: args, Failures: failures}, nil
 }
 
@@ -89,11 +97,16 @@ func (Service) Create(ctx context.Context, req infer.CreateRequest[ServiceArgs])
 	if req.DryRun {
 		return infer.CreateResponse[ServiceState]{Output: ServiceState{ServiceArgs: req.Inputs}}, nil
 	}
-	service, err := createService(ctx, client(ctx), req.Inputs)
+	c := client(ctx)
+	service, err := createService(ctx, c, req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[ServiceState]{}, err
 	}
-	return infer.CreateResponse[ServiceState]{ID: coolify.Deref(service.Uuid), Output: serviceState(req.Inputs, service)}, nil
+	state := serviceState(req.Inputs, service)
+	if state.AppliedTags, err = reconcileTags(ctx, c, serviceOwner(state.UUID), effectiveTags(ctx, req.Inputs.Tags), nil); err != nil {
+		return infer.CreateResponse[ServiceState]{}, err
+	}
+	return infer.CreateResponse[ServiceState]{ID: state.UUID, Output: state}, nil
 }
 
 func (Service) Diff(ctx context.Context, req infer.DiffRequest[ServiceArgs, ServiceState]) (infer.DiffResponse, error) {
@@ -105,6 +118,10 @@ func (Service) Diff(ctx context.Context, req infer.DiffRequest[ServiceArgs, Serv
 	delete(diff, "environmentVariables")
 	if environmentVariablesNeedUpdate(req.State.EnvironmentVariables, req.Inputs.EnvironmentVariables) {
 		diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+	}
+	delete(diff, "tags")
+	if tagsDiffer(effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags) {
+		diff["tags"] = p.PropertyDiff{Kind: p.Update}
 	}
 	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
 }
@@ -134,7 +151,11 @@ func (Service) Update(ctx context.Context, req infer.UpdateRequest[ServiceArgs, 
 	if err != nil {
 		return infer.UpdateResponse[ServiceState]{}, err
 	}
-	return infer.UpdateResponse[ServiceState]{Output: serviceState(req.Inputs, service)}, nil
+	state := serviceState(req.Inputs, service)
+	if state.AppliedTags, err = reconcileTags(ctx, c, serviceOwner(req.ID), effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags); err != nil {
+		return infer.UpdateResponse[ServiceState]{}, err
+	}
+	return infer.UpdateResponse[ServiceState]{Output: state}, nil
 }
 
 func (Service) Read(ctx context.Context, req infer.ReadRequest[ServiceArgs, ServiceState]) (infer.ReadResponse[ServiceArgs, ServiceState], error) {
@@ -154,11 +175,14 @@ func (Service) Read(ctx context.Context, req infer.ReadRequest[ServiceArgs, Serv
 		}
 		inputs.EnvironmentVariables = declaredEnvironmentVariables(req.Inputs.EnvironmentVariables, existing)
 	}
-	return infer.ReadResponse[ServiceArgs, ServiceState]{
-		ID:     req.ID,
-		Inputs: inputs,
-		State:  serviceState(inputs, service),
-	}, nil
+	tags, applied, err := readTags(ctx, c, serviceOwner(req.ID), req.Inputs.Tags, req.State.AppliedTags)
+	if err != nil {
+		return infer.ReadResponse[ServiceArgs, ServiceState]{}, err
+	}
+	inputs.Tags = tags
+	state := serviceState(inputs, service)
+	state.AppliedTags = applied
+	return infer.ReadResponse[ServiceArgs, ServiceState]{ID: req.ID, Inputs: inputs, State: state}, nil
 }
 
 func (Service) Delete(ctx context.Context, req infer.DeleteRequest[ServiceState]) (infer.DeleteResponse, error) {
@@ -166,6 +190,10 @@ func (Service) Delete(ctx context.Context, req infer.DeleteRequest[ServiceState]
 		return infer.DeleteResponse{}, err
 	}
 	return infer.DeleteResponse{}, nil
+}
+
+func serviceOwner(uuid string) coolify.Owner {
+	return coolify.Owner{Kind: coolify.OwnerService, UUID: uuid}
 }
 
 func servicePlacement(args ServiceArgs) placement {
