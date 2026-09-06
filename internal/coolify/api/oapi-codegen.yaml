@@ -23,6 +23,7 @@ output-options:
     - get-database-by-uuid
     - update-database-by-uuid
     - delete-database-by-uuid
+    - move-database-by-uuid
     - create-database-postgresql
     - create-database-mysql
     - create-database-mariadb
@@ -31,6 +32,11 @@ output-options:
     - create-database-keydb
     - create-database-dragonfly
     - create-database-clickhouse
+    # Database backups
+    - get-database-backups-by-uuid
+    - create-database-backup
+    - update-database-backup
+    - delete-backup-configuration-by-uuid
     # Private keys
     - list-private-keys
     - get-private-key-by-uuid
@@ -54,6 +60,7 @@ output-options:
     - get-application-by-uuid
     - update-application-by-uuid
     - delete-application-by-uuid
+    - move-application-by-uuid
     - create-public-application
     - create-private-github-app-application
     - create-private-deploy-key-application
@@ -63,6 +70,15 @@ output-options:
     - create-env-by-application-uuid
     - update-env-by-application-uuid
     - delete-env-by-application-uuid
+    # Services and their environment variables
+    - list-services
+    - create-service
+    - get-service-by-uuid
+    - update-service-by-uuid
+    - delete-service-by-uuid
+    - move-service-by-uuid
+    - list-envs-by-service-uuid
+    - create-env-by-service-uuid
     # GitHub Apps
     - list-github-apps
     - create-github-app

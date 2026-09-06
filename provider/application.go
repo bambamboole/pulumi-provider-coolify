@@ -135,8 +135,8 @@ func (r *Application) Annotate(a infer.Annotator) {
 }
 
 func (args *ApplicationArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.ProjectUUID, "UUID of the Coolify project (the uuid output of a Project resource).")
-	a.Describe(&args.EnvironmentName, "Name of the environment inside the project.")
+	a.Describe(&args.ProjectUUID, "UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the resource to the new project in place.")
+	a.Describe(&args.EnvironmentName, "Name of the environment inside the project. Changing it moves the resource in place; the environment must already exist.")
 	a.Describe(&args.ServerUUID, "UUID of the server hosting the application (the uuid output of a Server resource).")
 	a.Describe(&args.Source, "Where the application is built from.")
 	a.Describe(&args.Name, "Application name. Defaults to the Pulumi resource name. An existing application with this name in the environment is adopted.")
@@ -230,8 +230,8 @@ func (Application) Create(ctx context.Context, req infer.CreateRequest[Applicati
 }
 
 func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationArgs, ApplicationState]) (infer.DiffResponse, error) {
-	diff := diffArgs(req.State.ApplicationArgs, req.Inputs,
-		"projectUuid", "environmentName", "serverUuid", "source", "privateKeyUuid", "githubAppUuid")
+	// Project and environment changes move the application in place.
+	diff := diffArgs(req.State.ApplicationArgs, req.Inputs, "serverUuid", "source", "privateKeyUuid", "githubAppUuid")
 	// Only relevant on create.
 	delete(diff, "instantDeploy")
 	delete(diff, "tags")
@@ -244,17 +244,6 @@ func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationAr
 	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
 }
 
-// environmentVariablesNeedUpdate reports whether a declared key is missing from
-// the previously declared set.
-func environmentVariablesNeedUpdate(olds, news map[string]string) bool {
-	for key := range news {
-		if _, ok := olds[key]; !ok {
-			return true
-		}
-	}
-	return false
-}
-
 func (Application) Update(ctx context.Context, req infer.UpdateRequest[ApplicationArgs, ApplicationState]) (infer.UpdateResponse[ApplicationState], error) {
 	if req.DryRun {
 		state := req.State
@@ -265,6 +254,18 @@ func (Application) Update(ctx context.Context, req infer.UpdateRequest[Applicati
 	current, err := c.GetApplication(ctx, req.ID)
 	if err != nil {
 		return infer.UpdateResponse[ApplicationState]{}, err
+	}
+	moved, err := ensurePlacement(ctx, c, applicationPlacement(req.State.ApplicationArgs), applicationPlacement(req.Inputs),
+		coolify.Deref(current.EnvironmentId), func(ctx context.Context, environmentUUID string) error {
+			return c.MoveApplication(ctx, req.ID, environmentUUID)
+		})
+	if err != nil {
+		return infer.UpdateResponse[ApplicationState]{}, err
+	}
+	if moved {
+		if current, err = c.GetApplication(ctx, req.ID); err != nil {
+			return infer.UpdateResponse[ApplicationState]{}, err
+		}
 	}
 	app, err := applyApplication(ctx, c, current, req.Inputs, false)
 	if err != nil {
@@ -430,7 +431,7 @@ func applyApplication(ctx context.Context, c *coolify.Client, current api.Applic
 			return api.Application{}, err
 		}
 	}
-	if err := ensureEnvironmentVariables(ctx, c, uuid, inputs.EnvironmentVariables); err != nil {
+	if err := ensureEnvironmentVariables(ctx, applicationEnvVars(c, uuid), inputs.EnvironmentVariables); err != nil {
 		return api.Application{}, err
 	}
 	if !changed {
@@ -477,59 +478,6 @@ func applicationPatch(current api.Application, inputs ApplicationArgs) (api.Upda
 	return body, patch.changed
 }
 
-// ensureEnvironmentVariables creates the declared variables that do not exist
-// on the application yet. Existing keys are never patched and undeclared keys
-// are left untouched.
-func ensureEnvironmentVariables(ctx context.Context, c *coolify.Client, applicationUUID string, desired map[string]string) error {
-	if len(desired) == 0 {
-		return nil
-	}
-	existing, err := c.ListApplicationEnvVars(ctx, applicationUUID)
-	if err != nil {
-		return err
-	}
-	present := map[string]bool{}
-	for _, env := range existing {
-		if !coolify.Deref(env.IsPreview) {
-			present[coolify.Deref(env.Key)] = true
-		}
-	}
-	for key, value := range desired {
-		if present[key] {
-			continue
-		}
-		if _, err := c.CreateApplicationEnvVar(ctx, applicationUUID, api.CreateEnvByApplicationUuidJSONRequestBody{
-			Key:         coolify.Ptr(key),
-			Value:       coolify.Ptr(value),
-			IsLiteral:   coolify.Ptr(true),
-			IsPreview:   coolify.Ptr(false),
-			IsShownOnce: coolify.Ptr(true),
-		}); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// declaredEnvironmentVariables keeps the declared variables that still exist
-// on the application so a deleted one is recreated on the next update. Values
-// stay as declared because Coolify masks hidden values.
-func declaredEnvironmentVariables(declared map[string]string, existing []api.EnvironmentVariable) map[string]string {
-	present := map[string]bool{}
-	for _, env := range existing {
-		if !coolify.Deref(env.IsPreview) {
-			present[coolify.Deref(env.Key)] = true
-		}
-	}
-	out := map[string]string{}
-	for key, value := range declared {
-		if present[key] {
-			out[key] = value
-		}
-	}
-	return out
-}
-
 // applicationInputs derives the inputs from the application Coolify reports,
 // keeping unmanaged optional inputs and the fields the API does not return
 // (identity, source, credentials, create-only settings).
@@ -564,6 +512,29 @@ func applicationInputs(previous ApplicationArgs, app api.Application) Applicatio
 	inputs.LimitsMemory = ifSet(previous.LimitsMemory, coolify.Deref(app.LimitsMemory))
 	inputs.LimitsCPUs = ifSet(previous.LimitsCPUs, coolify.Deref(app.LimitsCpus))
 	return inputs
+}
+
+func applicationPlacement(args ApplicationArgs) placement {
+	return placement{ProjectUUID: args.ProjectUUID, EnvironmentName: args.EnvironmentName}
+}
+
+// applicationEnvVars adapts the application environment variable endpoints.
+func applicationEnvVars(c *coolify.Client, uuid string) envVars {
+	return envVars{
+		list: func(ctx context.Context) ([]api.EnvironmentVariable, error) {
+			return c.ListApplicationEnvVars(ctx, uuid)
+		},
+		create: func(ctx context.Context, key, value string) error {
+			_, err := c.CreateApplicationEnvVar(ctx, uuid, api.CreateEnvByApplicationUuidJSONRequestBody{
+				Key:         coolify.Ptr(key),
+				Value:       coolify.Ptr(value),
+				IsLiteral:   coolify.Ptr(true),
+				IsPreview:   coolify.Ptr(false),
+				IsShownOnce: coolify.Ptr(true),
+			})
+			return err
+		},
+	}
 }
 
 func applicationState(inputs ApplicationArgs, app api.Application) ApplicationState {

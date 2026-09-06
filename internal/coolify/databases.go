@@ -169,3 +169,9 @@ func (c *Client) UpdateDatabase(ctx context.Context, uuid string, body api.Updat
 func (c *Client) DeleteDatabase(ctx context.Context, uuid string) error {
 	return check(c.api.DeleteDatabaseByUuid(ctx, uuid, nil))
 }
+
+// MoveDatabase moves the database into another environment, possibly of
+// another project. Coolify only re-parents the record; containers keep running.
+func (c *Client) MoveDatabase(ctx context.Context, uuid, environmentUUID string) error {
+	return check(c.api.MoveDatabaseByUuid(ctx, uuid, api.MoveDatabaseByUuidJSONRequestBody{EnvironmentUuid: environmentUUID}))
+}

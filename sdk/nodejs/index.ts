@@ -15,6 +15,11 @@ export type Database = import("./database").Database;
 export const Database: typeof import("./database").Database = null as any;
 utilities.lazyLoad(exports, ["Database"], () => require("./database"));
 
+export { DatabaseBackupArgs } from "./databaseBackup";
+export type DatabaseBackup = import("./databaseBackup").DatabaseBackup;
+export const DatabaseBackup: typeof import("./databaseBackup").DatabaseBackup = null as any;
+utilities.lazyLoad(exports, ["DatabaseBackup"], () => require("./databaseBackup"));
+
 export { DeploymentArgs } from "./deployment";
 export type Deployment = import("./deployment").Deployment;
 export const Deployment: typeof import("./deployment").Deployment = null as any;
@@ -55,6 +60,11 @@ export type Server = import("./server").Server;
 export const Server: typeof import("./server").Server = null as any;
 utilities.lazyLoad(exports, ["Server"], () => require("./server"));
 
+export { ServiceArgs } from "./service";
+export type Service = import("./service").Service;
+export const Service: typeof import("./service").Service = null as any;
+utilities.lazyLoad(exports, ["Service"], () => require("./service"));
+
 
 // Export enums:
 export * from "./types/enums";
@@ -76,6 +86,8 @@ const _module = {
                 return new Application(name, <any>undefined, { urn })
             case "coolify:index:Database":
                 return new Database(name, <any>undefined, { urn })
+            case "coolify:index:DatabaseBackup":
+                return new DatabaseBackup(name, <any>undefined, { urn })
             case "coolify:index:Deployment":
                 return new Deployment(name, <any>undefined, { urn })
             case "coolify:index:GitHubApp":
@@ -90,6 +102,8 @@ const _module = {
                 return new ScheduledTask(name, <any>undefined, { urn })
             case "coolify:index:Server":
                 return new Server(name, <any>undefined, { urn })
+            case "coolify:index:Service":
+                return new Service(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

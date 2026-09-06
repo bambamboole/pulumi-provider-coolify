@@ -50,7 +50,7 @@ export class Database extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly environmentId: pulumi.Output<number>;
     /**
-     * Name of the environment inside the project.
+     * Name of the environment inside the project. Changing it moves the resource in place; the environment must already exist.
      */
     declare public readonly environmentName: pulumi.Output<string>;
     /**
@@ -82,7 +82,7 @@ export class Database extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly password: pulumi.Output<string>;
     /**
-     * UUID of the Coolify project (the uuid output of a Project resource).
+     * UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the resource to the new project in place.
      */
     declare public readonly projectUuid: pulumi.Output<string>;
     /**
@@ -190,7 +190,7 @@ export interface DatabaseArgs {
      */
     description?: pulumi.Input<string | undefined>;
     /**
-     * Name of the environment inside the project.
+     * Name of the environment inside the project. Changing it moves the resource in place; the environment must already exist.
      */
     environmentName: pulumi.Input<string>;
     /**
@@ -210,7 +210,7 @@ export interface DatabaseArgs {
      */
     name: pulumi.Input<string>;
     /**
-     * UUID of the Coolify project (the uuid output of a Project resource).
+     * UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the resource to the new project in place.
      */
     projectUuid: pulumi.Input<string>;
     /**

@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
 // client returns the Coolify API client configured by the provider.
@@ -141,4 +143,126 @@ func (p *patch) optionalInt(dst **int, desired, current *int) {
 		*dst = desired
 		p.changed = true
 	}
+}
+
+// optionalFloat sets dst when desired is set and differs from current. The
+// generated bodies use float32 for Coolify's "number" fields.
+func (p *patch) optionalFloat(dst **float32, desired, current *float64) {
+	if desired != nil && (current == nil || *current != *desired) {
+		*dst = coolify.Ptr(float32(*desired))
+		p.changed = true
+	}
+}
+
+// ifSetPtr returns value when the previous pointer input was set (managed) and
+// nil otherwise, the pointer counterpart of ifSet.
+func ifSetPtr[T any](previous, value *T) *T {
+	if previous == nil {
+		return nil
+	}
+	return value
+}
+
+// float32Ptr converts an optional float64 input to the float32 pointer the
+// generated request bodies expect.
+func float32Ptr(v *float64) *float32 {
+	if v == nil {
+		return nil
+	}
+	return coolify.Ptr(float32(*v))
+}
+
+// placement identifies the environment a project-scoped resource lives in.
+type placement struct {
+	ProjectUUID     string
+	EnvironmentName string
+}
+
+// ensurePlacement moves a resource into the desired environment when the
+// placement inputs changed. The target environment is resolved by name and the
+// move is skipped when the resource already lives in it, so a stale state never
+// trips Coolify's "already in this environment" error. It reports whether a
+// move happened so callers can re-read the resource.
+func ensurePlacement(ctx context.Context, c *coolify.Client, previous, desired placement, currentEnvironmentID int, move func(context.Context, string) error) (bool, error) {
+	if previous == desired {
+		return false, nil
+	}
+	environment, err := resolveEnvironment(ctx, c, desired.ProjectUUID, desired.EnvironmentName)
+	if err != nil {
+		return false, err
+	}
+	if environment.ID == currentEnvironmentID {
+		return false, nil
+	}
+	if err := move(ctx, environment.UUID); err != nil {
+		if coolify.IsNotFound(err) {
+			return false, fmt.Errorf("moving resources between environments requires Coolify v4.2.0 or newer: %w", err)
+		}
+		return false, err
+	}
+	return true, nil
+}
+
+// envVars abstracts the per-resource environment variable endpoints so
+// applications and services share the same reconciliation.
+type envVars struct {
+	list   func(context.Context) ([]api.EnvironmentVariable, error)
+	create func(context.Context, string, string) error
+}
+
+// ensureEnvironmentVariables creates the declared variables that do not exist
+// on the resource yet. Existing keys are never patched and undeclared keys are
+// left untouched.
+func ensureEnvironmentVariables(ctx context.Context, vars envVars, desired map[string]string) error {
+	if len(desired) == 0 {
+		return nil
+	}
+	existing, err := vars.list(ctx)
+	if err != nil {
+		return err
+	}
+	present := map[string]bool{}
+	for _, env := range existing {
+		if !coolify.Deref(env.IsPreview) {
+			present[coolify.Deref(env.Key)] = true
+		}
+	}
+	for key, value := range desired {
+		if present[key] {
+			continue
+		}
+		if err := vars.create(ctx, key, value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// environmentVariablesNeedUpdate reports whether news declares a key that olds
+// did not; values are never compared because Coolify masks them.
+func environmentVariablesNeedUpdate(olds, news map[string]string) bool {
+	for key := range news {
+		if _, ok := olds[key]; !ok {
+			return true
+		}
+	}
+	return false
+}
+
+// declaredEnvironmentVariables keeps the declared variables that exist on the
+// resource, so Read drops keys deleted in Coolify and recreates them next up.
+func declaredEnvironmentVariables(declared map[string]string, existing []api.EnvironmentVariable) map[string]string {
+	present := map[string]bool{}
+	for _, env := range existing {
+		if !coolify.Deref(env.IsPreview) {
+			present[coolify.Deref(env.Key)] = true
+		}
+	}
+	out := map[string]string{}
+	for key, value := range declared {
+		if present[key] {
+			out[key] = value
+		}
+	}
+	return out
 }
