@@ -8,17 +8,19 @@ A native [Pulumi](https://www.pulumi.com) provider for [Coolify](https://coolify
 | --- | --- | --- |
 | `coolify.Project` | Project and the environments declared on it (environments are only added, never removed) | project name |
 | `coolify.Database` | Standalone PostgreSQL, MySQL, MariaDB, MongoDB, Redis, KeyDB, Dragonfly or ClickHouse database | database name within the environment |
+| `coolify.DatabaseBackup` | Scheduled backup configuration of a database, optionally uploaded to an S3 storage | frequency string within the database |
 | `coolify.PrivateKey` | SSH private key | key name |
 | `coolify.GitHubApp` | GitHub App source for private repositories | app name |
 | `coolify.Server` | Server connected over SSH | server name |
 | `coolify.S3Storage` | S3-compatible storage destination, e.g. an R2 bucket | storage name |
 | `coolify.Application` | Application from a public or private git repository, a Docker image or a Dockerfile, including its environment variables | application name within the environment |
+| `coolify.Service` | Service from a one-click template or a docker compose file, including its environment variables | service name within the environment |
 | `coolify.ScheduledTask` | Cron task on an application | task name within the application |
 | `coolify.Deployment` | Triggers a deployment and waits for it to finish | none (one deployment per input change) |
 
 On **create**, every resource adopts an existing Coolify resource with the same identity instead of creating a duplicate, and reconciles its settings with the declared inputs. **Updates and deletes always address the resource by UUID**, so renaming a resource renames it in Coolify rather than creating a new one.
 
-Optional inputs left unset are treated as unmanaged: Coolify's own default is kept and never overwritten, and `pulumi refresh` does not report it as drift. Inputs that must change the identity of a resource (project, environment, server, database type, application source) replace it.
+Optional inputs left unset are treated as unmanaged: Coolify's own default is kept and never overwritten, and `pulumi refresh` does not report it as drift. Inputs that must change the identity of a resource (server, database type, application source, service type) replace it. Changing `projectUuid` or `environmentName` on an application, database or service **moves it in place** instead, see below.
 
 ## Provider configuration
 
@@ -80,6 +82,9 @@ new coolify.Deployment("api", {
 
 ## Behaviour worth knowing
 
+- **Moving between projects and environments is safe.** Changing `projectUuid` or `environmentName` on a `coolify.Application`, `coolify.Database` or `coolify.Service` calls Coolify's move endpoint (Coolify v4.2.0 or newer). The target environment must already exist, e.g. through the `environments` of a `coolify.Project`. The move is purely organizational: containers keep running, nothing is redeployed, and shared environment variables of the new environment apply on the next deployment. Moves made in the Coolify UI are not detected by `pulumi refresh`.
+- **Database backups are adopted by frequency.** `coolify.DatabaseBackup` adopts an existing configuration whose frequency string is identical; databases created in the Coolify UI come with a `0 0 * * *` schedule that can be adopted this way. Coolify never reports the configured S3 storage, so `s3StorageUuid` is applied when it changes but drift on it is not detected. Redis, KeyDB and Dragonfly reject backup configurations.
+- **Service compose files are write-only.** Coolify hides `dockerCompose` from the API, so it is sent on create and whenever the input changes, but drift on it is not detected.
 - **Private keys cannot be updated.** Coolify's `PATCH /security/keys` endpoint cannot address a key, so changing `name` or `privateKey` replaces the key and `description` is only applied on create.
 - **Application environment variables are managed by key.** Declared keys that are missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched. Coolify masks hidden values, so values are never compared.
 - **Deployments redeploy on any input change.** Use `triggers` to force a redeploy, e.g. with the image tag or a version. A deployment Coolify has pruned from its history keeps its recorded state.

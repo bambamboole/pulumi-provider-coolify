@@ -98,8 +98,8 @@ func (args *DatabaseArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.IsPublic, "Whether the database is exposed publicly.")
 	a.Describe(&args.PublicPort, "Public port to expose. Required when isPublic is true.")
 	a.Describe(&args.InstantDeploy, "Start the database right after creating it.")
-	a.Describe(&args.ProjectUUID, "UUID of the Coolify project (the uuid output of a Project resource).")
-	a.Describe(&args.EnvironmentName, "Name of the environment inside the project.")
+	a.Describe(&args.ProjectUUID, "UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the resource to the new project in place.")
+	a.Describe(&args.EnvironmentName, "Name of the environment inside the project. Changing it moves the resource in place; the environment must already exist.")
 	a.Describe(&args.ServerUUID, "UUID of the server hosting the database (the uuid output of a Server resource).")
 }
 
@@ -137,7 +137,8 @@ func (Database) Create(ctx context.Context, req infer.CreateRequest[DatabaseArgs
 }
 
 func (Database) Diff(ctx context.Context, req infer.DiffRequest[DatabaseArgs, DatabaseState]) (infer.DiffResponse, error) {
-	diff := diffArgs(req.State.DatabaseArgs, req.Inputs, "type", "projectUuid", "environmentName", "serverUuid")
+	// Project and environment changes move the database in place.
+	diff := diffArgs(req.State.DatabaseArgs, req.Inputs, "type", "serverUuid")
 	// Only relevant on create.
 	delete(diff, "instantDeploy")
 	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
@@ -153,6 +154,18 @@ func (Database) Update(ctx context.Context, req infer.UpdateRequest[DatabaseArgs
 	current, err := c.GetDatabase(ctx, req.ID)
 	if err != nil {
 		return infer.UpdateResponse[DatabaseState]{}, err
+	}
+	moved, err := ensurePlacement(ctx, c, databasePlacement(req.State.DatabaseArgs), databasePlacement(req.Inputs),
+		current.EnvironmentID, func(ctx context.Context, environmentUUID string) error {
+			return c.MoveDatabase(ctx, req.ID, environmentUUID)
+		})
+	if err != nil {
+		return infer.UpdateResponse[DatabaseState]{}, err
+	}
+	if moved {
+		if current, err = c.GetDatabase(ctx, req.ID); err != nil {
+			return infer.UpdateResponse[DatabaseState]{}, err
+		}
 	}
 	database, err := applyDatabase(ctx, c, current, req.Inputs)
 	if err != nil {
@@ -182,6 +195,10 @@ func (Database) Delete(ctx context.Context, req infer.DeleteRequest[DatabaseStat
 		return infer.DeleteResponse{}, err
 	}
 	return infer.DeleteResponse{}, nil
+}
+
+func databasePlacement(args DatabaseArgs) placement {
+	return placement{ProjectUUID: args.ProjectUUID, EnvironmentName: args.EnvironmentName}
 }
 
 // resolveEnvironment looks up the environment by name in the project.

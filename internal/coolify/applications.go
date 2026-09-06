@@ -59,3 +59,9 @@ func (c *Client) UpdateApplicationEnvVar(ctx context.Context, applicationUUID st
 func (c *Client) DeleteApplicationEnvVar(ctx context.Context, applicationUUID, envUUID string) error {
 	return check(c.api.DeleteEnvByApplicationUuid(ctx, applicationUUID, envUUID))
 }
+
+// MoveApplication moves the application into another environment, possibly of
+// another project. Coolify only re-parents the record; containers keep running.
+func (c *Client) MoveApplication(ctx context.Context, uuid, environmentUUID string) error {
+	return check(c.api.MoveApplicationByUuid(ctx, uuid, api.MoveApplicationByUuidJSONRequestBody{EnvironmentUuid: environmentUUID}))
+}

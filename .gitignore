@@ -4,3 +4,6 @@ sdk/nodejs/bin/
 sdk/nodejs/node_modules/
 .DS_Store
 .idea/
+
+# working notes, never committed
+plans/

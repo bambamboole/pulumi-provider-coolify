@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 // Defines values for ApplicationBuildPack.
@@ -650,6 +651,48 @@ func (e UpdateServerByUuidJSONBodyProxyType) Valid() bool {
 	}
 }
 
+// Defines values for CreateService409JSONResponseBodyConflictsResourceType.
+const (
+	CreateService409JSONResponseBodyConflictsResourceTypeApplication CreateService409JSONResponseBodyConflictsResourceType = "application"
+	CreateService409JSONResponseBodyConflictsResourceTypeInstance    CreateService409JSONResponseBodyConflictsResourceType = "instance"
+	CreateService409JSONResponseBodyConflictsResourceTypeService     CreateService409JSONResponseBodyConflictsResourceType = "service"
+)
+
+// Valid indicates whether the value is a known member of the CreateService409JSONResponseBodyConflictsResourceType enum.
+func (e CreateService409JSONResponseBodyConflictsResourceType) Valid() bool {
+	switch e {
+	case CreateService409JSONResponseBodyConflictsResourceTypeApplication:
+		return true
+	case CreateService409JSONResponseBodyConflictsResourceTypeInstance:
+		return true
+	case CreateService409JSONResponseBodyConflictsResourceTypeService:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UpdateServiceByUuid409JSONResponseBodyConflictsResourceType.
+const (
+	UpdateServiceByUuid409JSONResponseBodyConflictsResourceTypeApplication UpdateServiceByUuid409JSONResponseBodyConflictsResourceType = "application"
+	UpdateServiceByUuid409JSONResponseBodyConflictsResourceTypeInstance    UpdateServiceByUuid409JSONResponseBodyConflictsResourceType = "instance"
+	UpdateServiceByUuid409JSONResponseBodyConflictsResourceTypeService     UpdateServiceByUuid409JSONResponseBodyConflictsResourceType = "service"
+)
+
+// Valid indicates whether the value is a known member of the UpdateServiceByUuid409JSONResponseBodyConflictsResourceType enum.
+func (e UpdateServiceByUuid409JSONResponseBodyConflictsResourceType) Valid() bool {
+	switch e {
+	case UpdateServiceByUuid409JSONResponseBodyConflictsResourceTypeApplication:
+		return true
+	case UpdateServiceByUuid409JSONResponseBodyConflictsResourceTypeInstance:
+		return true
+	case UpdateServiceByUuid409JSONResponseBodyConflictsResourceTypeService:
+		return true
+	default:
+		return false
+	}
+}
+
 // Application Application model
 type Application struct {
 	// BaseDirectory Base directory for all commands.
@@ -1183,6 +1226,63 @@ type ServerSetting struct {
 	ServerId                          *int    `json:"server_id,omitempty"`
 	UpdatedAt                         *string `json:"updated_at,omitempty"`
 	WildcardDomain                    *string `json:"wildcard_domain,omitempty"`
+}
+
+// Service Service model
+type Service struct {
+	// ConfigHash The hash of the service configuration.
+	ConfigHash *string `json:"config_hash,omitempty"`
+
+	// ConnectToDockerNetwork The flag to connect the service to the predefined Docker network.
+	ConnectToDockerNetwork *bool `json:"connect_to_docker_network,omitempty"`
+
+	// CreatedAt The date and time when the service was created.
+	CreatedAt *string `json:"created_at,omitempty"`
+
+	// DeletedAt The date and time when the service was deleted.
+	DeletedAt *string `json:"deleted_at,omitempty"`
+
+	// Description The description of the service.
+	Description *string `json:"description,omitempty"`
+
+	// DestinationId The unique identifier of the destination where the service is running.
+	DestinationId *int `json:"destination_id,omitempty"`
+
+	// DestinationType Destination type.
+	DestinationType *string `json:"destination_type,omitempty"`
+
+	// DockerCompose The docker-compose.yml file that is parsed and modified by Coolify.
+	DockerCompose *string `json:"docker_compose,omitempty"`
+
+	// DockerComposeRaw The raw docker-compose.yml file of the service.
+	DockerComposeRaw *string `json:"docker_compose_raw,omitempty"`
+
+	// EnvironmentId The unique identifier of the environment where the service is attached to.
+	EnvironmentId *int `json:"environment_id,omitempty"`
+
+	// Id The unique identifier of the service. Only used for database identification.
+	Id *int `json:"id,omitempty"`
+
+	// IsContainerLabelEscapeEnabled The flag to enable the container label escape.
+	IsContainerLabelEscapeEnabled *bool `json:"is_container_label_escape_enabled,omitempty"`
+
+	// IsContainerLabelReadonlyEnabled The flag to enable the container label readonly.
+	IsContainerLabelReadonlyEnabled *bool `json:"is_container_label_readonly_enabled,omitempty"`
+
+	// Name The name of the service.
+	Name *string `json:"name,omitempty"`
+
+	// ServerId The unique identifier of the server where the service is running.
+	ServerId *int `json:"server_id,omitempty"`
+
+	// ServiceType The type of the service.
+	ServiceType *string `json:"service_type,omitempty"`
+
+	// UpdatedAt The date and time when the service was last updated.
+	UpdatedAt *string `json:"updated_at,omitempty"`
+
+	// Uuid The unique identifier of the service.
+	Uuid *string `json:"uuid,omitempty"`
 }
 
 // N400 defines model for 400.
@@ -3066,6 +3166,12 @@ type CreateEnvByApplicationUuidJSONBody struct {
 	Value *string `json:"value,omitempty"`
 }
 
+// MoveApplicationByUuidJSONBody defines parameters for MoveApplicationByUuid.
+type MoveApplicationByUuidJSONBody struct {
+	// EnvironmentUuid UUID of the target environment.
+	EnvironmentUuid string `json:"environment_uuid"`
+}
+
 // CreateScheduledTaskByApplicationUuidJSONBody defines parameters for CreateScheduledTaskByApplicationUuid.
 type CreateScheduledTaskByApplicationUuidJSONBody struct {
 	// Command The command to execute.
@@ -3840,6 +3946,108 @@ type UpdateDatabaseByUuidJSONBody struct {
 	RedisPassword *string `json:"redis_password,omitempty"`
 }
 
+// CreateDatabaseBackupJSONBody defines parameters for CreateDatabaseBackup.
+type CreateDatabaseBackupJSONBody struct {
+	// BackupNow Whether to trigger backup immediately after creation
+	BackupNow *bool `json:"backup_now,omitempty"`
+
+	// DatabaseBackupRetentionAmountLocally Number of backups to retain locally
+	DatabaseBackupRetentionAmountLocally *int `json:"database_backup_retention_amount_locally,omitempty"`
+
+	// DatabaseBackupRetentionAmountS3 Number of backups to retain in S3
+	DatabaseBackupRetentionAmountS3 *int `json:"database_backup_retention_amount_s3,omitempty"`
+
+	// DatabaseBackupRetentionDaysLocally Number of days to retain backups locally
+	DatabaseBackupRetentionDaysLocally *int `json:"database_backup_retention_days_locally,omitempty"`
+
+	// DatabaseBackupRetentionDaysS3 Number of days to retain backups in S3
+	DatabaseBackupRetentionDaysS3 *int `json:"database_backup_retention_days_s3,omitempty"`
+
+	// DatabaseBackupRetentionMaxStorageLocally Max storage (GB) for local backups
+	DatabaseBackupRetentionMaxStorageLocally *float32 `json:"database_backup_retention_max_storage_locally,omitempty"`
+
+	// DatabaseBackupRetentionMaxStorageS3 Max storage (GB) for S3 backups
+	DatabaseBackupRetentionMaxStorageS3 *float32 `json:"database_backup_retention_max_storage_s3,omitempty"`
+
+	// DatabasesToBackup Comma separated list of databases to backup
+	DatabasesToBackup *string `json:"databases_to_backup,omitempty"`
+
+	// DumpAll Whether to dump all databases
+	DumpAll *bool `json:"dump_all,omitempty"`
+
+	// Enabled Whether the backup is enabled
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// Frequency Backup frequency (cron expression or: every_minute, hourly, daily, weekly, monthly, yearly)
+	Frequency string `json:"frequency"`
+
+	// S3StorageUuid S3 storage UUID (required if save_s3 is true)
+	S3StorageUuid *string `json:"s3_storage_uuid,omitempty"`
+
+	// SaveS3 Whether to save backups to S3
+	SaveS3 *bool `json:"save_s3,omitempty"`
+
+	// Timeout Backup job timeout in seconds (min: 60, max: 36000)
+	Timeout *int `json:"timeout,omitempty"`
+}
+
+// DeleteBackupConfigurationByUuidParams defines parameters for DeleteBackupConfigurationByUuid.
+type DeleteBackupConfigurationByUuidParams struct {
+	// DeleteS3 Whether to delete all backup files from S3
+	DeleteS3 *bool `form:"delete_s3,omitempty" json:"delete_s3,omitempty"`
+}
+
+// UpdateDatabaseBackupJSONBody defines parameters for UpdateDatabaseBackup.
+type UpdateDatabaseBackupJSONBody struct {
+	// BackupNow Whether to take a backup now or not
+	BackupNow *bool `json:"backup_now,omitempty"`
+
+	// DatabaseBackupRetentionAmountLocally Retention amount of the backup locally
+	DatabaseBackupRetentionAmountLocally *int `json:"database_backup_retention_amount_locally,omitempty"`
+
+	// DatabaseBackupRetentionAmountS3 Retention amount of the backup in s3
+	DatabaseBackupRetentionAmountS3 *int `json:"database_backup_retention_amount_s3,omitempty"`
+
+	// DatabaseBackupRetentionDaysLocally Retention days of the backup locally
+	DatabaseBackupRetentionDaysLocally *int `json:"database_backup_retention_days_locally,omitempty"`
+
+	// DatabaseBackupRetentionDaysS3 Retention days of the backup in s3
+	DatabaseBackupRetentionDaysS3 *int `json:"database_backup_retention_days_s3,omitempty"`
+
+	// DatabaseBackupRetentionMaxStorageLocally Max storage of the backup locally
+	DatabaseBackupRetentionMaxStorageLocally *float32 `json:"database_backup_retention_max_storage_locally,omitempty"`
+
+	// DatabaseBackupRetentionMaxStorageS3 Max storage of the backup in S3
+	DatabaseBackupRetentionMaxStorageS3 *float32 `json:"database_backup_retention_max_storage_s3,omitempty"`
+
+	// DatabasesToBackup Comma separated list of databases to backup
+	DatabasesToBackup *string `json:"databases_to_backup,omitempty"`
+
+	// DumpAll Whether all databases are dumped or not
+	DumpAll *bool `json:"dump_all,omitempty"`
+
+	// Enabled Whether the backup is enabled or not
+	Enabled *bool `json:"enabled,omitempty"`
+
+	// Frequency Frequency of the backup
+	Frequency *string `json:"frequency,omitempty"`
+
+	// S3StorageUuid S3 storage UUID
+	S3StorageUuid *string `json:"s3_storage_uuid,omitempty"`
+
+	// SaveS3 Whether data is saved in s3 or not
+	SaveS3 *bool `json:"save_s3,omitempty"`
+
+	// Timeout Backup job timeout in seconds (min: 60, max: 36000)
+	Timeout *int `json:"timeout,omitempty"`
+}
+
+// MoveDatabaseByUuidJSONBody defines parameters for MoveDatabaseByUuid.
+type MoveDatabaseByUuidJSONBody struct {
+	// EnvironmentUuid UUID of the target environment.
+	EnvironmentUuid string `json:"environment_uuid"`
+}
+
 // DeployByTagOrUuidParams defines parameters for DeployByTagOrUuid.
 type DeployByTagOrUuidParams struct {
 	// Tag Tag name(s). Comma separated list is also accepted.
@@ -4121,6 +4329,138 @@ type UpdateServerByUuidJSONBody struct {
 // UpdateServerByUuidJSONBodyProxyType defines parameters for UpdateServerByUuid.
 type UpdateServerByUuidJSONBodyProxyType string
 
+// CreateServiceJSONBody defines parameters for CreateService.
+type CreateServiceJSONBody struct {
+	// Description Description of the service.
+	Description *string `json:"description,omitempty"`
+
+	// DestinationUuid Destination UUID. Required if server has multiple destinations.
+	DestinationUuid *string `json:"destination_uuid,omitempty"`
+
+	// DockerComposeRaw The base64 encoded Docker Compose content.
+	DockerComposeRaw *string `json:"docker_compose_raw,omitempty"`
+
+	// EnvironmentName Environment name. You need to provide at least one of environment_name or environment_uuid.
+	EnvironmentName string `json:"environment_name"`
+
+	// EnvironmentUuid Environment UUID. You need to provide at least one of environment_name or environment_uuid.
+	EnvironmentUuid string `json:"environment_uuid"`
+
+	// ForceDomainOverride Force domain override even if conflicts are detected.
+	ForceDomainOverride *bool `json:"force_domain_override,omitempty"`
+
+	// InstantDeploy Start the service immediately after creation.
+	InstantDeploy *bool `json:"instant_deploy,omitempty"`
+
+	// IsContainerLabelEscapeEnabled Escape special characters in labels. By default, $ (and other chars) is escaped. If you want to use env variables inside the labels, turn this off.
+	IsContainerLabelEscapeEnabled *bool `json:"is_container_label_escape_enabled,omitempty"`
+
+	// Name Name of the service.
+	Name *string `json:"name,omitempty"`
+
+	// ProjectUuid Project UUID.
+	ProjectUuid string `json:"project_uuid"`
+
+	// ServerUuid Server UUID.
+	ServerUuid string `json:"server_uuid"`
+
+	// Tags Tags to assign to the service.
+	Tags *[]string `json:"tags,omitempty"`
+
+	// Type The one-click service type (e.g. "actualbudget", "calibre-web", "gitea-with-mysql" ...)
+	Type *string `json:"type,omitempty"`
+
+	// Urls Array of URLs to be applied to containers of a service.
+	Urls *[]struct {
+		// Name The service name as defined in docker-compose.
+		Name *string `json:"name,omitempty"`
+
+		// Url Comma-separated list of URLs (e.g. "https://app.coolify.io,https://app2.coolify.io").
+		Url *string `json:"url,omitempty"`
+	} `json:"urls,omitempty"`
+}
+
+// CreateService409JSONResponseBodyConflictsResourceType defines parameters for CreateService.
+type CreateService409JSONResponseBodyConflictsResourceType string
+
+// DeleteServiceByUuidParams defines parameters for DeleteServiceByUuid.
+type DeleteServiceByUuidParams struct {
+	// DeleteConfigurations Delete configurations.
+	DeleteConfigurations *bool `form:"delete_configurations,omitempty" json:"delete_configurations,omitempty"`
+
+	// DeleteVolumes Delete volumes.
+	DeleteVolumes *bool `form:"delete_volumes,omitempty" json:"delete_volumes,omitempty"`
+
+	// DockerCleanup Run docker cleanup.
+	DockerCleanup *bool `form:"docker_cleanup,omitempty" json:"docker_cleanup,omitempty"`
+
+	// DeleteConnectedNetworks Delete connected networks.
+	DeleteConnectedNetworks *bool `form:"delete_connected_networks,omitempty" json:"delete_connected_networks,omitempty"`
+}
+
+// UpdateServiceByUuidJSONBody defines parameters for UpdateServiceByUuid.
+type UpdateServiceByUuidJSONBody struct {
+	// ConnectToDockerNetwork Connect the service to the predefined docker network.
+	ConnectToDockerNetwork *bool `json:"connect_to_docker_network,omitempty"`
+
+	// Description The service description.
+	Description *string `json:"description,omitempty"`
+
+	// DockerComposeRaw The base64 encoded Docker Compose content.
+	DockerComposeRaw *string `json:"docker_compose_raw,omitempty"`
+
+	// ForceDomainOverride Force domain override even if conflicts are detected.
+	ForceDomainOverride *bool `json:"force_domain_override,omitempty"`
+
+	// InstantDeploy The flag to indicate if the service should be deployed instantly.
+	InstantDeploy *bool `json:"instant_deploy,omitempty"`
+
+	// IsContainerLabelEscapeEnabled Escape special characters in labels. By default, $ (and other chars) is escaped. If you want to use env variables inside the labels, turn this off.
+	IsContainerLabelEscapeEnabled *bool `json:"is_container_label_escape_enabled,omitempty"`
+
+	// Name The service name.
+	Name *string `json:"name,omitempty"`
+
+	// Urls Array of URLs to be applied to containers of a service.
+	Urls *[]struct {
+		// Name The service name as defined in docker-compose.
+		Name *string `json:"name,omitempty"`
+
+		// Url Comma-separated list of URLs (e.g. "https://app.coolify.io,https://app2.coolify.io").
+		Url *string `json:"url,omitempty"`
+	} `json:"urls,omitempty"`
+}
+
+// UpdateServiceByUuid409JSONResponseBodyConflictsResourceType defines parameters for UpdateServiceByUuid.
+type UpdateServiceByUuid409JSONResponseBodyConflictsResourceType string
+
+// CreateEnvByServiceUuidJSONBody defines parameters for CreateEnvByServiceUuid.
+type CreateEnvByServiceUuidJSONBody struct {
+	// IsLiteral The flag to indicate if the environment variable is a literal, nothing espaced.
+	IsLiteral *bool `json:"is_literal,omitempty"`
+
+	// IsMultiline The flag to indicate if the environment variable is multiline.
+	IsMultiline *bool `json:"is_multiline,omitempty"`
+
+	// IsPreview The flag to indicate if the environment variable is used in preview deployments.
+	IsPreview *bool `json:"is_preview,omitempty"`
+
+	// IsShownOnce The flag to indicate if the environment variable's value is shown on the UI.
+	IsShownOnce *bool `json:"is_shown_once,omitempty"`
+
+	// Key The key of the environment variable.
+	Key *string `json:"key,omitempty"`
+
+	// Value The value of the environment variable.
+	Value *string `json:"value,omitempty"`
+}
+
+// MoveServiceByUuidJSONBody defines parameters for MoveServiceByUuid.
+type MoveServiceByUuidJSONBody struct {
+	// EnvironmentUuid UUID of the target environment.
+	EnvironmentUuid string `json:"environment_uuid"`
+}
+
 // CreateDockerfileApplicationJSONRequestBody defines body for CreateDockerfileApplication for application/json ContentType.
 type CreateDockerfileApplicationJSONRequestBody CreateDockerfileApplicationJSONBody
 
@@ -4144,6 +4484,9 @@ type UpdateEnvByApplicationUuidJSONRequestBody UpdateEnvByApplicationUuidJSONBod
 
 // CreateEnvByApplicationUuidJSONRequestBody defines body for CreateEnvByApplicationUuid for application/json ContentType.
 type CreateEnvByApplicationUuidJSONRequestBody CreateEnvByApplicationUuidJSONBody
+
+// MoveApplicationByUuidJSONRequestBody defines body for MoveApplicationByUuid for application/json ContentType.
+type MoveApplicationByUuidJSONRequestBody MoveApplicationByUuidJSONBody
 
 // CreateScheduledTaskByApplicationUuidJSONRequestBody defines body for CreateScheduledTaskByApplicationUuid for application/json ContentType.
 type CreateScheduledTaskByApplicationUuidJSONRequestBody CreateScheduledTaskByApplicationUuidJSONBody
@@ -4178,6 +4521,15 @@ type CreateDatabaseRedisJSONRequestBody CreateDatabaseRedisJSONBody
 // UpdateDatabaseByUuidJSONRequestBody defines body for UpdateDatabaseByUuid for application/json ContentType.
 type UpdateDatabaseByUuidJSONRequestBody UpdateDatabaseByUuidJSONBody
 
+// CreateDatabaseBackupJSONRequestBody defines body for CreateDatabaseBackup for application/json ContentType.
+type CreateDatabaseBackupJSONRequestBody CreateDatabaseBackupJSONBody
+
+// UpdateDatabaseBackupJSONRequestBody defines body for UpdateDatabaseBackup for application/json ContentType.
+type UpdateDatabaseBackupJSONRequestBody UpdateDatabaseBackupJSONBody
+
+// MoveDatabaseByUuidJSONRequestBody defines body for MoveDatabaseByUuid for application/json ContentType.
+type MoveDatabaseByUuidJSONRequestBody MoveDatabaseByUuidJSONBody
+
 // CreateGithubAppJSONRequestBody defines body for CreateGithubApp for application/json ContentType.
 type CreateGithubAppJSONRequestBody CreateGithubAppJSONBody
 
@@ -4210,6 +4562,18 @@ type CreateServerJSONRequestBody CreateServerJSONBody
 
 // UpdateServerByUuidJSONRequestBody defines body for UpdateServerByUuid for application/json ContentType.
 type UpdateServerByUuidJSONRequestBody UpdateServerByUuidJSONBody
+
+// CreateServiceJSONRequestBody defines body for CreateService for application/json ContentType.
+type CreateServiceJSONRequestBody CreateServiceJSONBody
+
+// UpdateServiceByUuidJSONRequestBody defines body for UpdateServiceByUuid for application/json ContentType.
+type UpdateServiceByUuidJSONRequestBody UpdateServiceByUuidJSONBody
+
+// CreateEnvByServiceUuidJSONRequestBody defines body for CreateEnvByServiceUuid for application/json ContentType.
+type CreateEnvByServiceUuidJSONRequestBody CreateEnvByServiceUuidJSONBody
+
+// MoveServiceByUuidJSONRequestBody defines body for MoveServiceByUuid for application/json ContentType.
+type MoveServiceByUuidJSONRequestBody MoveServiceByUuidJSONBody
 
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -4464,6 +4828,24 @@ type ClientInterface interface {
 	// Corresponds with DELETE /applications/{uuid}/envs/{env_uuid} (the `DeleteEnvByApplicationUuid` operationId).
 	DeleteEnvByApplicationUuid(ctx context.Context, uuid string, envUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// MoveApplicationByUuidWithBody Move
+	//
+	// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+	MoveApplicationByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveApplicationByUuid Move
+	//
+	// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+	MoveApplicationByUuid(ctx context.Context, uuid string, body MoveApplicationByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListScheduledTasksByApplicationUuid List Tasks
 	//
 	// List all scheduled tasks for an application.
@@ -4696,6 +5078,74 @@ type ClientInterface interface {
 	//
 	// Corresponds with PATCH /databases/{uuid} (the `UpdateDatabaseByUuid` operationId).
 	UpdateDatabaseByUuid(ctx context.Context, uuid string, body UpdateDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetDatabaseBackupsByUuid Get
+	//
+	// Get backups details by database UUID.
+	//
+	// Corresponds with GET /databases/{uuid}/backups (the `GetDatabaseBackupsByUuid` operationId).
+	GetDatabaseBackupsByUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDatabaseBackupWithBody Create Backup
+	//
+	// Create a new scheduled backup configuration for a database.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+	CreateDatabaseBackupWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateDatabaseBackup Create Backup
+	//
+	// Create a new scheduled backup configuration for a database.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+	CreateDatabaseBackup(ctx context.Context, uuid string, body CreateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteBackupConfigurationByUuid Delete backup configuration
+	//
+	// Deletes a backup configuration and all its executions.
+	//
+	// Corresponds with DELETE /databases/{uuid}/backups/{scheduled_backup_uuid} (the `DeleteBackupConfigurationByUuid` operationId).
+	DeleteBackupConfigurationByUuid(ctx context.Context, uuid string, scheduledBackupUuid string, params *DeleteBackupConfigurationByUuidParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateDatabaseBackupWithBody Update
+	//
+	// Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+	UpdateDatabaseBackupWithBody(ctx context.Context, uuid string, scheduledBackupUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateDatabaseBackup Update
+	//
+	// Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+	UpdateDatabaseBackup(ctx context.Context, uuid string, scheduledBackupUuid string, body UpdateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveDatabaseByUuidWithBody Move
+	//
+	// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+	MoveDatabaseByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveDatabaseByUuid Move
+	//
+	// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+	MoveDatabaseByUuid(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeployByTagOrUuid Deploy
 	//
@@ -5027,6 +5477,106 @@ type ClientInterface interface {
 	//
 	// Corresponds with PATCH /servers/{uuid} (the `UpdateServerByUuid` operationId).
 	UpdateServerByUuid(ctx context.Context, uuid string, body UpdateServerByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListServices List
+	//
+	// List all services.
+	//
+	// Corresponds with GET /services (the `ListServices` operationId).
+	ListServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateServiceWithBody Create service
+	//
+	// Create a one-click / custom service.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /services (the `CreateService` operationId).
+	CreateServiceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateService Create service
+	//
+	// Create a one-click / custom service.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /services (the `CreateService` operationId).
+	CreateService(ctx context.Context, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteServiceByUuid Delete
+	//
+	// Delete service by UUID.
+	//
+	// Corresponds with DELETE /services/{uuid} (the `DeleteServiceByUuid` operationId).
+	DeleteServiceByUuid(ctx context.Context, uuid string, params *DeleteServiceByUuidParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetServiceByUuid Get
+	//
+	// Get service by UUID.
+	//
+	// Corresponds with GET /services/{uuid} (the `GetServiceByUuid` operationId).
+	GetServiceByUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateServiceByUuidWithBody Update
+	//
+	// Update service by UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+	UpdateServiceByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateServiceByUuid Update
+	//
+	// Update service by UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+	UpdateServiceByUuid(ctx context.Context, uuid string, body UpdateServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListEnvsByServiceUuid List Envs
+	//
+	// List all envs by service UUID.
+	//
+	// Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
+	ListEnvsByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateEnvByServiceUuidWithBody Create Env
+	//
+	// Create env by service UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+	CreateEnvByServiceUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateEnvByServiceUuid Create Env
+	//
+	// Create env by service UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+	CreateEnvByServiceUuid(ctx context.Context, uuid string, body CreateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveServiceByUuidWithBody Move
+	//
+	// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+	MoveServiceByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// MoveServiceByUuid Move
+	//
+	// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+	MoveServiceByUuid(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // ListApplications List
@@ -5408,6 +5958,44 @@ func (c *Client) CreateEnvByApplicationUuid(ctx context.Context, uuid string, bo
 // Corresponds with DELETE /applications/{uuid}/envs/{env_uuid} (the `DeleteEnvByApplicationUuid` operationId).
 func (c *Client) DeleteEnvByApplicationUuid(ctx context.Context, uuid string, envUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteEnvByApplicationUuidRequest(c.Server, uuid, envUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// MoveApplicationByUuidWithBody Move
+//
+// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+func (c *Client) MoveApplicationByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveApplicationByUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// MoveApplicationByUuid Move
+//
+// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+func (c *Client) MoveApplicationByUuid(ctx context.Context, uuid string, body MoveApplicationByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveApplicationByUuidRequest(c.Server, uuid, body)
 	if err != nil {
 		return nil, err
 	}
@@ -5911,6 +6499,154 @@ func (c *Client) UpdateDatabaseByUuidWithBody(ctx context.Context, uuid string, 
 // Corresponds with PATCH /databases/{uuid} (the `UpdateDatabaseByUuid` operationId).
 func (c *Client) UpdateDatabaseByUuid(ctx context.Context, uuid string, body UpdateDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateDatabaseByUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetDatabaseBackupsByUuid Get
+//
+// Get backups details by database UUID.
+//
+// Corresponds with GET /databases/{uuid}/backups (the `GetDatabaseBackupsByUuid` operationId).
+func (c *Client) GetDatabaseBackupsByUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetDatabaseBackupsByUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateDatabaseBackupWithBody Create Backup
+//
+// Create a new scheduled backup configuration for a database.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+func (c *Client) CreateDatabaseBackupWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDatabaseBackupRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateDatabaseBackup Create Backup
+//
+// Create a new scheduled backup configuration for a database.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+func (c *Client) CreateDatabaseBackup(ctx context.Context, uuid string, body CreateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateDatabaseBackupRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteBackupConfigurationByUuid Delete backup configuration
+//
+// Deletes a backup configuration and all its executions.
+//
+// Corresponds with DELETE /databases/{uuid}/backups/{scheduled_backup_uuid} (the `DeleteBackupConfigurationByUuid` operationId).
+func (c *Client) DeleteBackupConfigurationByUuid(ctx context.Context, uuid string, scheduledBackupUuid string, params *DeleteBackupConfigurationByUuidParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteBackupConfigurationByUuidRequest(c.Server, uuid, scheduledBackupUuid, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateDatabaseBackupWithBody Update
+//
+// # Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+func (c *Client) UpdateDatabaseBackupWithBody(ctx context.Context, uuid string, scheduledBackupUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDatabaseBackupRequestWithBody(c.Server, uuid, scheduledBackupUuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateDatabaseBackup Update
+//
+// # Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+func (c *Client) UpdateDatabaseBackup(ctx context.Context, uuid string, scheduledBackupUuid string, body UpdateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateDatabaseBackupRequest(c.Server, uuid, scheduledBackupUuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// MoveDatabaseByUuidWithBody Move
+//
+// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+func (c *Client) MoveDatabaseByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveDatabaseByUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// MoveDatabaseByUuid Move
+//
+// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+func (c *Client) MoveDatabaseByUuid(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveDatabaseByUuidRequest(c.Server, uuid, body)
 	if err != nil {
 		return nil, err
 	}
@@ -6662,6 +7398,226 @@ func (c *Client) UpdateServerByUuid(ctx context.Context, uuid string, body Updat
 	return c.Client.Do(req)
 }
 
+// ListServices List
+//
+// List all services.
+//
+// Corresponds with GET /services (the `ListServices` operationId).
+func (c *Client) ListServices(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListServicesRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateServiceWithBody Create service
+//
+// Create a one-click / custom service.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /services (the `CreateService` operationId).
+func (c *Client) CreateServiceWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateServiceRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateService Create service
+//
+// Create a one-click / custom service.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /services (the `CreateService` operationId).
+func (c *Client) CreateService(ctx context.Context, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateServiceRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteServiceByUuid Delete
+//
+// Delete service by UUID.
+//
+// Corresponds with DELETE /services/{uuid} (the `DeleteServiceByUuid` operationId).
+func (c *Client) DeleteServiceByUuid(ctx context.Context, uuid string, params *DeleteServiceByUuidParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteServiceByUuidRequest(c.Server, uuid, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetServiceByUuid Get
+//
+// Get service by UUID.
+//
+// Corresponds with GET /services/{uuid} (the `GetServiceByUuid` operationId).
+func (c *Client) GetServiceByUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetServiceByUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateServiceByUuidWithBody Update
+//
+// Update service by UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+func (c *Client) UpdateServiceByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateServiceByUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateServiceByUuid Update
+//
+// Update service by UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+func (c *Client) UpdateServiceByUuid(ctx context.Context, uuid string, body UpdateServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateServiceByUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListEnvsByServiceUuid List Envs
+//
+// List all envs by service UUID.
+//
+// Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
+func (c *Client) ListEnvsByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListEnvsByServiceUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateEnvByServiceUuidWithBody Create Env
+//
+// Create env by service UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+func (c *Client) CreateEnvByServiceUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEnvByServiceUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateEnvByServiceUuid Create Env
+//
+// Create env by service UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+func (c *Client) CreateEnvByServiceUuid(ctx context.Context, uuid string, body CreateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEnvByServiceUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// MoveServiceByUuidWithBody Move
+//
+// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+func (c *Client) MoveServiceByUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveServiceByUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// MoveServiceByUuid Move
+//
+// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+func (c *Client) MoveServiceByUuid(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewMoveServiceByUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // NewListApplicationsRequest constructs an http.Request for the ListApplications method
 func NewListApplicationsRequest(server string, params *ListApplicationsParams) (*http.Request, error) {
 	var err error
@@ -7259,6 +8215,53 @@ func NewDeleteEnvByApplicationUuidRequest(server string, uuid string, envUuid st
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewMoveApplicationByUuidRequest calls the generic MoveApplicationByUuid builder with application/json body
+func NewMoveApplicationByUuidRequest(server string, uuid string, body MoveApplicationByUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMoveApplicationByUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewMoveApplicationByUuidRequestWithBody constructs an http.Request for the MoveApplicationByUuid method, with any body, and a specified content type
+func NewMoveApplicationByUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/move", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -7955,6 +8958,256 @@ func NewUpdateDatabaseByUuidRequestWithBody(server string, uuid string, contentT
 	}
 
 	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetDatabaseBackupsByUuidRequest constructs an http.Request for the GetDatabaseBackupsByUuid method
+func NewGetDatabaseBackupsByUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/backups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateDatabaseBackupRequest calls the generic CreateDatabaseBackup builder with application/json body
+func NewCreateDatabaseBackupRequest(server string, uuid string, body CreateDatabaseBackupJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateDatabaseBackupRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateDatabaseBackupRequestWithBody constructs an http.Request for the CreateDatabaseBackup method, with any body, and a specified content type
+func NewCreateDatabaseBackupRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/backups", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteBackupConfigurationByUuidRequest constructs an http.Request for the DeleteBackupConfigurationByUuid method
+func NewDeleteBackupConfigurationByUuidRequest(server string, uuid string, scheduledBackupUuid string, params *DeleteBackupConfigurationByUuidParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "scheduled_backup_uuid", scheduledBackupUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/backups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.DeleteS3 != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "delete_s3", *params.DeleteS3, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateDatabaseBackupRequest calls the generic UpdateDatabaseBackup builder with application/json body
+func NewUpdateDatabaseBackupRequest(server string, uuid string, scheduledBackupUuid string, body UpdateDatabaseBackupJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateDatabaseBackupRequestWithBody(server, uuid, scheduledBackupUuid, "application/json", bodyReader)
+}
+
+// NewUpdateDatabaseBackupRequestWithBody constructs an http.Request for the UpdateDatabaseBackup method, with any body, and a specified content type
+func NewUpdateDatabaseBackupRequestWithBody(server string, uuid string, scheduledBackupUuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "scheduled_backup_uuid", scheduledBackupUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/backups/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMoveDatabaseByUuidRequest calls the generic MoveDatabaseByUuid builder with application/json body
+func NewMoveDatabaseByUuidRequest(server string, uuid string, body MoveDatabaseByUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMoveDatabaseByUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewMoveDatabaseByUuidRequestWithBody constructs an http.Request for the MoveDatabaseByUuid method, with any body, and a specified content type
+func NewMoveDatabaseByUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/move", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
 	if err != nil {
 		return nil, err
 	}
@@ -9144,6 +10397,379 @@ func NewUpdateServerByUuidRequestWithBody(server string, uuid string, contentTyp
 	return req, nil
 }
 
+// NewListServicesRequest constructs an http.Request for the ListServices method
+func NewListServicesRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateServiceRequest calls the generic CreateService builder with application/json body
+func NewCreateServiceRequest(server string, body CreateServiceJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateServiceRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateServiceRequestWithBody constructs an http.Request for the CreateService method, with any body, and a specified content type
+func NewCreateServiceRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteServiceByUuidRequest constructs an http.Request for the DeleteServiceByUuid method
+func NewDeleteServiceByUuidRequest(server string, uuid string, params *DeleteServiceByUuidParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.DeleteConfigurations != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "delete_configurations", *params.DeleteConfigurations, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.DeleteVolumes != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "delete_volumes", *params.DeleteVolumes, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.DockerCleanup != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "docker_cleanup", *params.DockerCleanup, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if params.DeleteConnectedNetworks != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "delete_connected_networks", *params.DeleteConnectedNetworks, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewGetServiceByUuidRequest constructs an http.Request for the GetServiceByUuid method
+func NewGetServiceByUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateServiceByUuidRequest calls the generic UpdateServiceByUuid builder with application/json body
+func NewUpdateServiceByUuidRequest(server string, uuid string, body UpdateServiceByUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateServiceByUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewUpdateServiceByUuidRequestWithBody constructs an http.Request for the UpdateServiceByUuid method, with any body, and a specified content type
+func NewUpdateServiceByUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListEnvsByServiceUuidRequest constructs an http.Request for the ListEnvsByServiceUuid method
+func NewListEnvsByServiceUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateEnvByServiceUuidRequest calls the generic CreateEnvByServiceUuid builder with application/json body
+func NewCreateEnvByServiceUuidRequest(server string, uuid string, body CreateEnvByServiceUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateEnvByServiceUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateEnvByServiceUuidRequestWithBody constructs an http.Request for the CreateEnvByServiceUuid method, with any body, and a specified content type
+func NewCreateEnvByServiceUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewMoveServiceByUuidRequest calls the generic MoveServiceByUuid builder with application/json body
+func NewMoveServiceByUuidRequest(server string, uuid string, body MoveServiceByUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewMoveServiceByUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewMoveServiceByUuidRequestWithBody constructs an http.Request for the MoveServiceByUuid method, with any body, and a specified content type
+func NewMoveServiceByUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/move", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -9376,6 +11002,24 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with DELETE /applications/{uuid}/envs/{env_uuid} (the `DeleteEnvByApplicationUuid` operationId).
 	DeleteEnvByApplicationUuidWithResponse(ctx context.Context, uuid string, envUuid string, reqEditors ...RequestEditorFn) (*DeleteEnvByApplicationUuidResponse, error)
+
+	// MoveApplicationByUuidWithBodyWithResponse Move
+	//
+	// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+	MoveApplicationByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveApplicationByUuidResponse, error)
+
+	// MoveApplicationByUuidWithResponse Move
+	//
+	// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+	MoveApplicationByUuidWithResponse(ctx context.Context, uuid string, body MoveApplicationByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveApplicationByUuidResponse, error)
 
 	// ListScheduledTasksByApplicationUuidWithResponse List Tasks
 	//
@@ -9619,6 +11263,78 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PATCH /databases/{uuid} (the `UpdateDatabaseByUuid` operationId).
 	UpdateDatabaseByUuidWithResponse(ctx context.Context, uuid string, body UpdateDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDatabaseByUuidResponse, error)
+
+	// GetDatabaseBackupsByUuidWithResponse Get
+	//
+	// Get backups details by database UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /databases/{uuid}/backups (the `GetDatabaseBackupsByUuid` operationId).
+	GetDatabaseBackupsByUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*GetDatabaseBackupsByUuidResponse, error)
+
+	// CreateDatabaseBackupWithBodyWithResponse Create Backup
+	//
+	// Create a new scheduled backup configuration for a database.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+	CreateDatabaseBackupWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseBackupResponse, error)
+
+	// CreateDatabaseBackupWithResponse Create Backup
+	//
+	// Create a new scheduled backup configuration for a database.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+	CreateDatabaseBackupWithResponse(ctx context.Context, uuid string, body CreateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseBackupResponse, error)
+
+	// DeleteBackupConfigurationByUuidWithResponse Delete backup configuration
+	//
+	// Deletes a backup configuration and all its executions.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /databases/{uuid}/backups/{scheduled_backup_uuid} (the `DeleteBackupConfigurationByUuid` operationId).
+	DeleteBackupConfigurationByUuidWithResponse(ctx context.Context, uuid string, scheduledBackupUuid string, params *DeleteBackupConfigurationByUuidParams, reqEditors ...RequestEditorFn) (*DeleteBackupConfigurationByUuidResponse, error)
+
+	// UpdateDatabaseBackupWithBodyWithResponse Update
+	//
+	// Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+	UpdateDatabaseBackupWithBodyWithResponse(ctx context.Context, uuid string, scheduledBackupUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDatabaseBackupResponse, error)
+
+	// UpdateDatabaseBackupWithResponse Update
+	//
+	// Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+	UpdateDatabaseBackupWithResponse(ctx context.Context, uuid string, scheduledBackupUuid string, body UpdateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDatabaseBackupResponse, error)
+
+	// MoveDatabaseByUuidWithBodyWithResponse Move
+	//
+	// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+	MoveDatabaseByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveDatabaseByUuidResponse, error)
+
+	// MoveDatabaseByUuidWithResponse Move
+	//
+	// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+	MoveDatabaseByUuidWithResponse(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveDatabaseByUuidResponse, error)
 
 	// DeployByTagOrUuidWithResponse Deploy
 	//
@@ -9988,6 +11704,114 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PATCH /servers/{uuid} (the `UpdateServerByUuid` operationId).
 	UpdateServerByUuidWithResponse(ctx context.Context, uuid string, body UpdateServerByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateServerByUuidResponse, error)
+
+	// ListServicesWithResponse List
+	//
+	// List all services.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /services (the `ListServices` operationId).
+	ListServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListServicesResponse, error)
+
+	// CreateServiceWithBodyWithResponse Create service
+	//
+	// Create a one-click / custom service.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services (the `CreateService` operationId).
+	CreateServiceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error)
+
+	// CreateServiceWithResponse Create service
+	//
+	// Create a one-click / custom service.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services (the `CreateService` operationId).
+	CreateServiceWithResponse(ctx context.Context, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error)
+
+	// DeleteServiceByUuidWithResponse Delete
+	//
+	// Delete service by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /services/{uuid} (the `DeleteServiceByUuid` operationId).
+	DeleteServiceByUuidWithResponse(ctx context.Context, uuid string, params *DeleteServiceByUuidParams, reqEditors ...RequestEditorFn) (*DeleteServiceByUuidResponse, error)
+
+	// GetServiceByUuidWithResponse Get
+	//
+	// Get service by UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /services/{uuid} (the `GetServiceByUuid` operationId).
+	GetServiceByUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*GetServiceByUuidResponse, error)
+
+	// UpdateServiceByUuidWithBodyWithResponse Update
+	//
+	// Update service by UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+	UpdateServiceByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateServiceByUuidResponse, error)
+
+	// UpdateServiceByUuidWithResponse Update
+	//
+	// Update service by UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+	UpdateServiceByUuidWithResponse(ctx context.Context, uuid string, body UpdateServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateServiceByUuidResponse, error)
+
+	// ListEnvsByServiceUuidWithResponse List Envs
+	//
+	// List all envs by service UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
+	ListEnvsByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListEnvsByServiceUuidResponse, error)
+
+	// CreateEnvByServiceUuidWithBodyWithResponse Create Env
+	//
+	// Create env by service UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+	CreateEnvByServiceUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEnvByServiceUuidResponse, error)
+
+	// CreateEnvByServiceUuidWithResponse Create Env
+	//
+	// Create env by service UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+	CreateEnvByServiceUuidWithResponse(ctx context.Context, uuid string, body CreateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEnvByServiceUuidResponse, error)
+
+	// MoveServiceByUuidWithBodyWithResponse Move
+	//
+	// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+	MoveServiceByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveServiceByUuidResponse, error)
+
+	// MoveServiceByUuidWithResponse Move
+	//
+	// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+	MoveServiceByUuidWithResponse(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveServiceByUuidResponse, error)
 }
 
 type ListApplicationsResponse struct {
@@ -10952,6 +12776,85 @@ func (r DeleteEnvByApplicationUuidResponse) ContentType() string {
 	return ""
 }
 
+type MoveApplicationByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+		Message         *string `json:"message,omitempty"`
+		ProjectUuid     *string `json:"project_uuid,omitempty"`
+		Uuid            *string `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r MoveApplicationByUuidResponse) GetJSON200() *struct {
+	EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+	Message         *string `json:"message,omitempty"`
+	ProjectUuid     *string `json:"project_uuid,omitempty"`
+	Uuid            *string `json:"uuid,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r MoveApplicationByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r MoveApplicationByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r MoveApplicationByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r MoveApplicationByUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r MoveApplicationByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r MoveApplicationByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MoveApplicationByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r MoveApplicationByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListScheduledTasksByApplicationUuidResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -11869,6 +13772,340 @@ func (r UpdateDatabaseByUuidResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r UpdateDatabaseByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetDatabaseBackupsByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *string
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetDatabaseBackupsByUuidResponse) GetJSON200() *string {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetDatabaseBackupsByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetDatabaseBackupsByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r GetDatabaseBackupsByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r GetDatabaseBackupsByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetDatabaseBackupsByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetDatabaseBackupsByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetDatabaseBackupsByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateDatabaseBackupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *struct {
+		Message *string             `json:"message,omitempty"`
+		Uuid    *openapi_types.UUID `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateDatabaseBackupResponse) GetJSON201() *struct {
+	Message *string             `json:"message,omitempty"`
+	Uuid    *openapi_types.UUID `json:"uuid,omitempty"`
+} {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateDatabaseBackupResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateDatabaseBackupResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateDatabaseBackupResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateDatabaseBackupResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateDatabaseBackupResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateDatabaseBackupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateDatabaseBackupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateDatabaseBackupResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteBackupConfigurationByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Message *string `json:"message,omitempty"`
+	}
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *struct {
+		Message *string `json:"message,omitempty"`
+	}
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r DeleteBackupConfigurationByUuidResponse) GetJSON200() *struct {
+	Message *string `json:"message,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteBackupConfigurationByUuidResponse) GetJSON404() *struct {
+	Message *string `json:"message,omitempty"`
+} {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteBackupConfigurationByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteBackupConfigurationByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteBackupConfigurationByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteBackupConfigurationByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateDatabaseBackupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateDatabaseBackupResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateDatabaseBackupResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateDatabaseBackupResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateDatabaseBackupResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateDatabaseBackupResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateDatabaseBackupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateDatabaseBackupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateDatabaseBackupResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type MoveDatabaseByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+		Message         *string `json:"message,omitempty"`
+		ProjectUuid     *string `json:"project_uuid,omitempty"`
+		Uuid            *string `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r MoveDatabaseByUuidResponse) GetJSON200() *struct {
+	EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+	Message         *string `json:"message,omitempty"`
+	ProjectUuid     *string `json:"project_uuid,omitempty"`
+	Uuid            *string `json:"uuid,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r MoveDatabaseByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r MoveDatabaseByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r MoveDatabaseByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r MoveDatabaseByUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r MoveDatabaseByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r MoveDatabaseByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MoveDatabaseByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r MoveDatabaseByUuidResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -13883,6 +16120,612 @@ func (r UpdateServerByUuidResponse) ContentType() string {
 	return ""
 }
 
+type ListServicesResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *[]Service
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListServicesResponse) GetJSON200() *[]Service {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListServicesResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListServicesResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r ListServicesResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListServicesResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListServicesResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListServicesResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateServiceResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *struct {
+		// Domains Service domains.
+		Domains *[]string `json:"domains,omitempty"`
+
+		// Uuid Service UUID.
+		Uuid *string `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON409 the response for an HTTP 409 `application/json` response
+	JSON409 *struct {
+		Conflicts *[]struct {
+			Domain       *string                                                `json:"domain,omitempty"`
+			Message      *string                                                `json:"message,omitempty"`
+			ResourceName *string                                                `json:"resource_name,omitempty"`
+			ResourceType *CreateService409JSONResponseBodyConflictsResourceType `json:"resource_type,omitempty"`
+			ResourceUuid *string                                                `json:"resource_uuid,omitempty"`
+		} `json:"conflicts,omitempty"`
+		Message *string `json:"message,omitempty"`
+		Warning *string `json:"warning,omitempty"`
+	}
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateServiceResponse) GetJSON201() *struct {
+	// Domains Service domains.
+	Domains *[]string `json:"domains,omitempty"`
+
+	// Uuid Service UUID.
+	Uuid *string `json:"uuid,omitempty"`
+} {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateServiceResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateServiceResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON409 returns the response for an HTTP 409 `application/json` response
+func (r CreateServiceResponse) GetJSON409() *struct {
+	Conflicts *[]struct {
+		Domain       *string                                                `json:"domain,omitempty"`
+		Message      *string                                                `json:"message,omitempty"`
+		ResourceName *string                                                `json:"resource_name,omitempty"`
+		ResourceType *CreateService409JSONResponseBodyConflictsResourceType `json:"resource_type,omitempty"`
+		ResourceUuid *string                                                `json:"resource_uuid,omitempty"`
+	} `json:"conflicts,omitempty"`
+	Message *string `json:"message,omitempty"`
+	Warning *string `json:"warning,omitempty"`
+} {
+	return r.JSON409
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateServiceResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateServiceResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateServiceResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateServiceResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateServiceResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteServiceByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Message *string `json:"message,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r DeleteServiceByUuidResponse) GetJSON200() *struct {
+	Message *string `json:"message,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r DeleteServiceByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteServiceByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteServiceByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteServiceByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteServiceByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteServiceByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteServiceByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetServiceByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *Service
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r GetServiceByUuidResponse) GetJSON200() *Service {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetServiceByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetServiceByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r GetServiceByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r GetServiceByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetServiceByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetServiceByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetServiceByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateServiceByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		// Domains Service domains.
+		Domains *[]string `json:"domains,omitempty"`
+
+		// Uuid Service UUID.
+		Uuid *string `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON409 the response for an HTTP 409 `application/json` response
+	JSON409 *struct {
+		Conflicts *[]struct {
+			Domain       *string                                                      `json:"domain,omitempty"`
+			Message      *string                                                      `json:"message,omitempty"`
+			ResourceName *string                                                      `json:"resource_name,omitempty"`
+			ResourceType *UpdateServiceByUuid409JSONResponseBodyConflictsResourceType `json:"resource_type,omitempty"`
+			ResourceUuid *string                                                      `json:"resource_uuid,omitempty"`
+		} `json:"conflicts,omitempty"`
+		Message *string `json:"message,omitempty"`
+		Warning *string `json:"warning,omitempty"`
+	}
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r UpdateServiceByUuidResponse) GetJSON200() *struct {
+	// Domains Service domains.
+	Domains *[]string `json:"domains,omitempty"`
+
+	// Uuid Service UUID.
+	Uuid *string `json:"uuid,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateServiceByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateServiceByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateServiceByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON409 returns the response for an HTTP 409 `application/json` response
+func (r UpdateServiceByUuidResponse) GetJSON409() *struct {
+	Conflicts *[]struct {
+		Domain       *string                                                      `json:"domain,omitempty"`
+		Message      *string                                                      `json:"message,omitempty"`
+		ResourceName *string                                                      `json:"resource_name,omitempty"`
+		ResourceType *UpdateServiceByUuid409JSONResponseBodyConflictsResourceType `json:"resource_type,omitempty"`
+		ResourceUuid *string                                                      `json:"resource_uuid,omitempty"`
+	} `json:"conflicts,omitempty"`
+	Message *string `json:"message,omitempty"`
+	Warning *string `json:"warning,omitempty"`
+} {
+	return r.JSON409
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateServiceByUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateServiceByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateServiceByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateServiceByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateServiceByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListEnvsByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *[]EnvironmentVariable
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListEnvsByServiceUuidResponse) GetJSON200() *[]EnvironmentVariable {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListEnvsByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListEnvsByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListEnvsByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListEnvsByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListEnvsByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListEnvsByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListEnvsByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateEnvByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *struct {
+		Uuid *string `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateEnvByServiceUuidResponse) GetJSON201() *struct {
+	Uuid *string `json:"uuid,omitempty"`
+} {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateEnvByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateEnvByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateEnvByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateEnvByServiceUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateEnvByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateEnvByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateEnvByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateEnvByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type MoveServiceByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+		Message         *string `json:"message,omitempty"`
+		ProjectUuid     *string `json:"project_uuid,omitempty"`
+		Uuid            *string `json:"uuid,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r MoveServiceByUuidResponse) GetJSON200() *struct {
+	EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+	Message         *string `json:"message,omitempty"`
+	ProjectUuid     *string `json:"project_uuid,omitempty"`
+	Uuid            *string `json:"uuid,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r MoveServiceByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r MoveServiceByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r MoveServiceByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r MoveServiceByUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r MoveServiceByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r MoveServiceByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r MoveServiceByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r MoveServiceByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // ListApplicationsWithResponse List
 //
 // List all applications.
@@ -14196,6 +17039,36 @@ func (c *ClientWithResponses) DeleteEnvByApplicationUuidWithResponse(ctx context
 		return nil, err
 	}
 	return ParseDeleteEnvByApplicationUuidResponse(rsp)
+}
+
+// MoveApplicationByUuidWithBodyWithResponse Move
+//
+// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+func (c *ClientWithResponses) MoveApplicationByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveApplicationByUuidResponse, error) {
+	rsp, err := c.MoveApplicationByUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveApplicationByUuidResponse(rsp)
+}
+
+// MoveApplicationByUuidWithResponse Move
+//
+// Move application to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the application will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/move (the `MoveApplicationByUuid` operationId).
+func (c *ClientWithResponses) MoveApplicationByUuidWithResponse(ctx context.Context, uuid string, body MoveApplicationByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveApplicationByUuidResponse, error) {
+	rsp, err := c.MoveApplicationByUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveApplicationByUuidResponse(rsp)
 }
 
 // ListScheduledTasksByApplicationUuidWithResponse List Tasks
@@ -14601,6 +17474,126 @@ func (c *ClientWithResponses) UpdateDatabaseByUuidWithResponse(ctx context.Conte
 		return nil, err
 	}
 	return ParseUpdateDatabaseByUuidResponse(rsp)
+}
+
+// GetDatabaseBackupsByUuidWithResponse Get
+//
+// Get backups details by database UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /databases/{uuid}/backups (the `GetDatabaseBackupsByUuid` operationId).
+func (c *ClientWithResponses) GetDatabaseBackupsByUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*GetDatabaseBackupsByUuidResponse, error) {
+	rsp, err := c.GetDatabaseBackupsByUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetDatabaseBackupsByUuidResponse(rsp)
+}
+
+// CreateDatabaseBackupWithBodyWithResponse Create Backup
+//
+// Create a new scheduled backup configuration for a database.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+func (c *ClientWithResponses) CreateDatabaseBackupWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateDatabaseBackupResponse, error) {
+	rsp, err := c.CreateDatabaseBackupWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDatabaseBackupResponse(rsp)
+}
+
+// CreateDatabaseBackupWithResponse Create Backup
+//
+// Create a new scheduled backup configuration for a database.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/backups (the `CreateDatabaseBackup` operationId).
+func (c *ClientWithResponses) CreateDatabaseBackupWithResponse(ctx context.Context, uuid string, body CreateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateDatabaseBackupResponse, error) {
+	rsp, err := c.CreateDatabaseBackup(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateDatabaseBackupResponse(rsp)
+}
+
+// DeleteBackupConfigurationByUuidWithResponse Delete backup configuration
+//
+// Deletes a backup configuration and all its executions.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /databases/{uuid}/backups/{scheduled_backup_uuid} (the `DeleteBackupConfigurationByUuid` operationId).
+func (c *ClientWithResponses) DeleteBackupConfigurationByUuidWithResponse(ctx context.Context, uuid string, scheduledBackupUuid string, params *DeleteBackupConfigurationByUuidParams, reqEditors ...RequestEditorFn) (*DeleteBackupConfigurationByUuidResponse, error) {
+	rsp, err := c.DeleteBackupConfigurationByUuid(ctx, uuid, scheduledBackupUuid, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteBackupConfigurationByUuidResponse(rsp)
+}
+
+// UpdateDatabaseBackupWithBodyWithResponse Update
+//
+// # Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+func (c *ClientWithResponses) UpdateDatabaseBackupWithBodyWithResponse(ctx context.Context, uuid string, scheduledBackupUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateDatabaseBackupResponse, error) {
+	rsp, err := c.UpdateDatabaseBackupWithBody(ctx, uuid, scheduledBackupUuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDatabaseBackupResponse(rsp)
+}
+
+// UpdateDatabaseBackupWithResponse Update
+//
+// # Update a specific backup configuration for a given database, identified by its UUID and the backup ID
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /databases/{uuid}/backups/{scheduled_backup_uuid} (the `UpdateDatabaseBackup` operationId).
+func (c *ClientWithResponses) UpdateDatabaseBackupWithResponse(ctx context.Context, uuid string, scheduledBackupUuid string, body UpdateDatabaseBackupJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateDatabaseBackupResponse, error) {
+	rsp, err := c.UpdateDatabaseBackup(ctx, uuid, scheduledBackupUuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateDatabaseBackupResponse(rsp)
+}
+
+// MoveDatabaseByUuidWithBodyWithResponse Move
+//
+// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+func (c *ClientWithResponses) MoveDatabaseByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveDatabaseByUuidResponse, error) {
+	rsp, err := c.MoveDatabaseByUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveDatabaseByUuidResponse(rsp)
+}
+
+// MoveDatabaseByUuidWithResponse Move
+//
+// Move database to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the database will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
+func (c *ClientWithResponses) MoveDatabaseByUuidWithResponse(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveDatabaseByUuidResponse, error) {
+	rsp, err := c.MoveDatabaseByUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveDatabaseByUuidResponse(rsp)
 }
 
 // DeployByTagOrUuidWithResponse Deploy
@@ -15216,6 +18209,186 @@ func (c *ClientWithResponses) UpdateServerByUuidWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseUpdateServerByUuidResponse(rsp)
+}
+
+// ListServicesWithResponse List
+//
+// List all services.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /services (the `ListServices` operationId).
+func (c *ClientWithResponses) ListServicesWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListServicesResponse, error) {
+	rsp, err := c.ListServices(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListServicesResponse(rsp)
+}
+
+// CreateServiceWithBodyWithResponse Create service
+//
+// Create a one-click / custom service.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services (the `CreateService` operationId).
+func (c *ClientWithResponses) CreateServiceWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error) {
+	rsp, err := c.CreateServiceWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateServiceResponse(rsp)
+}
+
+// CreateServiceWithResponse Create service
+//
+// Create a one-click / custom service.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services (the `CreateService` operationId).
+func (c *ClientWithResponses) CreateServiceWithResponse(ctx context.Context, body CreateServiceJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateServiceResponse, error) {
+	rsp, err := c.CreateService(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateServiceResponse(rsp)
+}
+
+// DeleteServiceByUuidWithResponse Delete
+//
+// Delete service by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /services/{uuid} (the `DeleteServiceByUuid` operationId).
+func (c *ClientWithResponses) DeleteServiceByUuidWithResponse(ctx context.Context, uuid string, params *DeleteServiceByUuidParams, reqEditors ...RequestEditorFn) (*DeleteServiceByUuidResponse, error) {
+	rsp, err := c.DeleteServiceByUuid(ctx, uuid, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteServiceByUuidResponse(rsp)
+}
+
+// GetServiceByUuidWithResponse Get
+//
+// Get service by UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /services/{uuid} (the `GetServiceByUuid` operationId).
+func (c *ClientWithResponses) GetServiceByUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*GetServiceByUuidResponse, error) {
+	rsp, err := c.GetServiceByUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetServiceByUuidResponse(rsp)
+}
+
+// UpdateServiceByUuidWithBodyWithResponse Update
+//
+// Update service by UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+func (c *ClientWithResponses) UpdateServiceByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateServiceByUuidResponse, error) {
+	rsp, err := c.UpdateServiceByUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateServiceByUuidResponse(rsp)
+}
+
+// UpdateServiceByUuidWithResponse Update
+//
+// Update service by UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /services/{uuid} (the `UpdateServiceByUuid` operationId).
+func (c *ClientWithResponses) UpdateServiceByUuidWithResponse(ctx context.Context, uuid string, body UpdateServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateServiceByUuidResponse, error) {
+	rsp, err := c.UpdateServiceByUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateServiceByUuidResponse(rsp)
+}
+
+// ListEnvsByServiceUuidWithResponse List Envs
+//
+// List all envs by service UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
+func (c *ClientWithResponses) ListEnvsByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListEnvsByServiceUuidResponse, error) {
+	rsp, err := c.ListEnvsByServiceUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListEnvsByServiceUuidResponse(rsp)
+}
+
+// CreateEnvByServiceUuidWithBodyWithResponse Create Env
+//
+// Create env by service UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+func (c *ClientWithResponses) CreateEnvByServiceUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEnvByServiceUuidResponse, error) {
+	rsp, err := c.CreateEnvByServiceUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEnvByServiceUuidResponse(rsp)
+}
+
+// CreateEnvByServiceUuidWithResponse Create Env
+//
+// Create env by service UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/envs (the `CreateEnvByServiceUuid` operationId).
+func (c *ClientWithResponses) CreateEnvByServiceUuidWithResponse(ctx context.Context, uuid string, body CreateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEnvByServiceUuidResponse, error) {
+	rsp, err := c.CreateEnvByServiceUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEnvByServiceUuidResponse(rsp)
+}
+
+// MoveServiceByUuidWithBodyWithResponse Move
+//
+// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+func (c *ClientWithResponses) MoveServiceByUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*MoveServiceByUuidResponse, error) {
+	rsp, err := c.MoveServiceByUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveServiceByUuidResponse(rsp)
+}
+
+// MoveServiceByUuidWithResponse Move
+//
+// Move service to another project/environment. This is a purely organizational change — running containers are not affected. Note: after moving, the service will pick up shared environment variables from the new environment on the next deployment.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
+func (c *ClientWithResponses) MoveServiceByUuidWithResponse(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveServiceByUuidResponse, error) {
+	rsp, err := c.MoveServiceByUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseMoveServiceByUuidResponse(rsp)
 }
 
 // ParseListApplicationsResponse parses an HTTP response from a ListApplicationsWithResponse call
@@ -15907,6 +19080,65 @@ func ParseDeleteEnvByApplicationUuidResponse(rsp *http.Response) (*DeleteEnvByAp
 	return response, nil
 }
 
+// ParseMoveApplicationByUuidResponse parses an HTTP response from a MoveApplicationByUuidWithResponse call
+func ParseMoveApplicationByUuidResponse(rsp *http.Response) (*MoveApplicationByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MoveApplicationByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+			Message         *string `json:"message,omitempty"`
+			ProjectUuid     *string `json:"project_uuid,omitempty"`
+			Uuid            *string `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListScheduledTasksByApplicationUuidResponse parses an HTTP response from a ListScheduledTasksByApplicationUuidWithResponse call
 func ParseListScheduledTasksByApplicationUuidResponse(rsp *http.Response) (*ListScheduledTasksByApplicationUuidResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -16579,6 +19811,256 @@ func ParseUpdateDatabaseByUuidResponse(rsp *http.Response) (*UpdateDatabaseByUui
 	switch {
 	case rsp.StatusCode == 200:
 		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetDatabaseBackupsByUuidResponse parses an HTTP response from a GetDatabaseBackupsByUuidWithResponse call
+func ParseGetDatabaseBackupsByUuidResponse(rsp *http.Response) (*GetDatabaseBackupsByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetDatabaseBackupsByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest string
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateDatabaseBackupResponse parses an HTTP response from a CreateDatabaseBackupWithResponse call
+func ParseCreateDatabaseBackupResponse(rsp *http.Response) (*CreateDatabaseBackupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateDatabaseBackupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			Message *string             `json:"message,omitempty"`
+			Uuid    *openapi_types.UUID `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteBackupConfigurationByUuidResponse parses an HTTP response from a DeleteBackupConfigurationByUuidWithResponse call
+func ParseDeleteBackupConfigurationByUuidResponse(rsp *http.Response) (*DeleteBackupConfigurationByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteBackupConfigurationByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateDatabaseBackupResponse parses an HTTP response from a UpdateDatabaseBackupWithResponse call
+func ParseUpdateDatabaseBackupResponse(rsp *http.Response) (*UpdateDatabaseBackupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateDatabaseBackupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMoveDatabaseByUuidResponse parses an HTTP response from a MoveDatabaseByUuidWithResponse call
+func ParseMoveDatabaseByUuidResponse(rsp *http.Response) (*MoveDatabaseByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MoveDatabaseByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+			Message         *string `json:"message,omitempty"`
+			ProjectUuid     *string `json:"project_uuid,omitempty"`
+			Uuid            *string `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest N400
@@ -18071,6 +21553,451 @@ func ParseUpdateServerByUuidResponse(rsp *http.Response) (*UpdateServerByUuidRes
 			return nil, err
 		}
 		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListServicesResponse parses an HTTP response from a ListServicesWithResponse call
+func ParseListServicesResponse(rsp *http.Response) (*ListServicesResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListServicesResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []Service
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateServiceResponse parses an HTTP response from a CreateServiceWithResponse call
+func ParseCreateServiceResponse(rsp *http.Response) (*CreateServiceResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateServiceResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			// Domains Service domains.
+			Domains *[]string `json:"domains,omitempty"`
+
+			// Uuid Service UUID.
+			Uuid *string `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest struct {
+			Conflicts *[]struct {
+				Domain       *string                                                `json:"domain,omitempty"`
+				Message      *string                                                `json:"message,omitempty"`
+				ResourceName *string                                                `json:"resource_name,omitempty"`
+				ResourceType *CreateService409JSONResponseBodyConflictsResourceType `json:"resource_type,omitempty"`
+				ResourceUuid *string                                                `json:"resource_uuid,omitempty"`
+			} `json:"conflicts,omitempty"`
+			Message *string `json:"message,omitempty"`
+			Warning *string `json:"warning,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteServiceByUuidResponse parses an HTTP response from a DeleteServiceByUuidWithResponse call
+func ParseDeleteServiceByUuidResponse(rsp *http.Response) (*DeleteServiceByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteServiceByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetServiceByUuidResponse parses an HTTP response from a GetServiceByUuidWithResponse call
+func ParseGetServiceByUuidResponse(rsp *http.Response) (*GetServiceByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetServiceByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest Service
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateServiceByUuidResponse parses an HTTP response from a UpdateServiceByUuidWithResponse call
+func ParseUpdateServiceByUuidResponse(rsp *http.Response) (*UpdateServiceByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateServiceByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			// Domains Service domains.
+			Domains *[]string `json:"domains,omitempty"`
+
+			// Uuid Service UUID.
+			Uuid *string `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 409:
+		var dest struct {
+			Conflicts *[]struct {
+				Domain       *string                                                      `json:"domain,omitempty"`
+				Message      *string                                                      `json:"message,omitempty"`
+				ResourceName *string                                                      `json:"resource_name,omitempty"`
+				ResourceType *UpdateServiceByUuid409JSONResponseBodyConflictsResourceType `json:"resource_type,omitempty"`
+				ResourceUuid *string                                                      `json:"resource_uuid,omitempty"`
+			} `json:"conflicts,omitempty"`
+			Message *string `json:"message,omitempty"`
+			Warning *string `json:"warning,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON409 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListEnvsByServiceUuidResponse parses an HTTP response from a ListEnvsByServiceUuidWithResponse call
+func ParseListEnvsByServiceUuidResponse(rsp *http.Response) (*ListEnvsByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListEnvsByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest []EnvironmentVariable
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateEnvByServiceUuidResponse parses an HTTP response from a CreateEnvByServiceUuidWithResponse call
+func ParseCreateEnvByServiceUuidResponse(rsp *http.Response) (*CreateEnvByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateEnvByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest struct {
+			Uuid *string `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseMoveServiceByUuidResponse parses an HTTP response from a MoveServiceByUuidWithResponse call
+func ParseMoveServiceByUuidResponse(rsp *http.Response) (*MoveServiceByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &MoveServiceByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			EnvironmentUuid *string `json:"environment_uuid,omitempty"`
+			Message         *string `json:"message,omitempty"`
+			ProjectUuid     *string `json:"project_uuid,omitempty"`
+			Uuid            *string `json:"uuid,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest N400
