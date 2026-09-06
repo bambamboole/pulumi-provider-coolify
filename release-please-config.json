@@ -15,7 +15,8 @@
       ],
       "extra-files": [
         "pulumi-plugin.json",
-        "sdk/nodejs/package.json"
+        "sdk/nodejs/package.json",
+        { "type": "json", "path": "sdk/nodejs/package.json", "jsonpath": "$.pulumi.version" }
       ]
     }
   }
