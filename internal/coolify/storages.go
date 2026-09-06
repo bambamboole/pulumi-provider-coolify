@@ -20,8 +20,9 @@ const (
 	OwnerService     OwnerKind = "service"
 )
 
-// StorageOwner addresses the resource whose storages are managed.
-type StorageOwner struct {
+// Owner addresses the application, database or service whose storages,
+// volume backups or tags are managed.
+type Owner struct {
 	Kind OwnerKind
 	UUID string
 }
@@ -77,7 +78,7 @@ type storageList struct {
 
 // ListStorages returns the persistent volumes followed by the file and
 // directory mounts of the owner.
-func (c *Client) ListStorages(ctx context.Context, owner StorageOwner) ([]Storage, error) {
+func (c *Client) ListStorages(ctx context.Context, owner Owner) ([]Storage, error) {
 	var resp *http.Response
 	var err error
 	switch owner.Kind {
@@ -104,7 +105,7 @@ func (c *Client) ListStorages(ctx context.Context, owner StorageOwner) ([]Storag
 
 // GetStorage finds a storage of the owner by UUID. The API has no single
 // storage endpoint, so it lists and returns a 404 APIError when missing.
-func (c *Client) GetStorage(ctx context.Context, owner StorageOwner, storageUUID string) (Storage, error) {
+func (c *Client) GetStorage(ctx context.Context, owner Owner, storageUUID string) (Storage, error) {
 	storages, err := c.ListStorages(ctx, owner)
 	if err != nil {
 		return Storage{}, err
@@ -122,7 +123,7 @@ func (c *Client) GetStorage(ctx context.Context, owner StorageOwner, storageUUID
 	}
 }
 
-func storagePath(owner StorageOwner, storageUUID string) string {
+func storagePath(owner Owner, storageUUID string) string {
 	return apiPath + "/" + string(owner.Kind) + "s/" + owner.UUID + "/storages/" + storageUUID
 }
 
@@ -149,7 +150,7 @@ type UpdateStorageInput struct {
 
 // CreateStorage creates a storage on an application or database and returns
 // its UUID. Directory mounts are created as file storages with is_directory.
-func (c *Client) CreateStorage(ctx context.Context, owner StorageOwner, in CreateStorageInput) (string, error) {
+func (c *Client) CreateStorage(ctx context.Context, owner Owner, in CreateStorageInput) (string, error) {
 	if in.Type == StorageDirectory {
 		in.Type = StorageFile
 		in.IsDirectory = Ptr(true)
@@ -166,7 +167,7 @@ func (c *Client) CreateStorage(ctx context.Context, owner StorageOwner, in Creat
 	return decodeUUID(postJSON(ctx, create, owner.UUID, in))
 }
 
-func (c *Client) UpdateStorage(ctx context.Context, owner StorageOwner, in UpdateStorageInput) error {
+func (c *Client) UpdateStorage(ctx context.Context, owner Owner, in UpdateStorageInput) error {
 	var update uuidBodyRequest
 	switch owner.Kind {
 	case OwnerApplication:
@@ -179,7 +180,7 @@ func (c *Client) UpdateStorage(ctx context.Context, owner StorageOwner, in Updat
 	return check(postJSON(ctx, update, owner.UUID, in))
 }
 
-func (c *Client) DeleteStorage(ctx context.Context, owner StorageOwner, storageUUID string) error {
+func (c *Client) DeleteStorage(ctx context.Context, owner Owner, storageUUID string) error {
 	switch owner.Kind {
 	case OwnerApplication:
 		return check(c.api.DeleteStorageByApplicationUuid(ctx, owner.UUID, storageUUID))

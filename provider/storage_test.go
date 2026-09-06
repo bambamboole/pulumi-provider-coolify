@@ -70,10 +70,10 @@ func TestCreateStorageCreatesAdoptsByMountPathAndPatches(t *testing.T) {
 		t.Fatalf("expected type mismatch error, got %v", err)
 	}
 
-	if err := c.DeleteStorage(ctx, coolify.StorageOwner{Kind: coolify.OwnerApplication, UUID: appUUID}, dir.UUID); err != nil {
+	if err := c.DeleteStorage(ctx, coolify.Owner{Kind: coolify.OwnerApplication, UUID: appUUID}, dir.UUID); err != nil {
 		t.Fatalf("DeleteStorage: %v", err)
 	}
-	if _, err := c.GetStorage(ctx, coolify.StorageOwner{Kind: coolify.OwnerApplication, UUID: appUUID}, dir.UUID); !coolify.IsNotFound(err) {
+	if _, err := c.GetStorage(ctx, coolify.Owner{Kind: coolify.OwnerApplication, UUID: appUUID}, dir.UUID); !coolify.IsNotFound(err) {
 		t.Fatalf("storage not deleted: %v", err)
 	}
 }
@@ -82,7 +82,7 @@ func TestStorageInputsStripOwnerPrefix(t *testing.T) {
 	fake := newFakeCoolify(t)
 	c := fake.client()
 	appUUID := addApp(fake)
-	owner := coolify.StorageOwner{Kind: coolify.OwnerApplication, UUID: appUUID}
+	owner := coolify.Owner{Kind: coolify.OwnerApplication, UUID: appUUID}
 	uuid := fake.addStorage(appUUID, true, map[string]any{"name": appUUID + "-cache", "mount_path": "/cache", "host_path": "/mnt/cache", "is_preview_suffix_enabled": true})
 	storage, _ := c.GetStorage(context.Background(), owner, uuid)
 
@@ -100,7 +100,7 @@ func TestDeleteStorageWithScheduleIsRejected(t *testing.T) {
 	c := fake.client()
 	ctx := context.Background()
 	appUUID := addApp(fake)
-	owner := coolify.StorageOwner{Kind: coolify.OwnerApplication, UUID: appUUID}
+	owner := coolify.Owner{Kind: coolify.OwnerApplication, UUID: appUUID}
 	uuid := fake.addStorage(appUUID, true, map[string]any{"name": "data", "mount_path": "/data"})
 	if _, err := c.SetVolumeBackup(ctx, owner, uuid, volumeBackupBody(VolumeBackupArgs{Frequency: "daily", Enabled: true})); err != nil {
 		t.Fatalf("SetVolumeBackup: %v", err)

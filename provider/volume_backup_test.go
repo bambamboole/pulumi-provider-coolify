@@ -27,7 +27,7 @@ func TestFindStorageMatchesByMountPathAndName(t *testing.T) {
 	c := fake.client()
 	ctx := context.Background()
 	svc := addComposeService(fake)
-	owner := coolify.StorageOwner{Kind: coolify.OwnerService, UUID: svc}
+	owner := coolify.Owner{Kind: coolify.OwnerService, UUID: svc}
 
 	_, err := findStorage(ctx, c, owner, "/data", "")
 	if err == nil || !strings.Contains(err.Error(), "2 storages match") || !strings.Contains(err.Error(), "gitea-data, mysql-data") {
@@ -56,7 +56,7 @@ func TestFindStorageMatchesByMountPathAndName(t *testing.T) {
 	// Names created through the API carry the owner prefix; both spellings match.
 	appUUID := addApp(fake)
 	fake.addStorage(appUUID, true, map[string]any{"name": appUUID + "-data", "mount_path": "/data"})
-	appOwner := coolify.StorageOwner{Kind: coolify.OwnerApplication, UUID: appUUID}
+	appOwner := coolify.Owner{Kind: coolify.OwnerApplication, UUID: appUUID}
 	for _, name := range []string{"data", appUUID + "-data"} {
 		if _, err := findStorage(ctx, c, appOwner, "", name); err != nil {
 			t.Fatalf("name %q must match: %v", name, err)
@@ -77,7 +77,7 @@ func TestVolumeBackupResolvesMountPathAndSendsFullBody(t *testing.T) {
 	c := fake.client()
 	ctx := context.Background()
 	svc := addComposeService(fake)
-	owner := coolify.StorageOwner{Kind: coolify.OwnerService, UUID: svc}
+	owner := coolify.Owner{Kind: coolify.OwnerService, UUID: svc}
 
 	args := VolumeBackupArgs{
 		ServiceUUID: svc, MountPath: "/data", VolumeName: "mysql-data",

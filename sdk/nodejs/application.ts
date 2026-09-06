@@ -38,6 +38,10 @@ export class Application extends pulumi.CustomResource {
     }
 
     /**
+     * Tags the provider attached: the provider's default tags plus the declared ones.
+     */
+    declare public /*out*/ readonly appliedTags: pulumi.Output<string[]>;
+    /**
      * Deploy automatically on git push.
      */
     declare public readonly autoDeployEnabled: pulumi.Output<boolean | undefined>;
@@ -186,7 +190,7 @@ export class Application extends pulumi.CustomResource {
      */
     declare public /*out*/ readonly status: pulumi.Output<string>;
     /**
-     * Tags assigned on create. Only relevant on create.
+     * Tags attached to the application in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.
      */
     declare public readonly tags: pulumi.Output<string[] | undefined>;
     /**
@@ -253,10 +257,12 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["source"] = args?.source;
             resourceInputs["startCommand"] = args?.startCommand;
             resourceInputs["tags"] = args?.tags;
+            resourceInputs["appliedTags"] = undefined /*out*/;
             resourceInputs["fqdn"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
+            resourceInputs["appliedTags"] = undefined /*out*/;
             resourceInputs["autoDeployEnabled"] = undefined /*out*/;
             resourceInputs["baseDirectory"] = undefined /*out*/;
             resourceInputs["buildCommand"] = undefined /*out*/;
@@ -447,7 +453,7 @@ export interface ApplicationArgs {
      */
     startCommand?: pulumi.Input<string | undefined>;
     /**
-     * Tags assigned on create. Only relevant on create.
+     * Tags attached to the application in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.
      */
     tags?: pulumi.Input<pulumi.Input<string>[] | undefined>;
 }

@@ -210,17 +210,17 @@ func (VolumeBackup) Delete(ctx context.Context, req infer.DeleteRequest[VolumeBa
 
 // resolveVolumeBackupTarget returns the owner and the UUID of the storage to
 // back up, looking it up by mount path when no UUID was given.
-func resolveVolumeBackupTarget(ctx context.Context, c *coolify.Client, inputs VolumeBackupArgs) (coolify.StorageOwner, string, error) {
+func resolveVolumeBackupTarget(ctx context.Context, c *coolify.Client, inputs VolumeBackupArgs) (coolify.Owner, string, error) {
 	owner, err := storageOwner(inputs.ApplicationUUID, inputs.DatabaseUUID, inputs.ServiceUUID)
 	if err != nil {
-		return coolify.StorageOwner{}, "", err
+		return coolify.Owner{}, "", err
 	}
 	if inputs.StorageUUID != "" {
 		return owner, inputs.StorageUUID, nil
 	}
 	storage, err := findStorage(ctx, c, owner, inputs.MountPath, inputs.VolumeName)
 	if err != nil {
-		return coolify.StorageOwner{}, "", err
+		return coolify.Owner{}, "", err
 	}
 	return owner, storage.UUID, nil
 }

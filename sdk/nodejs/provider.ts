@@ -44,6 +44,8 @@ export class Provider extends pulumi.ProviderResource {
         {
             resourceInputs["apiToken"] = (args?.apiToken ? pulumi.secret(args.apiToken) : undefined) ?? (utilities.getEnv("COOLIFY_API_TOKEN") || "");
             resourceInputs["baseUrl"] = (args?.baseUrl) ?? (utilities.getEnv("COOLIFY_BASE_URL") || "");
+            resourceInputs["defaultTags"] = pulumi.output(args?.defaultTags).apply(JSON.stringify);
+            resourceInputs["disableDefaultTags"] = pulumi.output(args?.disableDefaultTags).apply(JSON.stringify);
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const secretOpts = { additionalSecretOutputs: ["apiToken"] };
@@ -64,4 +66,12 @@ export interface ProviderArgs {
      * Base URL of the Coolify instance without the API path, e.g. https://coolify.example.com. Defaults to the COOLIFY_BASE_URL environment variable.
      */
     baseUrl?: pulumi.Input<string | undefined>;
+    /**
+     * Tags attached to every application, database and service in addition to their own tags. Defaults to ["pulumi"]; use disableDefaultTags to attach none.
+     */
+    defaultTags?: pulumi.Input<pulumi.Input<string>[] | undefined>;
+    /**
+     * Attach no default tags at all. Needed because an empty defaultTags list is indistinguishable from an unset one.
+     */
+    disableDefaultTags?: pulumi.Input<boolean | undefined>;
 }

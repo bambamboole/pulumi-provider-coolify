@@ -110,16 +110,17 @@ func (d Database) Credentials() (user, password, name string) {
 
 // CreateDatabaseInput holds the fields shared by all database create endpoints.
 type CreateDatabaseInput struct {
-	ServerUUID      string  `json:"server_uuid"`
-	ProjectUUID     string  `json:"project_uuid"`
-	EnvironmentName string  `json:"environment_name"`
-	EnvironmentUUID string  `json:"environment_uuid,omitempty"`
-	Name            string  `json:"name"`
-	Description     *string `json:"description,omitempty"`
-	Image           *string `json:"image,omitempty"`
-	IsPublic        bool    `json:"is_public"`
-	PublicPort      *int    `json:"public_port,omitempty"`
-	InstantDeploy   bool    `json:"instant_deploy"`
+	ServerUUID      string   `json:"server_uuid"`
+	ProjectUUID     string   `json:"project_uuid"`
+	EnvironmentName string   `json:"environment_name"`
+	EnvironmentUUID string   `json:"environment_uuid,omitempty"`
+	Name            string   `json:"name"`
+	Description     *string  `json:"description,omitempty"`
+	Image           *string  `json:"image,omitempty"`
+	IsPublic        bool     `json:"is_public"`
+	PublicPort      *int     `json:"public_port,omitempty"`
+	InstantDeploy   bool     `json:"instant_deploy"`
+	Tags            []string `json:"tags,omitempty"`
 }
 
 type bodyRequest func(context.Context, string, io.Reader, ...api.RequestEditorFn) (*http.Response, error)

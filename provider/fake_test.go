@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sort"
 	"strings"
 	"sync"
 	"testing"
@@ -35,7 +36,11 @@ type fakeCoolify struct {
 	// volumeBackups are keyed by storage UUID.
 	volumeBackups map[string]map[string]any
 	volumeRuns    map[string]int
-	requests      []string
+	// tags is the team-wide tag registry keyed by tag UUID; taggables maps an
+	// owner UUID to the attached tag UUIDs.
+	tags      map[string]map[string]any
+	taggables map[string][]string
+	requests  []string
 }
 
 func newFakeCoolify(t *testing.T) *fakeCoolify {
@@ -54,6 +59,8 @@ func newFakeCoolify(t *testing.T) *fakeCoolify {
 		storages:      map[string][]map[string]any{},
 		volumeBackups: map[string]map[string]any{},
 		volumeRuns:    map[string]int{},
+		tags:          map[string]map[string]any{},
+		taggables:     map[string][]string{},
 	}
 	f.server = httptest.NewServer(http.HandlerFunc(f.handle))
 	t.Cleanup(f.server.Close)
@@ -134,6 +141,46 @@ func (f *fakeCoolify) addBackup(databaseUUID string, record map[string]any) stri
 	record["uuid"] = uuid
 	f.backups[databaseUUID] = append(f.backups[databaseUUID], record)
 	return uuid
+}
+
+// attachTag attaches a tag (creating it when needed) outside of the API, like
+// a user would in the Coolify UI.
+func (f *fakeCoolify) attachTag(ownerUUID, name string) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.attachTagLocked(ownerUUID, name)
+}
+
+func (f *fakeCoolify) attachTagLocked(ownerUUID, name string) {
+	name = strings.ToLower(strings.TrimSpace(name))
+	var uuid string
+	for id, tag := range f.tags {
+		if tag["name"] == name {
+			uuid = id
+		}
+	}
+	if uuid == "" {
+		uuid = fmt.Sprintf("u-tag-%d", f.id())
+		f.tags[uuid] = map[string]any{"uuid": uuid, "name": name}
+	}
+	for _, attached := range f.taggables[ownerUUID] {
+		if attached == uuid {
+			return
+		}
+	}
+	f.taggables[ownerUUID] = append(f.taggables[ownerUUID], uuid)
+}
+
+// tagNames returns the names attached to an owner, sorted.
+func (f *fakeCoolify) tagNames(ownerUUID string) []string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	names := []string{}
+	for _, uuid := range f.taggables[ownerUUID] {
+		names = append(names, f.tags[uuid]["name"].(string))
+	}
+	sort.Strings(names)
+	return names
 }
 
 // addStorage registers a storage on an owner. Persistent volumes carry "name",
@@ -323,6 +370,8 @@ func (f *fakeCoolify) handleDatabases(w http.ResponseWriter, r *http.Request, pa
 		f.handleBackups(w, r, parts[0], parts[2:])
 	case len(parts) >= 2 && parts[1] == "storages":
 		f.handleStorages(w, r, f.databases, parts[0], parts[2:])
+	case len(parts) >= 2 && parts[1] == "tags":
+		f.handleTags(w, r, f.databases, parts[0], parts[2:])
 	default:
 		writeError(w, http.StatusNotFound, "No route.")
 	}
@@ -476,6 +525,8 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 		f.handleMove(w, r, f.applications, parts[0], "Application")
 	case len(parts) >= 2 && parts[1] == "storages":
 		f.handleStorages(w, r, f.applications, parts[0], parts[2:])
+	case len(parts) >= 2 && parts[1] == "tags":
+		f.handleTags(w, r, f.applications, parts[0], parts[2:])
 	case len(parts) >= 2 && parts[1] == "scheduled-tasks":
 		f.handleScheduledTasks(w, r, parts[0], parts[2:])
 	case len(parts) == 2 && parts[1] == "envs":
@@ -553,6 +604,8 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 		f.handleMove(w, r, f.services, parts[0], "Service")
 	case len(parts) >= 2 && parts[1] == "storages":
 		f.handleStorages(w, r, f.services, parts[0], parts[2:])
+	case len(parts) >= 2 && parts[1] == "tags":
+		f.handleTags(w, r, f.services, parts[0], parts[2:])
 	case len(parts) == 2 && parts[1] == "envs":
 		if _, ok := f.services[parts[0]]; !ok {
 			writeError(w, http.StatusNotFound, "Service not found.")
@@ -711,6 +764,77 @@ func (f *fakeCoolify) handleVolumeBackup(w http.ResponseWriter, r *http.Request,
 		}
 		f.volumeRuns[storageUUID]++
 		writeJSON(w, http.StatusOK, map[string]any{"message": "Storage backup queued."})
+	default:
+		writeError(w, http.StatusNotFound, "No route.")
+	}
+}
+
+// handleTags mirrors Coolify's HandlesTagsApi: attaching creates missing team
+// tags, detaching deletes tags no resource carries any more.
+func (f *fakeCoolify) handleTags(w http.ResponseWriter, r *http.Request, owners map[string]map[string]any, ownerUUID string, parts []string) {
+	if _, ok := owners[ownerUUID]; !ok {
+		writeError(w, http.StatusNotFound, "Resource not found.")
+		return
+	}
+	list := func() []map[string]any {
+		out := []map[string]any{}
+		for _, uuid := range f.taggables[ownerUUID] {
+			out = append(out, f.tags[uuid])
+		}
+		return out
+	}
+	switch {
+	case len(parts) == 0 && r.Method == http.MethodGet:
+		writeJSON(w, http.StatusOK, list())
+	case len(parts) == 0 && r.Method == http.MethodPost:
+		body := readJSON(r)
+		names, _ := body["tag_names"].([]any)
+		if name, ok := body["tag_name"]; ok {
+			names = append(names, name)
+		}
+		if len(names) == 0 {
+			writeError(w, http.StatusUnprocessableEntity, "Provide tag_name or tag_names.")
+			return
+		}
+		for _, name := range names {
+			if len(strings.TrimSpace(name.(string))) < 2 {
+				writeError(w, http.StatusUnprocessableEntity, "Each tag name must be at least 2 characters after trimming.")
+				return
+			}
+			f.attachTagLocked(ownerUUID, name.(string))
+		}
+		writeJSON(w, http.StatusCreated, list())
+	case len(parts) == 1 && r.Method == http.MethodDelete:
+		if _, ok := f.tags[parts[0]]; !ok {
+			writeError(w, http.StatusNotFound, "Tag not found.")
+			return
+		}
+		kept := []string{}
+		found := false
+		for _, uuid := range f.taggables[ownerUUID] {
+			if uuid == parts[0] {
+				found = true
+				continue
+			}
+			kept = append(kept, uuid)
+		}
+		if !found {
+			writeError(w, http.StatusNotFound, "Tag not found on resource.")
+			return
+		}
+		f.taggables[ownerUUID] = kept
+		orphaned := true
+		for _, attached := range f.taggables {
+			for _, uuid := range attached {
+				if uuid == parts[0] {
+					orphaned = false
+				}
+			}
+		}
+		if orphaned {
+			delete(f.tags, parts[0])
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"message": "Tag removed."})
 	default:
 		writeError(w, http.StatusNotFound, "No route.")
 	}

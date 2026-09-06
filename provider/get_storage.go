@@ -90,8 +90,8 @@ func (GetStorage) Invoke(ctx context.Context, req infer.FunctionRequest[GetStora
 }
 
 // storageOwner derives the owner from the three mutually exclusive UUID inputs.
-func storageOwner(applicationUUID, databaseUUID, serviceUUID string) (coolify.StorageOwner, error) {
-	var owner coolify.StorageOwner
+func storageOwner(applicationUUID, databaseUUID, serviceUUID string) (coolify.Owner, error) {
+	var owner coolify.Owner
 	set := 0
 	for kind, uuid := range map[coolify.OwnerKind]string{
 		coolify.OwnerApplication: applicationUUID,
@@ -99,12 +99,12 @@ func storageOwner(applicationUUID, databaseUUID, serviceUUID string) (coolify.St
 		coolify.OwnerService:     serviceUUID,
 	} {
 		if uuid != "" {
-			owner = coolify.StorageOwner{Kind: kind, UUID: uuid}
+			owner = coolify.Owner{Kind: kind, UUID: uuid}
 			set++
 		}
 	}
 	if set != 1 {
-		return coolify.StorageOwner{}, fmt.Errorf("exactly one of applicationUuid, databaseUuid and serviceUuid must be set")
+		return coolify.Owner{}, fmt.Errorf("exactly one of applicationUuid, databaseUuid and serviceUuid must be set")
 	}
 	return owner, nil
 }
@@ -112,7 +112,7 @@ func storageOwner(applicationUUID, databaseUUID, serviceUUID string) (coolify.St
 // findStorage returns the single storage of the owner matching the mount path
 // and/or name. Names match the value Coolify reports or the value without the
 // owner prefix Coolify adds to volumes created through the API.
-func findStorage(ctx context.Context, c *coolify.Client, owner coolify.StorageOwner, mountPath, name string) (coolify.Storage, error) {
+func findStorage(ctx context.Context, c *coolify.Client, owner coolify.Owner, mountPath, name string) (coolify.Storage, error) {
 	if mountPath == "" && name == "" {
 		return coolify.Storage{}, fmt.Errorf("at least one of mountPath and name must be set")
 	}

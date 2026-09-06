@@ -32,6 +32,8 @@ Optional inputs left unset are treated as unmanaged: Coolify's own default is ke
 | --- | --- | --- |
 | `baseUrl` | `COOLIFY_BASE_URL` | Base URL of the Coolify instance, e.g. `https://coolify.example.com` |
 | `apiToken` | `COOLIFY_API_TOKEN` | Read/write API token (Coolify > Security > API tokens) |
+| `defaultTags` | | Tags attached to every application, database and service. Defaults to `["pulumi"]` |
+| `disableDefaultTags` | | Attach no default tags at all (an empty `defaultTags` list counts as unset) |
 
 ```ts
 import * as coolify from "@bambamboole/coolify";
@@ -119,6 +121,7 @@ new coolify.VolumeBackup("gitea-data", {
 - **Volume backups are write-only and destroy deletes the archives.** Coolify has no endpoint to read a volume backup schedule, so `coolify.VolumeBackup` re-sends the complete schedule on every update and `pulumi refresh` only detects a vanished storage, not changes made in the UI. Destroying the resource deletes the schedule **and all local and S3 archives**; set `retainOnDelete` to keep them. Deleting a `coolify.Storage` fails while a schedule exists, so make the backup depend on the storage. Single-file mounts cannot be backed up.
 - **Service compose files are write-only.** Coolify hides `dockerCompose` from the API, so it is sent on create and whenever the input changes, but drift on it is not detected.
 - **Private keys cannot be updated.** Coolify's `PATCH /security/keys` endpoint cannot address a key, so changing `name` or `privateKey` replaces the key and `description` is only applied on create.
+- **Tags are managed by declaration.** Applications, databases and services carry the provider's `defaultTags` plus their own `tags`. Declared tags are attached (Coolify creates unknown tags on the fly and lower-cases names), tags removed from the declaration are detached, and tags added in the Coolify UI are left alone. Coolify deletes a tag once no resource carries it, so there is no standalone tag resource.
 - **Application environment variables are managed by key.** Declared keys that are missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched. Coolify masks hidden values, so values are never compared.
 - **Deployments redeploy on any input change.** Use `triggers` to force a redeploy, e.g. with the image tag or a version. A deployment Coolify has pruned from its history keeps its recorded state.
 - **Refresh drops resources that were deleted in Coolify** so the next `pulumi up` recreates them.

@@ -63,10 +63,14 @@ type DatabaseArgs struct {
 	EnvironmentName string `pulumi:"environmentName"`
 	// UUID of the server hosting the database.
 	ServerUUID string `pulumi:"serverUuid"`
+	// Tags attached to the database in addition to the provider's default tags.
+	Tags []string `pulumi:"tags,optional"`
 }
 
 type DatabaseState struct {
 	DatabaseArgs
+	// Tags the provider attached: the provider's default tags plus the declared ones.
+	AppliedTags []string `pulumi:"appliedTags"`
 	// UUID of the database in Coolify.
 	UUID string `pulumi:"uuid"`
 	// ID of the Coolify environment the database lives in.
@@ -101,9 +105,11 @@ func (args *DatabaseArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.ProjectUUID, "UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the resource to the new project in place.")
 	a.Describe(&args.EnvironmentName, "Name of the environment inside the project. Changing it moves the resource in place; the environment must already exist.")
 	a.Describe(&args.ServerUUID, "UUID of the server hosting the database (the uuid output of a Server resource).")
+	a.Describe(&args.Tags, "Tags attached to the database in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.")
 }
 
 func (state *DatabaseState) Annotate(a infer.Annotator) {
+	a.Describe(&state.AppliedTags, "Tags the provider attached: the provider's default tags plus the declared ones.")
 	a.Describe(&state.UUID, "UUID of the database in Coolify.")
 	a.Describe(&state.EnvironmentID, "ID of the Coolify environment the database lives in.")
 	a.Describe(&state.Status, "Status reported by Coolify.")
@@ -122,6 +128,8 @@ func (Database) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckR
 	if args.IsPublic && args.PublicPort == nil {
 		failures = append(failures, p.CheckFailure{Property: "publicPort", Reason: "publicPort is required when isPublic is true"})
 	}
+	failures = append(failures, checkTags("tags", args.Tags)...)
+	args.Tags = normalizeTags(args.Tags)
 	return infer.CheckResponse[DatabaseArgs]{Inputs: args, Failures: failures}, nil
 }
 
@@ -129,11 +137,16 @@ func (Database) Create(ctx context.Context, req infer.CreateRequest[DatabaseArgs
 	if req.DryRun {
 		return infer.CreateResponse[DatabaseState]{Output: DatabaseState{DatabaseArgs: req.Inputs}}, nil
 	}
-	database, err := createDatabase(ctx, client(ctx), req.Inputs)
+	c := client(ctx)
+	database, err := createDatabase(ctx, c, req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[DatabaseState]{}, err
 	}
-	return infer.CreateResponse[DatabaseState]{ID: database.UUID, Output: databaseState(req.Inputs, database)}, nil
+	state := databaseState(req.Inputs, database)
+	if state.AppliedTags, err = reconcileTags(ctx, c, databaseOwner(state.UUID), effectiveTags(ctx, req.Inputs.Tags), nil); err != nil {
+		return infer.CreateResponse[DatabaseState]{}, err
+	}
+	return infer.CreateResponse[DatabaseState]{ID: state.UUID, Output: state}, nil
 }
 
 func (Database) Diff(ctx context.Context, req infer.DiffRequest[DatabaseArgs, DatabaseState]) (infer.DiffResponse, error) {
@@ -141,6 +154,10 @@ func (Database) Diff(ctx context.Context, req infer.DiffRequest[DatabaseArgs, Da
 	diff := diffArgs(req.State.DatabaseArgs, req.Inputs, "type", "serverUuid")
 	// Only relevant on create.
 	delete(diff, "instantDeploy")
+	delete(diff, "tags")
+	if tagsDiffer(effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags) {
+		diff["tags"] = p.PropertyDiff{Kind: p.Update}
+	}
 	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
 }
 
@@ -171,11 +188,16 @@ func (Database) Update(ctx context.Context, req infer.UpdateRequest[DatabaseArgs
 	if err != nil {
 		return infer.UpdateResponse[DatabaseState]{}, err
 	}
-	return infer.UpdateResponse[DatabaseState]{Output: databaseState(req.Inputs, database)}, nil
+	state := databaseState(req.Inputs, database)
+	if state.AppliedTags, err = reconcileTags(ctx, c, databaseOwner(req.ID), effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags); err != nil {
+		return infer.UpdateResponse[DatabaseState]{}, err
+	}
+	return infer.UpdateResponse[DatabaseState]{Output: state}, nil
 }
 
 func (Database) Read(ctx context.Context, req infer.ReadRequest[DatabaseArgs, DatabaseState]) (infer.ReadResponse[DatabaseArgs, DatabaseState], error) {
-	database, err := client(ctx).GetDatabase(ctx, req.ID)
+	c := client(ctx)
+	database, err := c.GetDatabase(ctx, req.ID)
 	if coolify.IsNotFound(err) {
 		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, nil
 	}
@@ -183,11 +205,14 @@ func (Database) Read(ctx context.Context, req infer.ReadRequest[DatabaseArgs, Da
 		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, err
 	}
 	inputs := databaseInputs(req.Inputs, database)
-	return infer.ReadResponse[DatabaseArgs, DatabaseState]{
-		ID:     req.ID,
-		Inputs: inputs,
-		State:  databaseState(inputs, database),
-	}, nil
+	tags, applied, err := readTags(ctx, c, databaseOwner(req.ID), req.Inputs.Tags, req.State.AppliedTags)
+	if err != nil {
+		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, err
+	}
+	inputs.Tags = tags
+	state := databaseState(inputs, database)
+	state.AppliedTags = applied
+	return infer.ReadResponse[DatabaseArgs, DatabaseState]{ID: req.ID, Inputs: inputs, State: state}, nil
 }
 
 func (Database) Delete(ctx context.Context, req infer.DeleteRequest[DatabaseState]) (infer.DeleteResponse, error) {
@@ -195,6 +220,10 @@ func (Database) Delete(ctx context.Context, req infer.DeleteRequest[DatabaseStat
 		return infer.DeleteResponse{}, err
 	}
 	return infer.DeleteResponse{}, nil
+}
+
+func databaseOwner(uuid string) coolify.Owner {
+	return coolify.Owner{Kind: coolify.OwnerDatabase, UUID: uuid}
 }
 
 func databasePlacement(args DatabaseArgs) placement {

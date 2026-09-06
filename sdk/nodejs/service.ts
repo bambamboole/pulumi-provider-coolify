@@ -35,6 +35,10 @@ export class Service extends pulumi.CustomResource {
     }
 
     /**
+     * Tags the provider attached: the provider's default tags plus the declared ones.
+     */
+    declare public /*out*/ readonly appliedTags: pulumi.Output<string[]>;
+    /**
      * Connect the service to Coolify's predefined Docker network.
      */
     declare public readonly connectToDockerNetwork: pulumi.Output<boolean | undefined>;
@@ -75,6 +79,10 @@ export class Service extends pulumi.CustomResource {
      */
     declare public readonly serverUuid: pulumi.Output<string>;
     /**
+     * Tags attached to the service in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.
+     */
+    declare public readonly tags: pulumi.Output<string[] | undefined>;
+    /**
      * One-click service type, e.g. "plausible" or "gitea-with-mysql". Exactly one of type and dockerCompose must be set. Changing it replaces the service.
      */
     declare public readonly type: pulumi.Output<string | undefined>;
@@ -113,9 +121,12 @@ export class Service extends pulumi.CustomResource {
             resourceInputs["name"] = args?.name;
             resourceInputs["projectUuid"] = args?.projectUuid;
             resourceInputs["serverUuid"] = args?.serverUuid;
+            resourceInputs["tags"] = args?.tags;
             resourceInputs["type"] = args?.type;
+            resourceInputs["appliedTags"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
+            resourceInputs["appliedTags"] = undefined /*out*/;
             resourceInputs["connectToDockerNetwork"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
             resourceInputs["destinationUuid"] = undefined /*out*/;
@@ -126,6 +137,7 @@ export class Service extends pulumi.CustomResource {
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["projectUuid"] = undefined /*out*/;
             resourceInputs["serverUuid"] = undefined /*out*/;
+            resourceInputs["tags"] = undefined /*out*/;
             resourceInputs["type"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         }
@@ -178,6 +190,10 @@ export interface ServiceArgs {
      * UUID of the server hosting the service (the uuid output of a Server resource). Changing it replaces the service.
      */
     serverUuid: pulumi.Input<string>;
+    /**
+     * Tags attached to the service in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.
+     */
+    tags?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
      * One-click service type, e.g. "plausible" or "gitea-with-mysql". Exactly one of type and dockerCompose must be set. Changing it replaces the service.
      */

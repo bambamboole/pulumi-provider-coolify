@@ -88,3 +88,12 @@ func TestPatchHelpers(t *testing.T) {
 func withClient(ctx context.Context, c *coolify.Client) context.Context {
 	return context.WithValue(ctx, clientKey{}, c)
 }
+
+// withDefaultTags injects provider default tags for tests, replacing the
+// configured provider's defaultTags.
+func withDefaultTags(ctx context.Context, tags ...string) context.Context {
+	if tags == nil {
+		tags = []string{}
+	}
+	return context.WithValue(ctx, defaultTagsKey{}, tags)
+}

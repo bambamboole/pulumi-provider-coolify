@@ -110,7 +110,7 @@ type ApplicationArgs struct {
 	LimitsMemory string `pulumi:"limitsMemory,optional"`
 	// CPU limit, e.g. "0.5".
 	LimitsCPUs string `pulumi:"limitsCPUs,optional"`
-	// Tags assigned on create.
+	// Tags attached to the application in addition to the provider's default tags.
 	Tags []string `pulumi:"tags,optional"`
 
 	// Environment variables managed by key: declared keys missing in Coolify are
@@ -121,6 +121,8 @@ type ApplicationArgs struct {
 
 type ApplicationState struct {
 	ApplicationArgs
+	// Tags the provider attached: the provider's default tags plus the declared ones.
+	AppliedTags []string `pulumi:"appliedTags"`
 	// UUID of the application in Coolify.
 	UUID string `pulumi:"uuid"`
 	// FQDN Coolify serves the application on.
@@ -169,11 +171,12 @@ func (args *ApplicationArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.HealthCheckMethod, "Health check HTTP method.")
 	a.Describe(&args.LimitsMemory, `Memory limit, e.g. "512m".`)
 	a.Describe(&args.LimitsCPUs, `CPU limit, e.g. "0.5".`)
-	a.Describe(&args.Tags, "Tags assigned on create. Only relevant on create.")
+	a.Describe(&args.Tags, "Tags attached to the application in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.")
 	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.")
 }
 
 func (state *ApplicationState) Annotate(a infer.Annotator) {
+	a.Describe(&state.AppliedTags, "Tags the provider attached: the provider's default tags plus the declared ones.")
 	a.Describe(&state.UUID, "UUID of the application in Coolify.")
 	a.Describe(&state.FQDN, "FQDN Coolify serves the application on.")
 	a.Describe(&state.Status, "Status reported by Coolify.")
@@ -187,6 +190,8 @@ func (Application) Check(ctx context.Context, req infer.CheckRequest) (infer.Che
 	if args.Name == "" {
 		args.Name = req.Name
 	}
+	failures = append(failures, checkTags("tags", args.Tags)...)
+	args.Tags = normalizeTags(args.Tags)
 	require := func(property, value string) {
 		if value == "" {
 			failures = append(failures, p.CheckFailure{
@@ -222,11 +227,16 @@ func (Application) Create(ctx context.Context, req infer.CreateRequest[Applicati
 	if req.DryRun {
 		return infer.CreateResponse[ApplicationState]{Output: ApplicationState{ApplicationArgs: req.Inputs}}, nil
 	}
-	app, err := createApplication(ctx, client(ctx), req.Inputs)
+	c := client(ctx)
+	app, err := createApplication(ctx, c, req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[ApplicationState]{}, err
 	}
-	return infer.CreateResponse[ApplicationState]{ID: coolify.Deref(app.Uuid), Output: applicationState(req.Inputs, app)}, nil
+	state := applicationState(req.Inputs, app)
+	if state.AppliedTags, err = reconcileTags(ctx, c, applicationOwner(state.UUID), effectiveTags(ctx, req.Inputs.Tags), nil); err != nil {
+		return infer.CreateResponse[ApplicationState]{}, err
+	}
+	return infer.CreateResponse[ApplicationState]{ID: state.UUID, Output: state}, nil
 }
 
 func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationArgs, ApplicationState]) (infer.DiffResponse, error) {
@@ -234,7 +244,12 @@ func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationAr
 	diff := diffArgs(req.State.ApplicationArgs, req.Inputs, "serverUuid", "source", "privateKeyUuid", "githubAppUuid")
 	// Only relevant on create.
 	delete(diff, "instantDeploy")
+	// Tags are compared against what the provider applied, so a changed
+	// provider default is picked up too.
 	delete(diff, "tags")
+	if tagsDiffer(effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags) {
+		diff["tags"] = p.PropertyDiff{Kind: p.Update}
+	}
 	// Environment variables are additive by key: only newly declared keys
 	// trigger an update, values are never compared.
 	delete(diff, "environmentVariables")
@@ -271,7 +286,11 @@ func (Application) Update(ctx context.Context, req infer.UpdateRequest[Applicati
 	if err != nil {
 		return infer.UpdateResponse[ApplicationState]{}, err
 	}
-	return infer.UpdateResponse[ApplicationState]{Output: applicationState(req.Inputs, app)}, nil
+	state := applicationState(req.Inputs, app)
+	if state.AppliedTags, err = reconcileTags(ctx, c, applicationOwner(req.ID), effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags); err != nil {
+		return infer.UpdateResponse[ApplicationState]{}, err
+	}
+	return infer.UpdateResponse[ApplicationState]{Output: state}, nil
 }
 
 func (Application) Read(ctx context.Context, req infer.ReadRequest[ApplicationArgs, ApplicationState]) (infer.ReadResponse[ApplicationArgs, ApplicationState], error) {
@@ -291,11 +310,14 @@ func (Application) Read(ctx context.Context, req infer.ReadRequest[ApplicationAr
 		}
 		inputs.EnvironmentVariables = declaredEnvironmentVariables(req.Inputs.EnvironmentVariables, existing)
 	}
-	return infer.ReadResponse[ApplicationArgs, ApplicationState]{
-		ID:     req.ID,
-		Inputs: inputs,
-		State:  applicationState(inputs, app),
-	}, nil
+	tags, applied, err := readTags(ctx, c, applicationOwner(req.ID), req.Inputs.Tags, req.State.AppliedTags)
+	if err != nil {
+		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
+	}
+	inputs.Tags = tags
+	state := applicationState(inputs, app)
+	state.AppliedTags = applied
+	return infer.ReadResponse[ApplicationArgs, ApplicationState]{ID: req.ID, Inputs: inputs, State: state}, nil
 }
 
 func (Application) Delete(ctx context.Context, req infer.DeleteRequest[ApplicationState]) (infer.DeleteResponse, error) {
@@ -512,6 +534,10 @@ func applicationInputs(previous ApplicationArgs, app api.Application) Applicatio
 	inputs.LimitsMemory = ifSet(previous.LimitsMemory, coolify.Deref(app.LimitsMemory))
 	inputs.LimitsCPUs = ifSet(previous.LimitsCPUs, coolify.Deref(app.LimitsCpus))
 	return inputs
+}
+
+func applicationOwner(uuid string) coolify.Owner {
+	return coolify.Owner{Kind: coolify.OwnerApplication, UUID: uuid}
 }
 
 func applicationPlacement(args ApplicationArgs) placement {

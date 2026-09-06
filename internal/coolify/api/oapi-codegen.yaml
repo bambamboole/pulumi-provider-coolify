@@ -98,6 +98,16 @@ output-options:
     - set-service-storage-backup-schedule
     - delete-service-storage-backup-schedule
     - run-service-storage-backup
+    # Tags on applications, databases and services
+    - list-tags-by-application-uuid
+    - create-tag-by-application-uuid
+    - delete-tag-by-application-uuid
+    - list-tags-by-database-uuid
+    - create-tag-by-database-uuid
+    - delete-tag-by-database-uuid
+    - list-tags-by-service-uuid
+    - create-tag-by-service-uuid
+    - delete-tag-by-service-uuid
     # GitHub Apps
     - list-github-apps
     - create-github-app

@@ -21,6 +21,10 @@ type Config struct {
 	BaseURL string `pulumi:"baseUrl,optional"`
 	// ApiToken is the Coolify read/write API token.
 	ApiToken string `pulumi:"apiToken,optional" provider:"secret"`
+	// DefaultTags are attached to every application, database and service.
+	DefaultTags []string `pulumi:"defaultTags,optional"`
+	// DisableDefaultTags turns default tags off entirely.
+	DisableDefaultTags bool `pulumi:"disableDefaultTags,optional"`
 
 	client *coolify.Client
 }
@@ -29,6 +33,8 @@ func (c *Config) Annotate(a infer.Annotator) {
 	a.Describe(&c, "Manage resources on a Coolify instance through the Coolify v4 API.")
 	a.Describe(&c.BaseURL, "Base URL of the Coolify instance without the API path, e.g. https://coolify.example.com. Defaults to the COOLIFY_BASE_URL environment variable.")
 	a.Describe(&c.ApiToken, "Coolify read/write API token (Coolify > Security > API tokens). Defaults to the COOLIFY_API_TOKEN environment variable.")
+	a.Describe(&c.DefaultTags, `Tags attached to every application, database and service in addition to their own tags. Defaults to ["pulumi"]; use disableDefaultTags to attach none.`)
+	a.Describe(&c.DisableDefaultTags, "Attach no default tags at all. Needed because an empty defaultTags list is indistinguishable from an unset one.")
 	a.SetDefault(&c.BaseURL, "", envBaseURL)
 	a.SetDefault(&c.ApiToken, "", envAPIToken)
 }
@@ -49,6 +55,25 @@ func (c *Config) Configure(_ context.Context) error {
 		return err
 	}
 	c.client = client
+	return c.applyDefaultTags()
+}
+
+// defaultDefaultTags is used when defaultTags is not configured. Pulumi decodes
+// an empty list to nil, so disableDefaultTags is the way to turn them off.
+var defaultDefaultTags = []string{"pulumi"}
+
+func (c *Config) applyDefaultTags() error {
+	if c.DisableDefaultTags {
+		c.DefaultTags = []string{}
+		return nil
+	}
+	if c.DefaultTags == nil {
+		c.DefaultTags = defaultDefaultTags
+	}
+	if failures := checkTags("defaultTags", c.DefaultTags); len(failures) > 0 {
+		return errors.New("coolify: " + failures[0].Reason)
+	}
+	c.DefaultTags = normalizeTags(c.DefaultTags)
 	return nil
 }
 

@@ -108,7 +108,8 @@ func TestMoveClientsHitTheirEndpoints(t *testing.T) {
 }
 
 func TestPlacementChangesAreUpdatesNotReplacements(t *testing.T) {
-	ctx := context.Background()
+	// Diff consults the provider's default tags.
+	ctx := withDefaultTags(context.Background())
 	app := applicationArgs("u-project-1", nil)
 	movedApp := app
 	movedApp.ProjectUUID, movedApp.EnvironmentName = "u-project-2", "staging"
