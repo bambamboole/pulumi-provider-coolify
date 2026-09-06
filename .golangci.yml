@@ -1,0 +1,30 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/bambamboole/pulumi-provider-coolify
+  exclusions:
+    paths:
+      - internal/coolify/api/client.gen.go
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell
+    - unconvert
+    - unparam
+  exclusions:
+    paths:
+      - internal/coolify/api/client.gen.go
