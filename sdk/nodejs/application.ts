@@ -40,7 +40,7 @@ export class Application extends pulumi.CustomResource {
     /**
      * Tags the provider attached: the provider's default tags plus the declared ones.
      */
-    declare public /*out*/ readonly appliedTags: pulumi.Output<string[]>;
+    declare public /*out*/ readonly appliedTags: pulumi.Output<string[] | undefined>;
     /**
      * Deploy automatically on git push.
      */

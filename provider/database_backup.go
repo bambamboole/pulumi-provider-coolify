@@ -89,7 +89,7 @@ func (DatabaseBackup) Check(ctx context.Context, req infer.CheckRequest) (infer.
 	if err != nil {
 		return infer.CheckResponse[DatabaseBackupArgs]{}, err
 	}
-	if args.SaveS3 && args.S3StorageUUID == "" {
+	if args.SaveS3 && args.S3StorageUUID == "" && !req.NewInputs.Get("s3StorageUuid").IsComputed() {
 		failures = append(failures, p.CheckFailure{Property: "s3StorageUuid", Reason: "s3StorageUuid is required when saveS3 is true"})
 	}
 	return infer.CheckResponse[DatabaseBackupArgs]{Inputs: args, Failures: failures}, nil

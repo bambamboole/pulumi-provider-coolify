@@ -122,7 +122,8 @@ type ApplicationArgs struct {
 type ApplicationState struct {
 	ApplicationArgs
 	// Tags the provider attached: the provider's default tags plus the declared ones.
-	AppliedTags []string `pulumi:"appliedTags"`
+	// Optional for states written before tag management was introduced.
+	AppliedTags []string `pulumi:"appliedTags,optional"`
 	// UUID of the application in Coolify.
 	UUID string `pulumi:"uuid"`
 	// FQDN Coolify serves the application on.
