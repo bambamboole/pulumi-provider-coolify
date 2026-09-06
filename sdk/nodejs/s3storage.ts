@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * A Coolify S3-compatible storage destination, e.g. an R2 bucket for backups.
+ * A Coolify S3-compatible storage destination, e.g. an R2 bucket for backups. An existing storage with the same name is adopted on create.
  */
 export class S3Storage extends pulumi.CustomResource {
     /**
@@ -34,15 +34,41 @@ export class S3Storage extends pulumi.CustomResource {
         return obj['__pulumiType'] === S3Storage.__pulumiType;
     }
 
+    /**
+     * S3 access key.
+     */
+    declare public readonly accessKey: pulumi.Output<string>;
+    /**
+     * S3 bucket name.
+     */
     declare public readonly bucket: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string>;
+    /**
+     * Description of the storage.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * S3 endpoint URL, e.g. https://<account>.eu.r2.cloudflarestorage.com.
+     */
     declare public readonly endpoint: pulumi.Output<string>;
     /**
      * Whether Coolify validated the storage as usable.
      */
     declare public /*out*/ readonly isUsable: pulumi.Output<boolean>;
+    /**
+     * Name of the storage. An existing storage with this name is adopted.
+     */
     declare public readonly name: pulumi.Output<string>;
-    declare public readonly region: pulumi.Output<string>;
+    /**
+     * S3 region ("auto" for R2).
+     */
+    declare public readonly region: pulumi.Output<string | undefined>;
+    /**
+     * S3 secret key.
+     */
+    declare public readonly secretKey: pulumi.Output<string>;
+    /**
+     * UUID of the storage in Coolify.
+     */
     declare public /*out*/ readonly uuid: pulumi.Output<string>;
 
     /**
@@ -81,15 +107,19 @@ export class S3Storage extends pulumi.CustomResource {
             resourceInputs["isUsable"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
+            resourceInputs["accessKey"] = undefined /*out*/;
             resourceInputs["bucket"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
             resourceInputs["endpoint"] = undefined /*out*/;
             resourceInputs["isUsable"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
             resourceInputs["region"] = undefined /*out*/;
+            resourceInputs["secretKey"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const secretOpts = { additionalSecretOutputs: ["accessKey", "secretKey"] };
+        opts = pulumi.mergeOptions(opts, secretOpts);
         super(S3Storage.__pulumiType, name, resourceInputs, opts);
     }
 }
@@ -99,16 +129,31 @@ export class S3Storage extends pulumi.CustomResource {
  */
 export interface S3StorageArgs {
     /**
-     * S3 access key. Never stored in state.
+     * S3 access key.
      */
     accessKey: pulumi.Input<string>;
+    /**
+     * S3 bucket name.
+     */
     bucket: pulumi.Input<string>;
+    /**
+     * Description of the storage.
+     */
     description?: pulumi.Input<string | undefined>;
+    /**
+     * S3 endpoint URL, e.g. https://<account>.eu.r2.cloudflarestorage.com.
+     */
     endpoint: pulumi.Input<string>;
+    /**
+     * Name of the storage. An existing storage with this name is adopted.
+     */
     name: pulumi.Input<string>;
+    /**
+     * S3 region ("auto" for R2).
+     */
     region?: pulumi.Input<string | undefined>;
     /**
-     * S3 secret key. Never stored in state.
+     * S3 secret key.
      */
     secretKey: pulumi.Input<string>;
 }

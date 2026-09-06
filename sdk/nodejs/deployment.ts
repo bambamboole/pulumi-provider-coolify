@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * Triggers a deployment of a Coolify application and waits for it to finish.
+ * Triggers a deployment of a Coolify application and waits for it to finish. Deploys again whenever an input changes.
  */
 export class Deployment extends pulumi.CustomResource {
     /**
@@ -34,12 +34,37 @@ export class Deployment extends pulumi.CustomResource {
         return obj['__pulumiType'] === Deployment.__pulumiType;
     }
 
+    /**
+     * UUID of the Coolify application to deploy (the uuid output of an Application resource).
+     */
     declare public readonly application: pulumi.Output<string>;
-    declare public /*out*/ readonly commit: pulumi.Output<string | undefined>;
+    /**
+     * Git commit that was deployed, if any.
+     */
+    declare public /*out*/ readonly commit: pulumi.Output<string>;
+    /**
+     * Override the Docker image tag to deploy.
+     */
     declare public readonly dockerTag: pulumi.Output<string | undefined>;
-    declare public readonly force: pulumi.Output<boolean>;
+    /**
+     * Force a rebuild even when there are no new commits.
+     */
+    declare public readonly force: pulumi.Output<boolean | undefined>;
+    /**
+     * Deploy a preview of the given pull request instead of the default branch.
+     */
     declare public readonly pullRequestId: pulumi.Output<number | undefined>;
+    /**
+     * Final status reported by Coolify.
+     */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * Arbitrary values that trigger a redeploy when they change, e.g. an image digest or a version.
+     */
+    declare public readonly triggers: pulumi.Output<string[] | undefined>;
+    /**
+     * UUID of the deployment in Coolify.
+     */
     declare public /*out*/ readonly uuid: pulumi.Output<string>;
 
     /**
@@ -60,6 +85,7 @@ export class Deployment extends pulumi.CustomResource {
             resourceInputs["dockerTag"] = args?.dockerTag;
             resourceInputs["force"] = args?.force;
             resourceInputs["pullRequestId"] = args?.pullRequestId;
+            resourceInputs["triggers"] = args?.triggers;
             resourceInputs["commit"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
@@ -70,6 +96,7 @@ export class Deployment extends pulumi.CustomResource {
             resourceInputs["force"] = undefined /*out*/;
             resourceInputs["pullRequestId"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
+            resourceInputs["triggers"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -97,4 +124,8 @@ export interface DeploymentArgs {
      * Deploy a preview of the given pull request instead of the default branch.
      */
     pullRequestId?: pulumi.Input<number | undefined>;
+    /**
+     * Arbitrary values that trigger a redeploy when they change, e.g. an image digest or a version.
+     */
+    triggers?: pulumi.Input<pulumi.Input<string>[] | undefined>;
 }

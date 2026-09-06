@@ -1,0 +1,78 @@
+# Configuration for oapi-codegen. Only the operations the provider uses are
+# generated; add an operationId here when a resource needs a new endpoint and
+# run `make gen-client`.
+package: api
+output: client.gen.go
+generate:
+  client: true
+  models: true
+output-options:
+  include-operation-ids:
+    # Projects and environments
+    - list-projects
+    - create-project
+    - get-project-by-uuid
+    - update-project-by-uuid
+    - delete-project-by-uuid
+    - get-environments
+    - get-environment-by-name-or-uuid
+    - create-environment
+    - delete-environment
+    # Databases
+    - list-databases
+    - get-database-by-uuid
+    - update-database-by-uuid
+    - delete-database-by-uuid
+    - create-database-postgresql
+    - create-database-mysql
+    - create-database-mariadb
+    - create-database-mongodb
+    - create-database-redis
+    - create-database-keydb
+    - create-database-dragonfly
+    - create-database-clickhouse
+    # Private keys
+    - list-private-keys
+    - get-private-key-by-uuid
+    - create-private-key
+    - update-private-key
+    - delete-private-key-by-uuid
+    # Servers
+    - list-servers
+    - get-server-by-uuid
+    - create-server
+    - update-server-by-uuid
+    - delete-server-by-uuid
+    # S3 storages
+    - list-s3-storages
+    - get-s3-storage-by-uuid
+    - create-s3-storage
+    - update-s3-storage-by-uuid
+    - delete-s3-storage-by-uuid
+    # Applications and their environment variables
+    - list-applications
+    - get-application-by-uuid
+    - update-application-by-uuid
+    - delete-application-by-uuid
+    - create-public-application
+    - create-private-github-app-application
+    - create-private-deploy-key-application
+    - create-dockerfile-application
+    - create-dockerimage-application
+    - list-envs-by-application-uuid
+    - create-env-by-application-uuid
+    - update-env-by-application-uuid
+    - delete-env-by-application-uuid
+    # GitHub Apps
+    - list-github-apps
+    - create-github-app
+    - updateGithubApp
+    - deleteGithubApp
+    # Scheduled tasks
+    - list-scheduled-tasks-by-application-uuid
+    - create-scheduled-task-by-application-uuid
+    - update-scheduled-task-by-application-uuid
+    - delete-scheduled-task-by-application-uuid
+    # Deployments
+    - deploy-by-tag-or-uuid
+    - get-deployment-by-uuid

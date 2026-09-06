@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * A Coolify project with its environments.
+ * A Coolify project with its environments. An existing project with the same name is adopted on create.
  */
 export class Project extends pulumi.CustomResource {
     /**
@@ -34,8 +34,17 @@ export class Project extends pulumi.CustomResource {
         return obj['__pulumiType'] === Project.__pulumiType;
     }
 
-    declare public readonly description: pulumi.Output<string>;
-    declare public readonly environments: pulumi.Output<string[]>;
+    /**
+     * Description of the project.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Environments that must exist in the project. Only added; never removed.
+     */
+    declare public readonly environments: pulumi.Output<string[] | undefined>;
+    /**
+     * Name of the project. An existing project with this name is adopted.
+     */
     declare public readonly name: pulumi.Output<string>;
     /**
      * UUID of the project in Coolify.
@@ -84,7 +93,7 @@ export interface ProjectArgs {
      */
     environments?: pulumi.Input<pulumi.Input<string>[] | undefined>;
     /**
-     * Name of the project.
+     * Name of the project. An existing project with this name is adopted.
      */
     name: pulumi.Input<string>;
 }

@@ -1,10 +1,12 @@
-BIN := bin/pulumi-resource-coolify
+BIN     := bin/pulumi-resource-coolify
 VERSION ?= $(shell node -p "require('./pulumi-plugin.json').version")
+LDFLAGS := -X main.version=$(VERSION)
+SDK_DIR := sdk/nodejs
 
-.PHONY: build test vet schema gen-sdk sdk-nodejs patch-sdk install-local publish-sdk-npm clean
+.PHONY: build test vet lint fmt gen-client schema gen-sdk build-sdk install-local clean
 
 build:
-	go build -o $(BIN) ./cmd/pulumi-resource-coolify
+	go build -ldflags "$(LDFLAGS)" -o $(BIN) ./cmd/pulumi-resource-coolify
 
 test:
 	go test ./...
@@ -12,26 +14,40 @@ test:
 vet:
 	go vet ./...
 
+# Requires golangci-lint v2: https://golangci-lint.run/welcome/install/
+lint:
+	golangci-lint run ./...
+
+fmt:
+	gofmt -w $$(git ls-files '*.go' | grep -v client.gen.go)
+
+# Regenerate the Coolify API client from the checked-in OpenAPI snapshot.
+# Update internal/coolify/api/openapi.yaml from
+# https://raw.githubusercontent.com/coollabsio/coolify/main/openapi.yaml first
+# when a newer Coolify release is needed.
+gen-client:
+	go generate ./internal/coolify/api/...
+
 schema: build
 	pulumi package get-schema ./$(BIN) > schema.json
 
-# Regenerate the checked-in TypeScript SDK and normalize its package name so it
-# can be consumed either from the local path or published to npm.
-gen-sdk: sdk-nodejs patch-sdk
-
-sdk-nodejs: build
-	rm -rf sdk/nodejs
+# Regenerate the checked-in TypeScript SDK sources from the provider schema.
+gen-sdk: build
+	rm -rf $(SDK_DIR)
 	pulumi package gen-sdk ./$(BIN) --language nodejs --out sdk
-	rm -rf sdk/nodejs/node_modules
-
-patch-sdk:
-	cp LICENSE sdk/nodejs/LICENSE
+	cp LICENSE $(SDK_DIR)/LICENSE
 	node patch-sdk.js
-	cd sdk/nodejs && npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+	cd $(SDK_DIR) && npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+# Compile the SDK into sdk/nodejs/bin, the directory that is published to npm
+# and that local consumers reference with a file: dependency.
+build-sdk:
+	cd $(SDK_DIR) && npm ci --no-audit --no-fund && npm run build
+	cp $(SDK_DIR)/package.json $(SDK_DIR)/README.md LICENSE $(SDK_DIR)/bin/
+	cd $(SDK_DIR)/bin && node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.version='$(VERSION)';p.pulumi.version='$(VERSION)';delete p.scripts.prepare;delete p.devDependencies;fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
 
 # Build the plugin and install it into the local Pulumi plugin cache so `pulumi`
-# resolves it without a GitHub release. Run this after $make build on the main
-# branch; consumers reference the SDK with `"@bambamboole/coolify": "file:..."`.
+# resolves it without a GitHub release.
 install-local: build
 	@pulumi plugin rm resource coolify $(VERSION) --yes 2>/dev/null || true
 	rm -rf bin/plugin
@@ -41,8 +57,5 @@ install-local: build
 	tar czf bin/pulumi-resource-coolify-$(VERSION).tar.gz -C bin/plugin pulumi-resource-coolify pulumi-plugin.json
 	pulumi plugin install resource coolify $(VERSION) --file bin/pulumi-resource-coolify-$(VERSION).tar.gz
 
-publish-sdk-npm:
-	cd sdk/nodejs && npm publish --access public
-
 clean:
-	rm -rf bin sdk schema.json
+	rm -rf bin $(SDK_DIR)/bin $(SDK_DIR)/node_modules schema.json

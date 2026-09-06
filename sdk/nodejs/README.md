@@ -1,1 +1,1 @@
-Manage resources on a Coolify instance: projects, databases, private keys, servers, S3 storage, applications and deployments.
+Manage resources on a Coolify instance: projects, databases, private keys, GitHub Apps, servers, S3 storage, applications, scheduled tasks and deployments.

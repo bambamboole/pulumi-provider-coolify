@@ -23,11 +23,11 @@ export class Provider extends pulumi.ProviderResource {
     }
 
     /**
-     * Coolify read/write API token (Coolify > Security > API tokens).
+     * Coolify read/write API token (Coolify > Security > API tokens). Defaults to the COOLIFY_API_TOKEN environment variable.
      */
-    declare public readonly apiToken: pulumi.Output<string | undefined>;
+    declare public readonly apiToken: pulumi.Output<string>;
     /**
-     * Base URL of the Coolify instance, without the API path (e.g. https://coolify.example.com).
+     * Base URL of the Coolify instance without the API path, e.g. https://coolify.example.com. Defaults to the COOLIFY_BASE_URL environment variable.
      */
     declare public readonly baseUrl: pulumi.Output<string>;
 
@@ -38,15 +38,12 @@ export class Provider extends pulumi.ProviderResource {
      * @param args The arguments to use to populate this resource's properties.
      * @param opts A bag of options that control this resource's behavior.
      */
-    constructor(name: string, args: ProviderArgs, opts?: pulumi.ResourceOptions) {
+    constructor(name: string, args?: ProviderArgs, opts?: pulumi.ResourceOptions) {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         {
-            if (args?.baseUrl === undefined && !opts.urn) {
-                throw new Error("Missing required property 'baseUrl'");
-            }
-            resourceInputs["apiToken"] = args?.apiToken ? pulumi.secret(args.apiToken) : undefined;
-            resourceInputs["baseUrl"] = args?.baseUrl;
+            resourceInputs["apiToken"] = (args?.apiToken ? pulumi.secret(args.apiToken) : undefined) ?? (utilities.getEnv("COOLIFY_API_TOKEN") || "");
+            resourceInputs["baseUrl"] = (args?.baseUrl) ?? (utilities.getEnv("COOLIFY_BASE_URL") || "");
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
         const secretOpts = { additionalSecretOutputs: ["apiToken"] };
@@ -60,11 +57,11 @@ export class Provider extends pulumi.ProviderResource {
  */
 export interface ProviderArgs {
     /**
-     * Coolify read/write API token (Coolify > Security > API tokens).
+     * Coolify read/write API token (Coolify > Security > API tokens). Defaults to the COOLIFY_API_TOKEN environment variable.
      */
     apiToken?: pulumi.Input<string | undefined>;
     /**
-     * Base URL of the Coolify instance, without the API path (e.g. https://coolify.example.com).
+     * Base URL of the Coolify instance without the API path, e.g. https://coolify.example.com. Defaults to the COOLIFY_BASE_URL environment variable.
      */
-    baseUrl: pulumi.Input<string>;
+    baseUrl?: pulumi.Input<string | undefined>;
 }

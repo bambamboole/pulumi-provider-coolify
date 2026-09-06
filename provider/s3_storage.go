@@ -4,15 +4,17 @@ import (
 	"context"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
+
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
-// S3Storage manages a Coolify S3-compatible storage destination (e.g. an R2
-// bucket). The access key and secret key are only sent on create and when the
-// input fields change; they are never stored in state.
+// S3Storage manages a Coolify S3-compatible storage destination, e.g. an R2
+// bucket used for backups.
 type S3Storage struct{}
 
 type S3StorageArgs struct {
-	// Name of the storage.
+	// Name of the storage. An existing storage with this name is adopted.
 	Name string `pulumi:"name"`
 	// Description of the storage.
 	Description string `pulumi:"description,optional"`
@@ -29,181 +31,142 @@ type S3StorageArgs struct {
 }
 
 type S3StorageState struct {
+	S3StorageArgs
 	// UUID of the storage in Coolify.
 	UUID string `pulumi:"uuid"`
-	// Name of the storage.
-	Name string `pulumi:"name"`
-	// Description of the storage.
-	Description string `pulumi:"description"`
-	// S3 endpoint URL.
-	Endpoint string `pulumi:"endpoint"`
-	// S3 bucket name.
-	Bucket string `pulumi:"bucket"`
-	// S3 region.
-	Region string `pulumi:"region"`
 	// Whether Coolify validated the storage as usable.
 	IsUsable bool `pulumi:"isUsable"`
 }
 
 func (r *S3Storage) Annotate(a infer.Annotator) {
 	a.SetToken("index", "S3Storage")
-	a.Describe(&r, "A Coolify S3-compatible storage destination, e.g. an R2 bucket for backups.")
+	a.Describe(&r, "A Coolify S3-compatible storage destination, e.g. an R2 bucket for backups. An existing storage with the same name is adopted on create.")
 }
 
 func (args *S3StorageArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.AccessKey, "S3 access key. Never stored in state.")
-	a.Describe(&args.SecretKey, "S3 secret key. Never stored in state.")
+	a.Describe(&args.Name, "Name of the storage. An existing storage with this name is adopted.")
+	a.Describe(&args.Description, "Description of the storage.")
+	a.Describe(&args.Endpoint, "S3 endpoint URL, e.g. https://<account>.eu.r2.cloudflarestorage.com.")
+	a.Describe(&args.Bucket, "S3 bucket name.")
+	a.Describe(&args.Region, `S3 region ("auto" for R2).`)
+	a.Describe(&args.AccessKey, "S3 access key.")
+	a.Describe(&args.SecretKey, "S3 secret key.")
 }
 
 func (state *S3StorageState) Annotate(a infer.Annotator) {
+	a.Describe(&state.UUID, "UUID of the storage in Coolify.")
 	a.Describe(&state.IsUsable, "Whether Coolify validated the storage as usable.")
 }
 
 func (S3Storage) Create(ctx context.Context, req infer.CreateRequest[S3StorageArgs]) (infer.CreateResponse[S3StorageState], error) {
 	if req.DryRun {
-		return infer.CreateResponse[S3StorageState]{ID: "pending", Output: s3Placeholder(req.Inputs)}, nil
+		return infer.CreateResponse[S3StorageState]{Output: S3StorageState{S3StorageArgs: req.Inputs}}, nil
 	}
-	c := client(ctx)
-	state, err := syncS3Storage(ctx, c, req.Inputs)
+	storage, err := createS3Storage(ctx, client(ctx), req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[S3StorageState]{}, err
 	}
-	return infer.CreateResponse[S3StorageState]{ID: state.UUID, Output: state}, nil
+	return infer.CreateResponse[S3StorageState]{ID: storage.UUID, Output: s3StorageState(req.Inputs, storage)}, nil
+}
+
+func (S3Storage) Diff(ctx context.Context, req infer.DiffRequest[S3StorageArgs, S3StorageState]) (infer.DiffResponse, error) {
+	return diffResponse(diffArgs(req.State.S3StorageArgs, req.Inputs), true), nil
 }
 
 func (S3Storage) Update(ctx context.Context, req infer.UpdateRequest[S3StorageArgs, S3StorageState]) (infer.UpdateResponse[S3StorageState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[S3StorageState]{
-			Output: s3State(req.State.UUID, req.Inputs, req.State.IsUsable),
-		}, nil
+		return infer.UpdateResponse[S3StorageState]{Output: S3StorageState{S3StorageArgs: req.Inputs, UUID: req.ID, IsUsable: req.State.IsUsable}}, nil
 	}
 	c := client(ctx)
-	state, err := syncS3Storage(ctx, c, req.Inputs)
+	current, err := c.GetS3Storage(ctx, req.ID)
 	if err != nil {
 		return infer.UpdateResponse[S3StorageState]{}, err
 	}
-	return infer.UpdateResponse[S3StorageState]{Output: state}, nil
+	storage, err := applyS3Storage(ctx, c, current, req.State.S3StorageArgs, req.Inputs)
+	if err != nil {
+		return infer.UpdateResponse[S3StorageState]{}, err
+	}
+	return infer.UpdateResponse[S3StorageState]{Output: s3StorageState(req.Inputs, storage)}, nil
 }
 
 func (S3Storage) Read(ctx context.Context, req infer.ReadRequest[S3StorageArgs, S3StorageState]) (infer.ReadResponse[S3StorageArgs, S3StorageState], error) {
-	c := client(ctx)
-	storage, err := c.GetS3Storage(ctx, req.ID)
+	storage, err := client(ctx).GetS3Storage(ctx, req.ID)
+	if coolify.IsNotFound(err) {
+		return infer.ReadResponse[S3StorageArgs, S3StorageState]{}, nil
+	}
 	if err != nil {
 		return infer.ReadResponse[S3StorageArgs, S3StorageState]{}, err
 	}
+	// The API does not return the credentials, so those inputs are kept as is.
 	inputs := req.Inputs
-	if inputs.Name == "" {
-		inputs.Name = storage.Name
-		inputs.Description = desc(storage.Description)
-		inputs.Endpoint = storage.Endpoint
-		inputs.Bucket = storage.Bucket
-		inputs.Region = storage.Region
-	}
+	inputs.Name = storage.Name
+	inputs.Description = coolify.Deref(storage.Description)
+	inputs.Endpoint = storage.Endpoint
+	inputs.Bucket = storage.Bucket
+	inputs.Region = ifSet(req.Inputs.Region, storage.Region)
 	return infer.ReadResponse[S3StorageArgs, S3StorageState]{
 		ID:     req.ID,
 		Inputs: inputs,
-		State:  normalizeS3State(storage),
+		State:  s3StorageState(inputs, storage),
 	}, nil
 }
 
 func (S3Storage) Delete(ctx context.Context, req infer.DeleteRequest[S3StorageState]) (infer.DeleteResponse, error) {
-	c := client(ctx)
-	if err := c.DeleteS3Storage(ctx, req.State.UUID); err != nil && !NotFound(err) {
+	if err := client(ctx).DeleteS3Storage(ctx, req.ID); err != nil && !coolify.IsNotFound(err) {
 		return infer.DeleteResponse{}, err
 	}
 	return infer.DeleteResponse{}, nil
 }
 
-func syncS3Storage(ctx context.Context, c *Client, inputs S3StorageArgs) (S3StorageState, error) {
-
-	storages, err := c.ListS3Storage(ctx)
+// createS3Storage adopts the storage with the given name or creates it.
+func createS3Storage(ctx context.Context, c *coolify.Client, inputs S3StorageArgs) (coolify.S3Storage, error) {
+	storages, err := c.ListS3Storages(ctx)
 	if err != nil {
-		return S3StorageState{}, err
+		return coolify.S3Storage{}, err
 	}
-	var existing *CoolifyS3Storage
-	for i := range storages {
-		if storages[i].Name == inputs.Name {
-			existing = &storages[i]
-			break
+	for _, storage := range storages {
+		if storage.Name == inputs.Name {
+			// Credentials are not readable, so they are always re-applied on adopt.
+			return applyS3Storage(ctx, c, storage, S3StorageArgs{}, inputs)
 		}
 	}
-
-	if existing == nil {
-		uuid, err := c.CreateS3Storage(ctx, CreateS3StorageInput{
-			Name:        inputs.Name,
-			Description: inputs.Description,
-			Endpoint:    inputs.Endpoint,
-			Bucket:      inputs.Bucket,
-			Region:      inputs.Region,
-			AccessKey:   inputs.AccessKey,
-			SecretKey:   inputs.SecretKey,
-			IsUsable:    true,
-		})
-		if err != nil {
-			return S3StorageState{}, err
-		}
-		storage, err := c.GetS3Storage(ctx, uuid)
-		if err != nil {
-			return S3StorageState{}, err
-		}
-		return normalizeS3State(storage), nil
-	}
-
-	changes := map[string]any{}
-	if existing.Name != inputs.Name {
-		changes["name"] = inputs.Name
-	}
-	if desc(existing.Description) != inputs.Description {
-		changes["description"] = inputs.Description
-	}
-	if existing.Endpoint != inputs.Endpoint {
-		changes["endpoint"] = inputs.Endpoint
-	}
-	if existing.Bucket != inputs.Bucket {
-		changes["bucket"] = inputs.Bucket
-	}
-	if existing.Region != inputs.Region {
-		changes["region"] = inputs.Region
-	}
-	if len(changes) > 0 {
-		if err := c.UpdateS3Storage(ctx, existing.UUID, changes); err != nil {
-			return S3StorageState{}, err
-		}
-		storage, err := c.GetS3Storage(ctx, existing.UUID)
-		if err != nil {
-			return S3StorageState{}, err
-		}
-		return normalizeS3State(storage), nil
-	}
-
-	return normalizeS3State(*existing), nil
-}
-
-func normalizeS3State(storage CoolifyS3Storage) S3StorageState {
-	return S3StorageState{
-		UUID:        storage.UUID,
-		Name:        storage.Name,
-		Description: desc(storage.Description),
-		Endpoint:    storage.Endpoint,
-		Bucket:      storage.Bucket,
-		Region:      storage.Region,
-		IsUsable:    storage.IsUsable,
-	}
-}
-
-func s3State(uuid string, inputs S3StorageArgs, isUsable bool) S3StorageState {
-	return S3StorageState{
-		UUID:        uuid,
+	uuid, err := c.CreateS3Storage(ctx, api.CreateS3StorageJSONRequestBody{
 		Name:        inputs.Name,
-		Description: inputs.Description,
+		Description: &inputs.Description,
 		Endpoint:    inputs.Endpoint,
 		Bucket:      inputs.Bucket,
 		Region:      inputs.Region,
-		IsUsable:    isUsable,
+		Key:         inputs.AccessKey,
+		Secret:      inputs.SecretKey,
+		IsUsable:    coolify.Ptr(true),
+	})
+	if err != nil {
+		return coolify.S3Storage{}, err
 	}
+	return c.GetS3Storage(ctx, uuid)
 }
 
-func s3Placeholder(inputs S3StorageArgs) S3StorageState {
-	state := s3State("pending", inputs, true)
-	return state
+// applyS3Storage patches the fields of current that differ from the inputs.
+// Credentials are compared against the previous inputs because the API omits them.
+func applyS3Storage(ctx context.Context, c *coolify.Client, current coolify.S3Storage, previous, inputs S3StorageArgs) (coolify.S3Storage, error) {
+	var body api.UpdateS3StorageByUuidJSONRequestBody
+	var patch patch
+	patch.str(&body.Name, inputs.Name, current.Name)
+	patch.text(&body.Description, inputs.Description, coolify.Deref(current.Description))
+	patch.str(&body.Endpoint, inputs.Endpoint, current.Endpoint)
+	patch.str(&body.Bucket, inputs.Bucket, current.Bucket)
+	patch.str(&body.Region, inputs.Region, current.Region)
+	patch.str(&body.Key, inputs.AccessKey, previous.AccessKey)
+	patch.str(&body.Secret, inputs.SecretKey, previous.SecretKey)
+	if !patch.changed {
+		return current, nil
+	}
+	if err := c.UpdateS3Storage(ctx, current.UUID, body); err != nil {
+		return coolify.S3Storage{}, err
+	}
+	return c.GetS3Storage(ctx, current.UUID)
+}
+
+func s3StorageState(inputs S3StorageArgs, storage coolify.S3Storage) S3StorageState {
+	return S3StorageState{S3StorageArgs: inputs, UUID: storage.UUID, IsUsable: storage.IsUsable}
 }

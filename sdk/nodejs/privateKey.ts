@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * A Coolify SSH private key.
+ * A Coolify SSH private key. An existing key with the same name is adopted on create. Coolify's API cannot update keys, so changing the name or key material replaces the key.
  */
 export class PrivateKey extends pulumi.CustomResource {
     /**
@@ -34,12 +34,29 @@ export class PrivateKey extends pulumi.CustomResource {
         return obj['__pulumiType'] === PrivateKey.__pulumiType;
     }
 
-    declare public readonly description: pulumi.Output<string>;
+    /**
+     * Description of the private key. Applied on create only, because Coolify's API cannot update keys.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Fingerprint of the key.
+     */
+    declare public /*out*/ readonly fingerprint: pulumi.Output<string>;
+    /**
+     * Name of the private key. An existing key with this name is adopted. Changing it replaces the key.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * PEM encoded private key material. Required to create a key that does not exist yet; adopted keys can be managed without it. Changing it replaces the key.
+     */
+    declare public readonly privateKey: pulumi.Output<string | undefined>;
     /**
      * Public key derived from the private key.
      */
-    declare public /*out*/ readonly publicKey: pulumi.Output<string | undefined>;
+    declare public /*out*/ readonly publicKey: pulumi.Output<string>;
+    /**
+     * UUID of the private key in Coolify.
+     */
     declare public /*out*/ readonly uuid: pulumi.Output<string>;
 
     /**
@@ -59,15 +76,20 @@ export class PrivateKey extends pulumi.CustomResource {
             resourceInputs["description"] = args?.description;
             resourceInputs["name"] = args?.name;
             resourceInputs["privateKey"] = args?.privateKey ? pulumi.secret(args.privateKey) : undefined;
+            resourceInputs["fingerprint"] = undefined /*out*/;
             resourceInputs["publicKey"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
             resourceInputs["description"] = undefined /*out*/;
+            resourceInputs["fingerprint"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
+            resourceInputs["privateKey"] = undefined /*out*/;
             resourceInputs["publicKey"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const secretOpts = { additionalSecretOutputs: ["privateKey"] };
+        opts = pulumi.mergeOptions(opts, secretOpts);
         super(PrivateKey.__pulumiType, name, resourceInputs, opts);
     }
 }
@@ -76,10 +98,16 @@ export class PrivateKey extends pulumi.CustomResource {
  * The set of arguments for constructing a PrivateKey resource.
  */
 export interface PrivateKeyArgs {
+    /**
+     * Description of the private key. Applied on create only, because Coolify's API cannot update keys.
+     */
     description?: pulumi.Input<string | undefined>;
+    /**
+     * Name of the private key. An existing key with this name is adopted. Changing it replaces the key.
+     */
     name: pulumi.Input<string>;
     /**
-     * PEM private key material. Required to create a missing key; never stored in state.
+     * PEM encoded private key material. Required to create a key that does not exist yet; adopted keys can be managed without it. Changing it replaces the key.
      */
     privateKey?: pulumi.Input<string | undefined>;
 }

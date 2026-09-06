@@ -8,23 +8,23 @@ declare var exports: any;
 const __config = new pulumi.Config("coolify");
 
 /**
- * Coolify read/write API token (Coolify > Security > API tokens).
+ * Coolify read/write API token (Coolify > Security > API tokens). Defaults to the COOLIFY_API_TOKEN environment variable.
  */
-export declare const apiToken: string | undefined;
+export declare const apiToken: string;
 Object.defineProperty(exports, "apiToken", {
     get() {
-        return __config.get("apiToken");
+        return __config.get("apiToken") ?? (utilities.getEnv("COOLIFY_API_TOKEN") || "");
     },
     enumerable: true,
 });
 
 /**
- * Base URL of the Coolify instance, without the API path (e.g. https://coolify.example.com).
+ * Base URL of the Coolify instance without the API path, e.g. https://coolify.example.com. Defaults to the COOLIFY_BASE_URL environment variable.
  */
-export declare const baseUrl: string | undefined;
+export declare const baseUrl: string;
 Object.defineProperty(exports, "baseUrl", {
     get() {
-        return __config.get("baseUrl");
+        return __config.get("baseUrl") ?? (utilities.getEnv("COOLIFY_BASE_URL") || "");
     },
     enumerable: true,
 });

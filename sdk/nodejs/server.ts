@@ -5,7 +5,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as utilities from "./utilities";
 
 /**
- * A Coolify server connected over SSH with a Coolify private key.
+ * A Coolify server connected over SSH with a Coolify private key. An existing server with the same name is adopted on create.
  */
 export class Server extends pulumi.CustomResource {
     /**
@@ -34,12 +34,33 @@ export class Server extends pulumi.CustomResource {
         return obj['__pulumiType'] === Server.__pulumiType;
     }
 
-    declare public readonly description: pulumi.Output<string>;
+    /**
+     * Description of the server.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * IP address or hostname of the server.
+     */
     declare public readonly ip: pulumi.Output<string>;
+    /**
+     * Name of the server. An existing server with this name is adopted.
+     */
     declare public readonly name: pulumi.Output<string>;
+    /**
+     * SSH port.
+     */
     declare public readonly port: pulumi.Output<number>;
+    /**
+     * UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource).
+     */
     declare public readonly privateKeyUuid: pulumi.Output<string>;
+    /**
+     * SSH user.
+     */
     declare public readonly user: pulumi.Output<string>;
+    /**
+     * UUID of the server in Coolify.
+     */
     declare public /*out*/ readonly uuid: pulumi.Output<string>;
 
     /**
@@ -65,9 +86,9 @@ export class Server extends pulumi.CustomResource {
             resourceInputs["description"] = args?.description;
             resourceInputs["ip"] = args?.ip;
             resourceInputs["name"] = args?.name;
-            resourceInputs["port"] = args?.port;
+            resourceInputs["port"] = (args?.port) ?? 22;
             resourceInputs["privateKeyUuid"] = args?.privateKeyUuid;
-            resourceInputs["user"] = args?.user;
+            resourceInputs["user"] = (args?.user) ?? "root";
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
             resourceInputs["description"] = undefined /*out*/;
@@ -87,13 +108,28 @@ export class Server extends pulumi.CustomResource {
  * The set of arguments for constructing a Server resource.
  */
 export interface ServerArgs {
+    /**
+     * Description of the server.
+     */
     description?: pulumi.Input<string | undefined>;
+    /**
+     * IP address or hostname of the server.
+     */
     ip: pulumi.Input<string>;
+    /**
+     * Name of the server. An existing server with this name is adopted.
+     */
     name: pulumi.Input<string>;
+    /**
+     * SSH port.
+     */
     port?: pulumi.Input<number | undefined>;
     /**
-     * UUID of the Coolify private key used to connect. Usually the id output of a PrivateKey resource.
+     * UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource).
      */
     privateKeyUuid: pulumi.Input<string>;
+    /**
+     * SSH user.
+     */
     user?: pulumi.Input<string | undefined>;
 }

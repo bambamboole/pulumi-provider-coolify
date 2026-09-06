@@ -6,11 +6,21 @@ import (
 	"time"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
+
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
 )
 
-// Deployment triggers a deployment of a Coolify application and tracks it to
-// completion. The resource is deployed once per configuration change; a diff
-// only appears when the referenced application or the force flag changes.
+var (
+	deploymentPollInterval = 10 * time.Second
+	deploymentTimeout      = 30 * time.Minute
+	// deploymentNotFoundGrace bounds how long a freshly queued deployment may
+	// stay invisible to the API before the wait gives up.
+	deploymentNotFoundGrace = 2 * time.Minute
+)
+
+// Deployment triggers a deployment of a Coolify application and waits for it
+// to finish. It deploys again whenever one of its inputs changes; use triggers
+// to force a redeploy without changing anything else.
 type Deployment struct{}
 
 type DeploymentArgs struct {
@@ -22,28 +32,23 @@ type DeploymentArgs struct {
 	PullRequestID int `pulumi:"pullRequestId,optional"`
 	// Override the Docker image tag to deploy.
 	DockerTag string `pulumi:"dockerTag,optional"`
+	// Arbitrary values that trigger a redeploy when they change, e.g. an image digest.
+	Triggers []string `pulumi:"triggers,optional"`
 }
 
 type DeploymentState struct {
-	// UUID of the deployment queue item in Coolify.
+	DeploymentArgs
+	// UUID of the deployment in Coolify.
 	UUID string `pulumi:"uuid"`
-	// UUID of the Coolify application.
-	Application string `pulumi:"application"`
-	// Final status reported by Coolify (finished, failed, cancelled, ...).
+	// Final status reported by Coolify.
 	Status string `pulumi:"status"`
-	// Git commit that was deployed.
-	Commit string `pulumi:"commit,optional"`
-	// Whether a forced rebuild was requested.
-	Force bool `pulumi:"force"`
-	// Pull request this preview belongs to, if any.
-	PullRequestID int `pulumi:"pullRequestId,optional"`
-	// Docker image tag override used for this deployment, if any.
-	DockerTag string `pulumi:"dockerTag,optional"`
+	// Git commit that was deployed, if any.
+	Commit string `pulumi:"commit"`
 }
 
 func (r *Deployment) Annotate(a infer.Annotator) {
 	a.SetToken("index", "Deployment")
-	a.Describe(&r, "Triggers a deployment of a Coolify application and waits for it to finish.")
+	a.Describe(&r, "Triggers a deployment of a Coolify application and waits for it to finish. Deploys again whenever an input changes.")
 }
 
 func (args *DeploymentArgs) Annotate(a infer.Annotator) {
@@ -51,16 +56,20 @@ func (args *DeploymentArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.Force, "Force a rebuild even when there are no new commits.")
 	a.Describe(&args.PullRequestID, "Deploy a preview of the given pull request instead of the default branch.")
 	a.Describe(&args.DockerTag, "Override the Docker image tag to deploy.")
+	a.Describe(&args.Triggers, "Arbitrary values that trigger a redeploy when they change, e.g. an image digest or a version.")
+}
+
+func (state *DeploymentState) Annotate(a infer.Annotator) {
+	a.Describe(&state.UUID, "UUID of the deployment in Coolify.")
+	a.Describe(&state.Status, "Final status reported by Coolify.")
+	a.Describe(&state.Commit, "Git commit that was deployed, if any.")
 }
 
 func (Deployment) Create(ctx context.Context, req infer.CreateRequest[DeploymentArgs]) (infer.CreateResponse[DeploymentState], error) {
 	if req.DryRun {
-		return infer.CreateResponse[DeploymentState]{
-			ID:     "pending",
-			Output: deploymentStateFromArgs(req.Inputs),
-		}, nil
+		return infer.CreateResponse[DeploymentState]{Output: DeploymentState{DeploymentArgs: req.Inputs}}, nil
 	}
-	state, err := runDeployment(ctx, req.Inputs)
+	state, err := runDeployment(ctx, client(ctx), req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[DeploymentState]{}, err
 	}
@@ -68,56 +77,44 @@ func (Deployment) Create(ctx context.Context, req infer.CreateRequest[Deployment
 }
 
 func (Deployment) Diff(ctx context.Context, req infer.DiffRequest[DeploymentArgs, DeploymentState]) (infer.DiffResponse, error) {
-	changes := req.Inputs.Application != req.State.Application ||
-		req.Inputs.Force != req.State.Force ||
-		req.Inputs.PullRequestID != req.State.PullRequestID ||
-		req.Inputs.DockerTag != req.State.DockerTag
-	return infer.DiffResponse{HasChanges: changes}, nil
+	return diffResponse(diffArgs(req.State.DeploymentArgs, req.Inputs), false), nil
 }
 
 func (Deployment) Update(ctx context.Context, req infer.UpdateRequest[DeploymentArgs, DeploymentState]) (infer.UpdateResponse[DeploymentState], error) {
 	if req.DryRun {
-		return infer.UpdateResponse[DeploymentState]{
-			Output: deploymentStateFromArgs(req.Inputs),
-		}, nil
+		state := req.State
+		state.DeploymentArgs = req.Inputs
+		return infer.UpdateResponse[DeploymentState]{Output: state}, nil
 	}
-	state, err := runDeployment(ctx, req.Inputs)
+	state, err := runDeployment(ctx, client(ctx), req.Inputs)
 	if err != nil {
 		return infer.UpdateResponse[DeploymentState]{}, err
 	}
 	return infer.UpdateResponse[DeploymentState]{Output: state}, nil
 }
 
+// Read refreshes the status. A deployment Coolify has pruned from its history
+// keeps its recorded state instead of being dropped, which would redeploy.
 func (Deployment) Read(ctx context.Context, req infer.ReadRequest[DeploymentArgs, DeploymentState]) (infer.ReadResponse[DeploymentArgs, DeploymentState], error) {
-	c := client(ctx)
-	deployment, err := c.GetDeployment(ctx, req.ID)
-	if err != nil {
+	state := req.State
+	deployment, err := client(ctx).GetDeployment(ctx, req.ID)
+	if err != nil && !coolify.IsNotFound(err) {
 		return infer.ReadResponse[DeploymentArgs, DeploymentState]{}, err
 	}
-	return infer.ReadResponse[DeploymentArgs, DeploymentState]{
-		ID:     req.ID,
-		Inputs: req.Inputs,
-		State: DeploymentState{
-			UUID:          deployment.DeploymentUUID,
-			Application:   ifEmpty(req.Inputs.Application, req.State.Application),
-			Status:        deployment.Status,
-			Commit:        deployment.Commit,
-			Force:         req.State.Force,
-			PullRequestID: req.State.PullRequestID,
-			DockerTag:     req.State.DockerTag,
-		},
-	}, nil
+	if err == nil {
+		state.Status = coolify.Deref(deployment.Status)
+		state.Commit = coolify.Deref(deployment.Commit)
+	}
+	return infer.ReadResponse[DeploymentArgs, DeploymentState]{ID: req.ID, Inputs: req.Inputs, State: state}, nil
 }
 
-// Delete is intentionally a no-op: deployments are immutable history in
-// Coolify and are not removed when the resource is deleted.
-func (Deployment) Delete(ctx context.Context, req infer.DeleteRequest[DeploymentState]) (infer.DeleteResponse, error) {
+// Delete is a no-op: deployments are immutable history in Coolify.
+func (Deployment) Delete(context.Context, infer.DeleteRequest[DeploymentState]) (infer.DeleteResponse, error) {
 	return infer.DeleteResponse{}, nil
 }
 
-func runDeployment(ctx context.Context, inputs DeploymentArgs) (DeploymentState, error) {
-	c := client(ctx)
-	items, err := c.DeployApplication(ctx, inputs.Application, DeployOptions{
+func runDeployment(ctx context.Context, c *coolify.Client, inputs DeploymentArgs) (DeploymentState, error) {
+	items, err := c.DeployApplication(ctx, inputs.Application, coolify.DeployOptions{
 		Force:         inputs.Force,
 		PullRequestID: inputs.PullRequestID,
 		DockerTag:     inputs.DockerTag,
@@ -126,68 +123,55 @@ func runDeployment(ctx context.Context, inputs DeploymentArgs) (DeploymentState,
 		return DeploymentState{}, err
 	}
 	if len(items) == 0 {
-		return DeploymentState{}, fmt.Errorf("coolify returned no deployment for application %q", inputs.Application)
+		return DeploymentState{}, fmt.Errorf("coolify queued no deployment for application %q", inputs.Application)
 	}
 	uuid := items[0].DeploymentUUID
-
-	state, err := waitForDeployment(ctx, uuid)
+	status, commit, err := waitForDeployment(ctx, c, uuid)
 	if err != nil {
 		return DeploymentState{}, err
 	}
-	state.Application = inputs.Application
-	state.Force = inputs.Force
-	state.PullRequestID = inputs.PullRequestID
-	state.DockerTag = inputs.DockerTag
-	return state, nil
+	return DeploymentState{DeploymentArgs: inputs, UUID: uuid, Status: status, Commit: commit}, nil
 }
 
-func deploymentStateFromArgs(inputs DeploymentArgs) DeploymentState {
-	return DeploymentState{
-		UUID:          "pending",
-		Application:   inputs.Application,
-		Force:         inputs.Force,
-		PullRequestID: inputs.PullRequestID,
-		DockerTag:     inputs.DockerTag,
-	}
-}
-
-func waitForDeployment(ctx context.Context, uuid string) (DeploymentState, error) {
-	c := client(ctx)
-	ticker := time.NewTicker(10 * time.Second)
+// waitForDeployment polls the deployment until it reaches a terminal status.
+func waitForDeployment(ctx context.Context, c *coolify.Client, uuid string) (status, commit string, err error) {
+	ticker := time.NewTicker(deploymentPollInterval)
 	defer ticker.Stop()
-	deadline := time.Now().Add(30 * time.Minute)
+	started := time.Now()
 
 	for {
 		deployment, err := c.GetDeployment(ctx, uuid)
-		if err != nil {
-			if NotFound(err) {
-				// The queue item may not be visible immediately; keep waiting.
-				deployment = CoolifyDeployment{DeploymentUUID: uuid}
-			} else {
-				return DeploymentState{}, err
+		switch {
+		case coolify.IsNotFound(err):
+			// The queue item may not be visible immediately.
+			if time.Since(started) > deploymentNotFoundGrace {
+				return "", "", fmt.Errorf("deployment %q was not found within %s", uuid, deploymentNotFoundGrace)
 			}
-		}
-
-		if isTerminalStatus(deployment.Status) {
-			if deployment.Status == "success" || deployment.Status == "finished" {
-				return DeploymentState{
-					UUID:   uuid,
-					Status: deployment.Status,
-					Commit: deployment.Commit,
-				}, nil
+		case err != nil:
+			return "", "", err
+		default:
+			status := coolify.Deref(deployment.Status)
+			if isTerminalStatus(status) {
+				if isSuccessStatus(status) {
+					return status, coolify.Deref(deployment.Commit), nil
+				}
+				return "", "", fmt.Errorf("deployment %q finished with status %q", uuid, status)
 			}
-			return DeploymentState{}, fmt.Errorf("deployment %q finished with status %q", uuid, deployment.Status)
-		}
-		if time.Now().After(deadline) {
-			return DeploymentState{}, fmt.Errorf("deployment %q did not finish within 30 minutes (last status %q)", uuid, deployment.Status)
+			if time.Since(started) > deploymentTimeout {
+				return "", "", fmt.Errorf("deployment %q did not finish within %s (last status %q)", uuid, deploymentTimeout, status)
+			}
 		}
 
 		select {
 		case <-ctx.Done():
-			return DeploymentState{}, ctx.Err()
+			return "", "", ctx.Err()
 		case <-ticker.C:
 		}
 	}
+}
+
+func isSuccessStatus(status string) bool {
+	return status == "success" || status == "finished"
 }
 
 func isTerminalStatus(status string) bool {
