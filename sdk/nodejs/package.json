@@ -1,6 +1,6 @@
 {
   "name": "@bambamboole/coolify",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "homepage": "https://coolify.io",
   "repository": "https://github.com/bambamboole/pulumi-provider-coolify",
   "license": "Apache-2.0",
@@ -17,7 +17,7 @@
   "pulumi": {
     "resource": true,
     "name": "coolify",
-    "version": "0.8.1",
+    "version": "0.9.0",
     "server": "https://github.com/bambamboole/pulumi-provider-coolify/releases/download/v$%7BVERSION%7D"
   },
   "main": "index.js",
