@@ -112,7 +112,7 @@ type NotificationSlackArgs struct {
 
 type NotificationSlackState struct {
 	NotificationSlackArgs
-	TeamID int `pulumi:"teamId"`
+	TeamID *int `pulumi:"teamId"`
 }
 
 func (r *NotificationSlack) Annotate(a infer.Annotator) {
@@ -131,7 +131,7 @@ func (state *NotificationSlackState) Annotate(a infer.Annotator) {
 }
 
 func notificationSlackState(args NotificationSlackArgs, teamID int) NotificationSlackState {
-	return NotificationSlackState{NotificationSlackArgs: args, TeamID: teamID}
+	return NotificationSlackState{NotificationSlackArgs: args, TeamID: &teamID}
 }
 
 func (NotificationSlack) Create(ctx context.Context, req infer.CreateRequest[NotificationSlackArgs]) (infer.CreateResponse[NotificationSlackState], error) {
@@ -143,11 +143,11 @@ func (NotificationSlack) Diff(_ context.Context, req infer.DiffRequest[Notificat
 }
 
 func (NotificationSlack) Update(ctx context.Context, req infer.UpdateRequest[NotificationSlackArgs, NotificationSlackState]) (infer.UpdateResponse[NotificationSlackState], error) {
-	return updateNotification(ctx, "slack", req, req.State.NotificationSlackArgs, req.State.TeamID, notificationSlackState)
+	return updateNotification(ctx, "slack", req, req.State.NotificationSlackArgs, notificationTeamID(req.State.TeamID), notificationSlackState)
 }
 
 func (NotificationSlack) Read(ctx context.Context, req infer.ReadRequest[NotificationSlackArgs, NotificationSlackState]) (infer.ReadResponse[NotificationSlackArgs, NotificationSlackState], error) {
-	return readNotification(ctx, "slack", req, req.State.TeamID == 0, notificationSlackState)
+	return readNotification(ctx, "slack", req, req.State.TeamID == nil, notificationSlackState)
 }
 
 func (NotificationSlack) Delete(ctx context.Context, req infer.DeleteRequest[NotificationSlackState]) (infer.DeleteResponse, error) {
@@ -166,7 +166,7 @@ type NotificationDiscordArgs struct {
 
 type NotificationDiscordState struct {
 	NotificationDiscordArgs
-	TeamID int `pulumi:"teamId"`
+	TeamID *int `pulumi:"teamId"`
 }
 
 func (r *NotificationDiscord) Annotate(a infer.Annotator) {
@@ -186,7 +186,7 @@ func (state *NotificationDiscordState) Annotate(a infer.Annotator) {
 }
 
 func notificationDiscordState(args NotificationDiscordArgs, teamID int) NotificationDiscordState {
-	return NotificationDiscordState{NotificationDiscordArgs: args, TeamID: teamID}
+	return NotificationDiscordState{NotificationDiscordArgs: args, TeamID: &teamID}
 }
 
 func (NotificationDiscord) Create(ctx context.Context, req infer.CreateRequest[NotificationDiscordArgs]) (infer.CreateResponse[NotificationDiscordState], error) {
@@ -198,11 +198,11 @@ func (NotificationDiscord) Diff(_ context.Context, req infer.DiffRequest[Notific
 }
 
 func (NotificationDiscord) Update(ctx context.Context, req infer.UpdateRequest[NotificationDiscordArgs, NotificationDiscordState]) (infer.UpdateResponse[NotificationDiscordState], error) {
-	return updateNotification(ctx, "discord", req, req.State.NotificationDiscordArgs, req.State.TeamID, notificationDiscordState)
+	return updateNotification(ctx, "discord", req, req.State.NotificationDiscordArgs, notificationTeamID(req.State.TeamID), notificationDiscordState)
 }
 
 func (NotificationDiscord) Read(ctx context.Context, req infer.ReadRequest[NotificationDiscordArgs, NotificationDiscordState]) (infer.ReadResponse[NotificationDiscordArgs, NotificationDiscordState], error) {
-	return readNotification(ctx, "discord", req, req.State.TeamID == 0, notificationDiscordState)
+	return readNotification(ctx, "discord", req, req.State.TeamID == nil, notificationDiscordState)
 }
 
 func (NotificationDiscord) Delete(ctx context.Context, req infer.DeleteRequest[NotificationDiscordState]) (infer.DeleteResponse, error) {
@@ -232,7 +232,7 @@ type NotificationEmailArgs struct {
 
 type NotificationEmailState struct {
 	NotificationEmailArgs
-	TeamID int `pulumi:"teamId"`
+	TeamID *int `pulumi:"teamId"`
 }
 
 func (r *NotificationEmail) Annotate(a infer.Annotator) {
@@ -263,7 +263,7 @@ func (state *NotificationEmailState) Annotate(a infer.Annotator) {
 }
 
 func notificationEmailState(args NotificationEmailArgs, teamID int) NotificationEmailState {
-	return NotificationEmailState{NotificationEmailArgs: args, TeamID: teamID}
+	return NotificationEmailState{NotificationEmailArgs: args, TeamID: &teamID}
 }
 
 func (NotificationEmail) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[NotificationEmailArgs], error) {
@@ -296,11 +296,11 @@ func (NotificationEmail) Diff(_ context.Context, req infer.DiffRequest[Notificat
 }
 
 func (NotificationEmail) Update(ctx context.Context, req infer.UpdateRequest[NotificationEmailArgs, NotificationEmailState]) (infer.UpdateResponse[NotificationEmailState], error) {
-	return updateNotification(ctx, "email", req, req.State.NotificationEmailArgs, req.State.TeamID, notificationEmailState)
+	return updateNotification(ctx, "email", req, req.State.NotificationEmailArgs, notificationTeamID(req.State.TeamID), notificationEmailState)
 }
 
 func (NotificationEmail) Read(ctx context.Context, req infer.ReadRequest[NotificationEmailArgs, NotificationEmailState]) (infer.ReadResponse[NotificationEmailArgs, NotificationEmailState], error) {
-	return readNotification(ctx, "email", req, req.State.TeamID == 0, notificationEmailState)
+	return readNotification(ctx, "email", req, req.State.TeamID == nil, notificationEmailState)
 }
 
 func (NotificationEmail) Delete(ctx context.Context, req infer.DeleteRequest[NotificationEmailState]) (infer.DeleteResponse, error) {
@@ -320,7 +320,7 @@ type NotificationTelegramArgs struct {
 
 type NotificationTelegramState struct {
 	NotificationTelegramArgs
-	TeamID int `pulumi:"teamId"`
+	TeamID *int `pulumi:"teamId"`
 }
 
 func (r *NotificationTelegram) Annotate(a infer.Annotator) {
@@ -341,7 +341,7 @@ func (state *NotificationTelegramState) Annotate(a infer.Annotator) {
 }
 
 func notificationTelegramState(args NotificationTelegramArgs, teamID int) NotificationTelegramState {
-	return NotificationTelegramState{NotificationTelegramArgs: args, TeamID: teamID}
+	return NotificationTelegramState{NotificationTelegramArgs: args, TeamID: &teamID}
 }
 
 func (NotificationTelegram) Create(ctx context.Context, req infer.CreateRequest[NotificationTelegramArgs]) (infer.CreateResponse[NotificationTelegramState], error) {
@@ -353,11 +353,11 @@ func (NotificationTelegram) Diff(_ context.Context, req infer.DiffRequest[Notifi
 }
 
 func (NotificationTelegram) Update(ctx context.Context, req infer.UpdateRequest[NotificationTelegramArgs, NotificationTelegramState]) (infer.UpdateResponse[NotificationTelegramState], error) {
-	return updateNotification(ctx, "telegram", req, req.State.NotificationTelegramArgs, req.State.TeamID, notificationTelegramState)
+	return updateNotification(ctx, "telegram", req, req.State.NotificationTelegramArgs, notificationTeamID(req.State.TeamID), notificationTelegramState)
 }
 
 func (NotificationTelegram) Read(ctx context.Context, req infer.ReadRequest[NotificationTelegramArgs, NotificationTelegramState]) (infer.ReadResponse[NotificationTelegramArgs, NotificationTelegramState], error) {
-	return readNotification(ctx, "telegram", req, req.State.TeamID == 0, notificationTelegramState)
+	return readNotification(ctx, "telegram", req, req.State.TeamID == nil, notificationTelegramState)
 }
 
 func (NotificationTelegram) Delete(ctx context.Context, req infer.DeleteRequest[NotificationTelegramState]) (infer.DeleteResponse, error) {
@@ -376,7 +376,7 @@ type NotificationPushoverArgs struct {
 
 type NotificationPushoverState struct {
 	NotificationPushoverArgs
-	TeamID int `pulumi:"teamId"`
+	TeamID *int `pulumi:"teamId"`
 }
 
 func (r *NotificationPushover) Annotate(a infer.Annotator) {
@@ -396,7 +396,7 @@ func (state *NotificationPushoverState) Annotate(a infer.Annotator) {
 }
 
 func notificationPushoverState(args NotificationPushoverArgs, teamID int) NotificationPushoverState {
-	return NotificationPushoverState{NotificationPushoverArgs: args, TeamID: teamID}
+	return NotificationPushoverState{NotificationPushoverArgs: args, TeamID: &teamID}
 }
 
 func (NotificationPushover) Create(ctx context.Context, req infer.CreateRequest[NotificationPushoverArgs]) (infer.CreateResponse[NotificationPushoverState], error) {
@@ -408,11 +408,11 @@ func (NotificationPushover) Diff(_ context.Context, req infer.DiffRequest[Notifi
 }
 
 func (NotificationPushover) Update(ctx context.Context, req infer.UpdateRequest[NotificationPushoverArgs, NotificationPushoverState]) (infer.UpdateResponse[NotificationPushoverState], error) {
-	return updateNotification(ctx, "pushover", req, req.State.NotificationPushoverArgs, req.State.TeamID, notificationPushoverState)
+	return updateNotification(ctx, "pushover", req, req.State.NotificationPushoverArgs, notificationTeamID(req.State.TeamID), notificationPushoverState)
 }
 
 func (NotificationPushover) Read(ctx context.Context, req infer.ReadRequest[NotificationPushoverArgs, NotificationPushoverState]) (infer.ReadResponse[NotificationPushoverArgs, NotificationPushoverState], error) {
-	return readNotification(ctx, "pushover", req, req.State.TeamID == 0, notificationPushoverState)
+	return readNotification(ctx, "pushover", req, req.State.TeamID == nil, notificationPushoverState)
 }
 
 func (NotificationPushover) Delete(ctx context.Context, req infer.DeleteRequest[NotificationPushoverState]) (infer.DeleteResponse, error) {
@@ -430,7 +430,7 @@ type NotificationWebhookArgs struct {
 
 type NotificationWebhookState struct {
 	NotificationWebhookArgs
-	TeamID int `pulumi:"teamId"`
+	TeamID *int `pulumi:"teamId"`
 }
 
 func (r *NotificationWebhook) Annotate(a infer.Annotator) {
@@ -449,7 +449,7 @@ func (state *NotificationWebhookState) Annotate(a infer.Annotator) {
 }
 
 func notificationWebhookState(args NotificationWebhookArgs, teamID int) NotificationWebhookState {
-	return NotificationWebhookState{NotificationWebhookArgs: args, TeamID: teamID}
+	return NotificationWebhookState{NotificationWebhookArgs: args, TeamID: &teamID}
 }
 
 func (NotificationWebhook) Create(ctx context.Context, req infer.CreateRequest[NotificationWebhookArgs]) (infer.CreateResponse[NotificationWebhookState], error) {
@@ -461,11 +461,11 @@ func (NotificationWebhook) Diff(_ context.Context, req infer.DiffRequest[Notific
 }
 
 func (NotificationWebhook) Update(ctx context.Context, req infer.UpdateRequest[NotificationWebhookArgs, NotificationWebhookState]) (infer.UpdateResponse[NotificationWebhookState], error) {
-	return updateNotification(ctx, "webhook", req, req.State.NotificationWebhookArgs, req.State.TeamID, notificationWebhookState)
+	return updateNotification(ctx, "webhook", req, req.State.NotificationWebhookArgs, notificationTeamID(req.State.TeamID), notificationWebhookState)
 }
 
 func (NotificationWebhook) Read(ctx context.Context, req infer.ReadRequest[NotificationWebhookArgs, NotificationWebhookState]) (infer.ReadResponse[NotificationWebhookArgs, NotificationWebhookState], error) {
-	return readNotification(ctx, "webhook", req, req.State.TeamID == 0, notificationWebhookState)
+	return readNotification(ctx, "webhook", req, req.State.TeamID == nil, notificationWebhookState)
 }
 
 func (NotificationWebhook) Delete(ctx context.Context, req infer.DeleteRequest[NotificationWebhookState]) (infer.DeleteResponse, error) {

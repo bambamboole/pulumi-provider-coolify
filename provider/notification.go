@@ -48,7 +48,8 @@ func restoreNotificationUnknowns(original, checked property.Value) property.Valu
 // the team in the Pulumi ID and verify it before writing through a changed token.
 func notificationIdentity(settings coolify.NotificationSettings, channel, expected string) (int, error) {
 	team, ok := settings["team_id"].(float64)
-	if !ok || team < 1 || team != math.Trunc(team) || team > float64(1<<53-1) {
+	// Coolify seeds the instance's Root Team with ID 0.
+	if !ok || team < 0 || team != math.Trunc(team) || team > float64(1<<53-1) {
 		return 0, fmt.Errorf("coolify %s notification settings returned an invalid team_id", channel)
 	}
 	id := strconv.Itoa(int(team)) + "/" + channel
@@ -56,6 +57,15 @@ func notificationIdentity(settings coolify.NotificationSettings, channel, expect
 		return 0, fmt.Errorf("coolify notification identity mismatch: resource %q does not match API token team %q", expected, id)
 	}
 	return int(team), nil
+}
+
+// A nil state team ID means import; zero is an existing Root Team resource.
+// Keep the public teamId output numeric while preserving that distinction.
+func notificationTeamID(teamID *int) int {
+	if teamID == nil {
+		return 0
+	}
+	return *teamID
 }
 
 func getNotification(ctx context.Context, channel, id string) (coolify.NotificationSettings, int, error) {

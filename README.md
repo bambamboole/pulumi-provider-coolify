@@ -123,7 +123,7 @@ new coolify.VolumeBackup("gitea-data", {
 
 ## Notifications
 
-Notification resources require **Coolify v4.3.0 or newer**. Each channel has one settings object for the provider API token's team, shared across that team's projects. Declare each team/channel combination in only one Pulumi resource. Import IDs have the form `<teamId>/<channel>`, for example `1/slack`; the provider verifies that the token belongs to that team.
+Notification resources require **Coolify v4.3.0 or newer**. Each channel has one settings object for the provider API token's team, shared across that team's projects. Declare each team/channel combination in only one Pulumi resource. Import IDs have the form `<teamId>/<channel>`, for example `1/slack`; the provider verifies that the token belongs to that team. Coolify's Root Team has ID `0`, so its Slack notification import ID is `0/slack`.
 
 For Mattermost, create an incoming webhook and expose its URL from a Pulumi ESC secret as the `mattermostWebhookUrl` Pulumi config key. With the provider above:
 
