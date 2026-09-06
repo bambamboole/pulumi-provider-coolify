@@ -121,3 +121,16 @@ output-options:
     # Deployments
     - deploy-by-tag-or-uuid
     - get-deployment-by-uuid
+    # Team notification settings
+    - get-current-team-email-notifications
+    - update-current-team-email-notifications
+    - get-current-team-discord-notifications
+    - update-current-team-discord-notifications
+    - get-current-team-slack-notifications
+    - update-current-team-slack-notifications
+    - get-current-team-telegram-notifications
+    - update-current-team-telegram-notifications
+    - get-current-team-pushover-notifications
+    - update-current-team-pushover-notifications
+    - get-current-team-webhook-notifications
+    - update-current-team-webhook-notifications

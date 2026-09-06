@@ -4424,6 +4424,24 @@ type UpdateGithubAppJSONBody struct {
 	WebhookSecret *string `json:"webhook_secret,omitempty"`
 }
 
+// UpdateCurrentTeamDiscordNotificationsJSONBody defines parameters for UpdateCurrentTeamDiscordNotifications.
+type UpdateCurrentTeamDiscordNotificationsJSONBody map[string]interface{}
+
+// UpdateCurrentTeamEmailNotificationsJSONBody defines parameters for UpdateCurrentTeamEmailNotifications.
+type UpdateCurrentTeamEmailNotificationsJSONBody map[string]interface{}
+
+// UpdateCurrentTeamPushoverNotificationsJSONBody defines parameters for UpdateCurrentTeamPushoverNotifications.
+type UpdateCurrentTeamPushoverNotificationsJSONBody map[string]interface{}
+
+// UpdateCurrentTeamSlackNotificationsJSONBody defines parameters for UpdateCurrentTeamSlackNotifications.
+type UpdateCurrentTeamSlackNotificationsJSONBody map[string]interface{}
+
+// UpdateCurrentTeamTelegramNotificationsJSONBody defines parameters for UpdateCurrentTeamTelegramNotifications.
+type UpdateCurrentTeamTelegramNotificationsJSONBody map[string]interface{}
+
+// UpdateCurrentTeamWebhookNotificationsJSONBody defines parameters for UpdateCurrentTeamWebhookNotifications.
+type UpdateCurrentTeamWebhookNotificationsJSONBody map[string]interface{}
+
 // CreateProjectJSONBody defines parameters for CreateProject.
 type CreateProjectJSONBody struct {
 	// Description The description of the project.
@@ -4839,6 +4857,24 @@ type CreateGithubAppJSONRequestBody CreateGithubAppJSONBody
 
 // UpdateGithubAppJSONRequestBody defines body for UpdateGithubApp for application/json ContentType.
 type UpdateGithubAppJSONRequestBody UpdateGithubAppJSONBody
+
+// UpdateCurrentTeamDiscordNotificationsJSONRequestBody defines body for UpdateCurrentTeamDiscordNotifications for application/json ContentType.
+type UpdateCurrentTeamDiscordNotificationsJSONRequestBody UpdateCurrentTeamDiscordNotificationsJSONBody
+
+// UpdateCurrentTeamEmailNotificationsJSONRequestBody defines body for UpdateCurrentTeamEmailNotifications for application/json ContentType.
+type UpdateCurrentTeamEmailNotificationsJSONRequestBody UpdateCurrentTeamEmailNotificationsJSONBody
+
+// UpdateCurrentTeamPushoverNotificationsJSONRequestBody defines body for UpdateCurrentTeamPushoverNotifications for application/json ContentType.
+type UpdateCurrentTeamPushoverNotificationsJSONRequestBody UpdateCurrentTeamPushoverNotificationsJSONBody
+
+// UpdateCurrentTeamSlackNotificationsJSONRequestBody defines body for UpdateCurrentTeamSlackNotifications for application/json ContentType.
+type UpdateCurrentTeamSlackNotificationsJSONRequestBody UpdateCurrentTeamSlackNotificationsJSONBody
+
+// UpdateCurrentTeamTelegramNotificationsJSONRequestBody defines body for UpdateCurrentTeamTelegramNotifications for application/json ContentType.
+type UpdateCurrentTeamTelegramNotificationsJSONRequestBody UpdateCurrentTeamTelegramNotificationsJSONBody
+
+// UpdateCurrentTeamWebhookNotificationsJSONRequestBody defines body for UpdateCurrentTeamWebhookNotifications for application/json ContentType.
+type UpdateCurrentTeamWebhookNotificationsJSONRequestBody UpdateCurrentTeamWebhookNotificationsJSONBody
 
 // CreateProjectJSONRequestBody defines body for CreateProject for application/json ContentType.
 type CreateProjectJSONRequestBody CreateProjectJSONBody
@@ -5748,6 +5784,156 @@ type ClientInterface interface {
 	//
 	// Corresponds with PATCH /github-apps/{github_app_id} (the `UpdateGithubApp` operationId).
 	UpdateGithubApp(ctx context.Context, githubAppId int, body UpdateGithubAppJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCurrentTeamDiscordNotifications Get Discord notification settings
+	//
+	// Get the current team Discord notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Corresponds with GET /notifications/discord (the `GetCurrentTeamDiscordNotifications` operationId).
+	GetCurrentTeamDiscordNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamDiscordNotificationsWithBody Update Discord notification settings
+	//
+	// Update the current team Discord notification settings.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+	UpdateCurrentTeamDiscordNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamDiscordNotifications Update Discord notification settings
+	//
+	// Update the current team Discord notification settings.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+	UpdateCurrentTeamDiscordNotifications(ctx context.Context, body UpdateCurrentTeamDiscordNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCurrentTeamEmailNotifications Get email notification settings
+	//
+	// Get the current team email notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Corresponds with GET /notifications/email (the `GetCurrentTeamEmailNotifications` operationId).
+	GetCurrentTeamEmailNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamEmailNotificationsWithBody Update email notification settings
+	//
+	// Update the current team email notification settings.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+	UpdateCurrentTeamEmailNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamEmailNotifications Update email notification settings
+	//
+	// Update the current team email notification settings.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+	UpdateCurrentTeamEmailNotifications(ctx context.Context, body UpdateCurrentTeamEmailNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCurrentTeamPushoverNotifications Get Pushover notification settings
+	//
+	// Get the current team Pushover notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Corresponds with GET /notifications/pushover (the `GetCurrentTeamPushoverNotifications` operationId).
+	GetCurrentTeamPushoverNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamPushoverNotificationsWithBody Update Pushover notification settings
+	//
+	// Update the current team Pushover notification settings.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+	UpdateCurrentTeamPushoverNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamPushoverNotifications Update Pushover notification settings
+	//
+	// Update the current team Pushover notification settings.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+	UpdateCurrentTeamPushoverNotifications(ctx context.Context, body UpdateCurrentTeamPushoverNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCurrentTeamSlackNotifications Get Slack notification settings
+	//
+	// Get the current team Slack notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Corresponds with GET /notifications/slack (the `GetCurrentTeamSlackNotifications` operationId).
+	GetCurrentTeamSlackNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamSlackNotificationsWithBody Update Slack notification settings
+	//
+	// Update the current team Slack notification settings.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+	UpdateCurrentTeamSlackNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamSlackNotifications Update Slack notification settings
+	//
+	// Update the current team Slack notification settings.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+	UpdateCurrentTeamSlackNotifications(ctx context.Context, body UpdateCurrentTeamSlackNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCurrentTeamTelegramNotifications Get Telegram notification settings
+	//
+	// Get the current team Telegram notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Corresponds with GET /notifications/telegram (the `GetCurrentTeamTelegramNotifications` operationId).
+	GetCurrentTeamTelegramNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamTelegramNotificationsWithBody Update Telegram notification settings
+	//
+	// Update the current team Telegram notification settings.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+	UpdateCurrentTeamTelegramNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamTelegramNotifications Update Telegram notification settings
+	//
+	// Update the current team Telegram notification settings.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+	UpdateCurrentTeamTelegramNotifications(ctx context.Context, body UpdateCurrentTeamTelegramNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// GetCurrentTeamWebhookNotifications Get webhook notification settings
+	//
+	// Get the current team webhook notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Corresponds with GET /notifications/webhook (the `GetCurrentTeamWebhookNotifications` operationId).
+	GetCurrentTeamWebhookNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamWebhookNotificationsWithBody Update webhook notification settings
+	//
+	// Update the current team webhook notification settings.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+	UpdateCurrentTeamWebhookNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateCurrentTeamWebhookNotifications Update webhook notification settings
+	//
+	// Update the current team webhook notification settings.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+	UpdateCurrentTeamWebhookNotifications(ctx context.Context, body UpdateCurrentTeamWebhookNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListProjects List
 	//
@@ -7908,6 +8094,336 @@ func (c *Client) UpdateGithubAppWithBody(ctx context.Context, githubAppId int, c
 // Corresponds with PATCH /github-apps/{github_app_id} (the `UpdateGithubApp` operationId).
 func (c *Client) UpdateGithubApp(ctx context.Context, githubAppId int, body UpdateGithubAppJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateGithubAppRequest(c.Server, githubAppId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetCurrentTeamDiscordNotifications Get Discord notification settings
+//
+// Get the current team Discord notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Corresponds with GET /notifications/discord (the `GetCurrentTeamDiscordNotifications` operationId).
+func (c *Client) GetCurrentTeamDiscordNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCurrentTeamDiscordNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamDiscordNotificationsWithBody Update Discord notification settings
+//
+// Update the current team Discord notification settings.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+func (c *Client) UpdateCurrentTeamDiscordNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamDiscordNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamDiscordNotifications Update Discord notification settings
+//
+// Update the current team Discord notification settings.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+func (c *Client) UpdateCurrentTeamDiscordNotifications(ctx context.Context, body UpdateCurrentTeamDiscordNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamDiscordNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetCurrentTeamEmailNotifications Get email notification settings
+//
+// Get the current team email notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Corresponds with GET /notifications/email (the `GetCurrentTeamEmailNotifications` operationId).
+func (c *Client) GetCurrentTeamEmailNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCurrentTeamEmailNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamEmailNotificationsWithBody Update email notification settings
+//
+// Update the current team email notification settings.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+func (c *Client) UpdateCurrentTeamEmailNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamEmailNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamEmailNotifications Update email notification settings
+//
+// Update the current team email notification settings.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+func (c *Client) UpdateCurrentTeamEmailNotifications(ctx context.Context, body UpdateCurrentTeamEmailNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamEmailNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetCurrentTeamPushoverNotifications Get Pushover notification settings
+//
+// Get the current team Pushover notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Corresponds with GET /notifications/pushover (the `GetCurrentTeamPushoverNotifications` operationId).
+func (c *Client) GetCurrentTeamPushoverNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCurrentTeamPushoverNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamPushoverNotificationsWithBody Update Pushover notification settings
+//
+// Update the current team Pushover notification settings.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+func (c *Client) UpdateCurrentTeamPushoverNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamPushoverNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamPushoverNotifications Update Pushover notification settings
+//
+// Update the current team Pushover notification settings.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+func (c *Client) UpdateCurrentTeamPushoverNotifications(ctx context.Context, body UpdateCurrentTeamPushoverNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamPushoverNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetCurrentTeamSlackNotifications Get Slack notification settings
+//
+// Get the current team Slack notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Corresponds with GET /notifications/slack (the `GetCurrentTeamSlackNotifications` operationId).
+func (c *Client) GetCurrentTeamSlackNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCurrentTeamSlackNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamSlackNotificationsWithBody Update Slack notification settings
+//
+// Update the current team Slack notification settings.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+func (c *Client) UpdateCurrentTeamSlackNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamSlackNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamSlackNotifications Update Slack notification settings
+//
+// Update the current team Slack notification settings.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+func (c *Client) UpdateCurrentTeamSlackNotifications(ctx context.Context, body UpdateCurrentTeamSlackNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamSlackNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetCurrentTeamTelegramNotifications Get Telegram notification settings
+//
+// Get the current team Telegram notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Corresponds with GET /notifications/telegram (the `GetCurrentTeamTelegramNotifications` operationId).
+func (c *Client) GetCurrentTeamTelegramNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCurrentTeamTelegramNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamTelegramNotificationsWithBody Update Telegram notification settings
+//
+// Update the current team Telegram notification settings.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+func (c *Client) UpdateCurrentTeamTelegramNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamTelegramNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamTelegramNotifications Update Telegram notification settings
+//
+// Update the current team Telegram notification settings.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+func (c *Client) UpdateCurrentTeamTelegramNotifications(ctx context.Context, body UpdateCurrentTeamTelegramNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamTelegramNotificationsRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// GetCurrentTeamWebhookNotifications Get webhook notification settings
+//
+// Get the current team webhook notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Corresponds with GET /notifications/webhook (the `GetCurrentTeamWebhookNotifications` operationId).
+func (c *Client) GetCurrentTeamWebhookNotifications(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetCurrentTeamWebhookNotificationsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamWebhookNotificationsWithBody Update webhook notification settings
+//
+// Update the current team webhook notification settings.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+func (c *Client) UpdateCurrentTeamWebhookNotificationsWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamWebhookNotificationsRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateCurrentTeamWebhookNotifications Update webhook notification settings
+//
+// Update the current team webhook notification settings.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+func (c *Client) UpdateCurrentTeamWebhookNotifications(ctx context.Context, body UpdateCurrentTeamWebhookNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateCurrentTeamWebhookNotificationsRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -11645,6 +12161,408 @@ func NewUpdateGithubAppRequestWithBody(server string, githubAppId int, contentTy
 	return req, nil
 }
 
+// NewGetCurrentTeamDiscordNotificationsRequest constructs an http.Request for the GetCurrentTeamDiscordNotifications method
+func NewGetCurrentTeamDiscordNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/discord")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCurrentTeamDiscordNotificationsRequest calls the generic UpdateCurrentTeamDiscordNotifications builder with application/json body
+func NewUpdateCurrentTeamDiscordNotificationsRequest(server string, body UpdateCurrentTeamDiscordNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCurrentTeamDiscordNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCurrentTeamDiscordNotificationsRequestWithBody constructs an http.Request for the UpdateCurrentTeamDiscordNotifications method, with any body, and a specified content type
+func NewUpdateCurrentTeamDiscordNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/discord")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetCurrentTeamEmailNotificationsRequest constructs an http.Request for the GetCurrentTeamEmailNotifications method
+func NewGetCurrentTeamEmailNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/email")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCurrentTeamEmailNotificationsRequest calls the generic UpdateCurrentTeamEmailNotifications builder with application/json body
+func NewUpdateCurrentTeamEmailNotificationsRequest(server string, body UpdateCurrentTeamEmailNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCurrentTeamEmailNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCurrentTeamEmailNotificationsRequestWithBody constructs an http.Request for the UpdateCurrentTeamEmailNotifications method, with any body, and a specified content type
+func NewUpdateCurrentTeamEmailNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/email")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetCurrentTeamPushoverNotificationsRequest constructs an http.Request for the GetCurrentTeamPushoverNotifications method
+func NewGetCurrentTeamPushoverNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/pushover")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCurrentTeamPushoverNotificationsRequest calls the generic UpdateCurrentTeamPushoverNotifications builder with application/json body
+func NewUpdateCurrentTeamPushoverNotificationsRequest(server string, body UpdateCurrentTeamPushoverNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCurrentTeamPushoverNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCurrentTeamPushoverNotificationsRequestWithBody constructs an http.Request for the UpdateCurrentTeamPushoverNotifications method, with any body, and a specified content type
+func NewUpdateCurrentTeamPushoverNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/pushover")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetCurrentTeamSlackNotificationsRequest constructs an http.Request for the GetCurrentTeamSlackNotifications method
+func NewGetCurrentTeamSlackNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/slack")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCurrentTeamSlackNotificationsRequest calls the generic UpdateCurrentTeamSlackNotifications builder with application/json body
+func NewUpdateCurrentTeamSlackNotificationsRequest(server string, body UpdateCurrentTeamSlackNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCurrentTeamSlackNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCurrentTeamSlackNotificationsRequestWithBody constructs an http.Request for the UpdateCurrentTeamSlackNotifications method, with any body, and a specified content type
+func NewUpdateCurrentTeamSlackNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/slack")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetCurrentTeamTelegramNotificationsRequest constructs an http.Request for the GetCurrentTeamTelegramNotifications method
+func NewGetCurrentTeamTelegramNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/telegram")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCurrentTeamTelegramNotificationsRequest calls the generic UpdateCurrentTeamTelegramNotifications builder with application/json body
+func NewUpdateCurrentTeamTelegramNotificationsRequest(server string, body UpdateCurrentTeamTelegramNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCurrentTeamTelegramNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCurrentTeamTelegramNotificationsRequestWithBody constructs an http.Request for the UpdateCurrentTeamTelegramNotifications method, with any body, and a specified content type
+func NewUpdateCurrentTeamTelegramNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/telegram")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewGetCurrentTeamWebhookNotificationsRequest constructs an http.Request for the GetCurrentTeamWebhookNotifications method
+func NewGetCurrentTeamWebhookNotificationsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/webhook")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateCurrentTeamWebhookNotificationsRequest calls the generic UpdateCurrentTeamWebhookNotifications builder with application/json body
+func NewUpdateCurrentTeamWebhookNotificationsRequest(server string, body UpdateCurrentTeamWebhookNotificationsJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateCurrentTeamWebhookNotificationsRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewUpdateCurrentTeamWebhookNotificationsRequestWithBody constructs an http.Request for the UpdateCurrentTeamWebhookNotifications method, with any body, and a specified content type
+func NewUpdateCurrentTeamWebhookNotificationsRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/notifications/webhook")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewListProjectsRequest constructs an http.Request for the ListProjects method
 func NewListProjectsRequest(server string) (*http.Request, error) {
 	var err error
@@ -14083,6 +15001,168 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with PATCH /github-apps/{github_app_id} (the `UpdateGithubApp` operationId).
 	UpdateGithubAppWithResponse(ctx context.Context, githubAppId int, body UpdateGithubAppJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateGithubAppResponse, error)
+
+	// GetCurrentTeamDiscordNotificationsWithResponse Get Discord notification settings
+	//
+	// Get the current team Discord notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /notifications/discord (the `GetCurrentTeamDiscordNotifications` operationId).
+	GetCurrentTeamDiscordNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamDiscordNotificationsResponse, error)
+
+	// UpdateCurrentTeamDiscordNotificationsWithBodyWithResponse Update Discord notification settings
+	//
+	// Update the current team Discord notification settings.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+	UpdateCurrentTeamDiscordNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamDiscordNotificationsResponse, error)
+
+	// UpdateCurrentTeamDiscordNotificationsWithResponse Update Discord notification settings
+	//
+	// Update the current team Discord notification settings.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+	UpdateCurrentTeamDiscordNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamDiscordNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamDiscordNotificationsResponse, error)
+
+	// GetCurrentTeamEmailNotificationsWithResponse Get email notification settings
+	//
+	// Get the current team email notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /notifications/email (the `GetCurrentTeamEmailNotifications` operationId).
+	GetCurrentTeamEmailNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamEmailNotificationsResponse, error)
+
+	// UpdateCurrentTeamEmailNotificationsWithBodyWithResponse Update email notification settings
+	//
+	// Update the current team email notification settings.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+	UpdateCurrentTeamEmailNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamEmailNotificationsResponse, error)
+
+	// UpdateCurrentTeamEmailNotificationsWithResponse Update email notification settings
+	//
+	// Update the current team email notification settings.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+	UpdateCurrentTeamEmailNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamEmailNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamEmailNotificationsResponse, error)
+
+	// GetCurrentTeamPushoverNotificationsWithResponse Get Pushover notification settings
+	//
+	// Get the current team Pushover notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /notifications/pushover (the `GetCurrentTeamPushoverNotifications` operationId).
+	GetCurrentTeamPushoverNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamPushoverNotificationsResponse, error)
+
+	// UpdateCurrentTeamPushoverNotificationsWithBodyWithResponse Update Pushover notification settings
+	//
+	// Update the current team Pushover notification settings.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+	UpdateCurrentTeamPushoverNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamPushoverNotificationsResponse, error)
+
+	// UpdateCurrentTeamPushoverNotificationsWithResponse Update Pushover notification settings
+	//
+	// Update the current team Pushover notification settings.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+	UpdateCurrentTeamPushoverNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamPushoverNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamPushoverNotificationsResponse, error)
+
+	// GetCurrentTeamSlackNotificationsWithResponse Get Slack notification settings
+	//
+	// Get the current team Slack notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /notifications/slack (the `GetCurrentTeamSlackNotifications` operationId).
+	GetCurrentTeamSlackNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamSlackNotificationsResponse, error)
+
+	// UpdateCurrentTeamSlackNotificationsWithBodyWithResponse Update Slack notification settings
+	//
+	// Update the current team Slack notification settings.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+	UpdateCurrentTeamSlackNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamSlackNotificationsResponse, error)
+
+	// UpdateCurrentTeamSlackNotificationsWithResponse Update Slack notification settings
+	//
+	// Update the current team Slack notification settings.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+	UpdateCurrentTeamSlackNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamSlackNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamSlackNotificationsResponse, error)
+
+	// GetCurrentTeamTelegramNotificationsWithResponse Get Telegram notification settings
+	//
+	// Get the current team Telegram notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /notifications/telegram (the `GetCurrentTeamTelegramNotifications` operationId).
+	GetCurrentTeamTelegramNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamTelegramNotificationsResponse, error)
+
+	// UpdateCurrentTeamTelegramNotificationsWithBodyWithResponse Update Telegram notification settings
+	//
+	// Update the current team Telegram notification settings.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+	UpdateCurrentTeamTelegramNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamTelegramNotificationsResponse, error)
+
+	// UpdateCurrentTeamTelegramNotificationsWithResponse Update Telegram notification settings
+	//
+	// Update the current team Telegram notification settings.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+	UpdateCurrentTeamTelegramNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamTelegramNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamTelegramNotificationsResponse, error)
+
+	// GetCurrentTeamWebhookNotificationsWithResponse Get webhook notification settings
+	//
+	// Get the current team webhook notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /notifications/webhook (the `GetCurrentTeamWebhookNotifications` operationId).
+	GetCurrentTeamWebhookNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamWebhookNotificationsResponse, error)
+
+	// UpdateCurrentTeamWebhookNotificationsWithBodyWithResponse Update webhook notification settings
+	//
+	// Update the current team webhook notification settings.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+	UpdateCurrentTeamWebhookNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamWebhookNotificationsResponse, error)
+
+	// UpdateCurrentTeamWebhookNotificationsWithResponse Update webhook notification settings
+	//
+	// Update the current team webhook notification settings.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+	UpdateCurrentTeamWebhookNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamWebhookNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamWebhookNotificationsResponse, error)
 
 	// ListProjectsWithResponse List
 	//
@@ -18565,6 +19645,624 @@ func (r UpdateGithubAppResponse) ContentType() string {
 	return ""
 }
 
+type GetCurrentTeamDiscordNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetCurrentTeamDiscordNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetCurrentTeamDiscordNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r GetCurrentTeamDiscordNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCurrentTeamDiscordNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCurrentTeamDiscordNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCurrentTeamDiscordNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateCurrentTeamDiscordNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateCurrentTeamDiscordNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateCurrentTeamDiscordNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateCurrentTeamDiscordNotificationsResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateCurrentTeamDiscordNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCurrentTeamDiscordNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCurrentTeamDiscordNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateCurrentTeamDiscordNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetCurrentTeamEmailNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetCurrentTeamEmailNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetCurrentTeamEmailNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r GetCurrentTeamEmailNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCurrentTeamEmailNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCurrentTeamEmailNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCurrentTeamEmailNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateCurrentTeamEmailNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateCurrentTeamEmailNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateCurrentTeamEmailNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateCurrentTeamEmailNotificationsResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateCurrentTeamEmailNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCurrentTeamEmailNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCurrentTeamEmailNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateCurrentTeamEmailNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetCurrentTeamPushoverNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetCurrentTeamPushoverNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetCurrentTeamPushoverNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r GetCurrentTeamPushoverNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCurrentTeamPushoverNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCurrentTeamPushoverNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCurrentTeamPushoverNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateCurrentTeamPushoverNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateCurrentTeamPushoverNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateCurrentTeamPushoverNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateCurrentTeamPushoverNotificationsResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateCurrentTeamPushoverNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCurrentTeamPushoverNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCurrentTeamPushoverNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateCurrentTeamPushoverNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetCurrentTeamSlackNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetCurrentTeamSlackNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetCurrentTeamSlackNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r GetCurrentTeamSlackNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCurrentTeamSlackNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCurrentTeamSlackNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCurrentTeamSlackNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateCurrentTeamSlackNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateCurrentTeamSlackNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateCurrentTeamSlackNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateCurrentTeamSlackNotificationsResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateCurrentTeamSlackNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCurrentTeamSlackNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCurrentTeamSlackNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateCurrentTeamSlackNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetCurrentTeamTelegramNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetCurrentTeamTelegramNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetCurrentTeamTelegramNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r GetCurrentTeamTelegramNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCurrentTeamTelegramNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCurrentTeamTelegramNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCurrentTeamTelegramNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateCurrentTeamTelegramNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateCurrentTeamTelegramNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateCurrentTeamTelegramNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateCurrentTeamTelegramNotificationsResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateCurrentTeamTelegramNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCurrentTeamTelegramNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCurrentTeamTelegramNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateCurrentTeamTelegramNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type GetCurrentTeamWebhookNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r GetCurrentTeamWebhookNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r GetCurrentTeamWebhookNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r GetCurrentTeamWebhookNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r GetCurrentTeamWebhookNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r GetCurrentTeamWebhookNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r GetCurrentTeamWebhookNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateCurrentTeamWebhookNotificationsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateCurrentTeamWebhookNotificationsResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateCurrentTeamWebhookNotificationsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateCurrentTeamWebhookNotificationsResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateCurrentTeamWebhookNotificationsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateCurrentTeamWebhookNotificationsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateCurrentTeamWebhookNotificationsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateCurrentTeamWebhookNotificationsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListProjectsResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -22593,6 +24291,276 @@ func (c *ClientWithResponses) UpdateGithubAppWithResponse(ctx context.Context, g
 	return ParseUpdateGithubAppResponse(rsp)
 }
 
+// GetCurrentTeamDiscordNotificationsWithResponse Get Discord notification settings
+//
+// Get the current team Discord notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /notifications/discord (the `GetCurrentTeamDiscordNotifications` operationId).
+func (c *ClientWithResponses) GetCurrentTeamDiscordNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamDiscordNotificationsResponse, error) {
+	rsp, err := c.GetCurrentTeamDiscordNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCurrentTeamDiscordNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamDiscordNotificationsWithBodyWithResponse Update Discord notification settings
+//
+// Update the current team Discord notification settings.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamDiscordNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamDiscordNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamDiscordNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamDiscordNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamDiscordNotificationsWithResponse Update Discord notification settings
+//
+// Update the current team Discord notification settings.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/discord (the `UpdateCurrentTeamDiscordNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamDiscordNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamDiscordNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamDiscordNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamDiscordNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamDiscordNotificationsResponse(rsp)
+}
+
+// GetCurrentTeamEmailNotificationsWithResponse Get email notification settings
+//
+// Get the current team email notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /notifications/email (the `GetCurrentTeamEmailNotifications` operationId).
+func (c *ClientWithResponses) GetCurrentTeamEmailNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamEmailNotificationsResponse, error) {
+	rsp, err := c.GetCurrentTeamEmailNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCurrentTeamEmailNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamEmailNotificationsWithBodyWithResponse Update email notification settings
+//
+// Update the current team email notification settings.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamEmailNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamEmailNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamEmailNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamEmailNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamEmailNotificationsWithResponse Update email notification settings
+//
+// Update the current team email notification settings.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/email (the `UpdateCurrentTeamEmailNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamEmailNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamEmailNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamEmailNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamEmailNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamEmailNotificationsResponse(rsp)
+}
+
+// GetCurrentTeamPushoverNotificationsWithResponse Get Pushover notification settings
+//
+// Get the current team Pushover notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /notifications/pushover (the `GetCurrentTeamPushoverNotifications` operationId).
+func (c *ClientWithResponses) GetCurrentTeamPushoverNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamPushoverNotificationsResponse, error) {
+	rsp, err := c.GetCurrentTeamPushoverNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCurrentTeamPushoverNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamPushoverNotificationsWithBodyWithResponse Update Pushover notification settings
+//
+// Update the current team Pushover notification settings.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamPushoverNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamPushoverNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamPushoverNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamPushoverNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamPushoverNotificationsWithResponse Update Pushover notification settings
+//
+// Update the current team Pushover notification settings.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/pushover (the `UpdateCurrentTeamPushoverNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamPushoverNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamPushoverNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamPushoverNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamPushoverNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamPushoverNotificationsResponse(rsp)
+}
+
+// GetCurrentTeamSlackNotificationsWithResponse Get Slack notification settings
+//
+// Get the current team Slack notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /notifications/slack (the `GetCurrentTeamSlackNotifications` operationId).
+func (c *ClientWithResponses) GetCurrentTeamSlackNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamSlackNotificationsResponse, error) {
+	rsp, err := c.GetCurrentTeamSlackNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCurrentTeamSlackNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamSlackNotificationsWithBodyWithResponse Update Slack notification settings
+//
+// Update the current team Slack notification settings.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamSlackNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamSlackNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamSlackNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamSlackNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamSlackNotificationsWithResponse Update Slack notification settings
+//
+// Update the current team Slack notification settings.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/slack (the `UpdateCurrentTeamSlackNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamSlackNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamSlackNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamSlackNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamSlackNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamSlackNotificationsResponse(rsp)
+}
+
+// GetCurrentTeamTelegramNotificationsWithResponse Get Telegram notification settings
+//
+// Get the current team Telegram notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /notifications/telegram (the `GetCurrentTeamTelegramNotifications` operationId).
+func (c *ClientWithResponses) GetCurrentTeamTelegramNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamTelegramNotificationsResponse, error) {
+	rsp, err := c.GetCurrentTeamTelegramNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCurrentTeamTelegramNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamTelegramNotificationsWithBodyWithResponse Update Telegram notification settings
+//
+// Update the current team Telegram notification settings.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamTelegramNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamTelegramNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamTelegramNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamTelegramNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamTelegramNotificationsWithResponse Update Telegram notification settings
+//
+// Update the current team Telegram notification settings.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/telegram (the `UpdateCurrentTeamTelegramNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamTelegramNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamTelegramNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamTelegramNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamTelegramNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamTelegramNotificationsResponse(rsp)
+}
+
+// GetCurrentTeamWebhookNotificationsWithResponse Get webhook notification settings
+//
+// Get the current team webhook notification settings. Encrypted secrets are only returned when the token has `read:sensitive` (or `root`) and the user is a team admin/owner.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /notifications/webhook (the `GetCurrentTeamWebhookNotifications` operationId).
+func (c *ClientWithResponses) GetCurrentTeamWebhookNotificationsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetCurrentTeamWebhookNotificationsResponse, error) {
+	rsp, err := c.GetCurrentTeamWebhookNotifications(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseGetCurrentTeamWebhookNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamWebhookNotificationsWithBodyWithResponse Update webhook notification settings
+//
+// Update the current team webhook notification settings.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamWebhookNotificationsWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamWebhookNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamWebhookNotificationsWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamWebhookNotificationsResponse(rsp)
+}
+
+// UpdateCurrentTeamWebhookNotificationsWithResponse Update webhook notification settings
+//
+// Update the current team webhook notification settings.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /notifications/webhook (the `UpdateCurrentTeamWebhookNotifications` operationId).
+func (c *ClientWithResponses) UpdateCurrentTeamWebhookNotificationsWithResponse(ctx context.Context, body UpdateCurrentTeamWebhookNotificationsJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateCurrentTeamWebhookNotificationsResponse, error) {
+	rsp, err := c.UpdateCurrentTeamWebhookNotifications(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateCurrentTeamWebhookNotificationsResponse(rsp)
+}
+
 // ListProjectsWithResponse List
 //
 // List projects.
@@ -26391,6 +28359,498 @@ func ParseUpdateGithubAppResponse(rsp *http.Response) (*UpdateGithubAppResponse,
 		break // No content-type
 
 	case rsp.StatusCode == 404:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCurrentTeamDiscordNotificationsResponse parses an HTTP response from a GetCurrentTeamDiscordNotificationsWithResponse call
+func ParseGetCurrentTeamDiscordNotificationsResponse(rsp *http.Response) (*GetCurrentTeamDiscordNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCurrentTeamDiscordNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCurrentTeamDiscordNotificationsResponse parses an HTTP response from a UpdateCurrentTeamDiscordNotificationsWithResponse call
+func ParseUpdateCurrentTeamDiscordNotificationsResponse(rsp *http.Response) (*UpdateCurrentTeamDiscordNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCurrentTeamDiscordNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCurrentTeamEmailNotificationsResponse parses an HTTP response from a GetCurrentTeamEmailNotificationsWithResponse call
+func ParseGetCurrentTeamEmailNotificationsResponse(rsp *http.Response) (*GetCurrentTeamEmailNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCurrentTeamEmailNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCurrentTeamEmailNotificationsResponse parses an HTTP response from a UpdateCurrentTeamEmailNotificationsWithResponse call
+func ParseUpdateCurrentTeamEmailNotificationsResponse(rsp *http.Response) (*UpdateCurrentTeamEmailNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCurrentTeamEmailNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCurrentTeamPushoverNotificationsResponse parses an HTTP response from a GetCurrentTeamPushoverNotificationsWithResponse call
+func ParseGetCurrentTeamPushoverNotificationsResponse(rsp *http.Response) (*GetCurrentTeamPushoverNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCurrentTeamPushoverNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCurrentTeamPushoverNotificationsResponse parses an HTTP response from a UpdateCurrentTeamPushoverNotificationsWithResponse call
+func ParseUpdateCurrentTeamPushoverNotificationsResponse(rsp *http.Response) (*UpdateCurrentTeamPushoverNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCurrentTeamPushoverNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCurrentTeamSlackNotificationsResponse parses an HTTP response from a GetCurrentTeamSlackNotificationsWithResponse call
+func ParseGetCurrentTeamSlackNotificationsResponse(rsp *http.Response) (*GetCurrentTeamSlackNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCurrentTeamSlackNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCurrentTeamSlackNotificationsResponse parses an HTTP response from a UpdateCurrentTeamSlackNotificationsWithResponse call
+func ParseUpdateCurrentTeamSlackNotificationsResponse(rsp *http.Response) (*UpdateCurrentTeamSlackNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCurrentTeamSlackNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCurrentTeamTelegramNotificationsResponse parses an HTTP response from a GetCurrentTeamTelegramNotificationsWithResponse call
+func ParseGetCurrentTeamTelegramNotificationsResponse(rsp *http.Response) (*GetCurrentTeamTelegramNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCurrentTeamTelegramNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCurrentTeamTelegramNotificationsResponse parses an HTTP response from a UpdateCurrentTeamTelegramNotificationsWithResponse call
+func ParseUpdateCurrentTeamTelegramNotificationsResponse(rsp *http.Response) (*UpdateCurrentTeamTelegramNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCurrentTeamTelegramNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseGetCurrentTeamWebhookNotificationsResponse parses an HTTP response from a GetCurrentTeamWebhookNotificationsWithResponse call
+func ParseGetCurrentTeamWebhookNotificationsResponse(rsp *http.Response) (*GetCurrentTeamWebhookNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &GetCurrentTeamWebhookNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateCurrentTeamWebhookNotificationsResponse parses an HTTP response from a UpdateCurrentTeamWebhookNotificationsWithResponse call
+func ParseUpdateCurrentTeamWebhookNotificationsResponse(rsp *http.Response) (*UpdateCurrentTeamWebhookNotificationsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateCurrentTeamWebhookNotificationsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
 		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:

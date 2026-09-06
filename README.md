@@ -19,10 +19,16 @@ A native [Pulumi](https://www.pulumi.com) provider for [Coolify](https://coolify
 | `coolify.VolumeBackup` | Backup schedule of a persistent volume or directory mount of an application, database or service, optionally uploaded to an S3 storage | the storage (one schedule per storage) |
 | `coolify.ScheduledTask` | Cron task on an application | task name within the application |
 | `coolify.Deployment` | Triggers a deployment and waits for it to finish | none (one deployment per input change) |
+| `coolify.NotificationEmail` | SMTP, Resend or instance email notifications | token team / `email` |
+| `coolify.NotificationDiscord` | Discord webhook notifications | token team / `discord` |
+| `coolify.NotificationSlack` | Slack-compatible webhook notifications, including Mattermost | token team / `slack` |
+| `coolify.NotificationTelegram` | Telegram bot notifications with optional event thread IDs | token team / `telegram` |
+| `coolify.NotificationPushover` | Pushover notifications | token team / `pushover` |
+| `coolify.NotificationWebhook` | Generic JSON webhook notifications | token team / `webhook` |
 
 The function `coolify.getStorage` looks up a storage of an application, database or service by mount path and/or volume name, e.g. a volume declared in a service's compose file.
 
-On **create**, every resource adopts an existing Coolify resource with the same identity instead of creating a duplicate, and reconciles its settings with the declared inputs. **Updates and deletes always address the resource by UUID**, so renaming a resource renames it in Coolify rather than creating a new one.
+On **create**, resources with an adoption identity reuse a matching Coolify resource and reconcile its settings with the declared inputs. Deployment resources trigger an action; notification resources adopt the token team's settings for their channel. Updates and deletes use the recorded API identity. Resources addressed by UUID keep that identity when renamed.
 
 Optional inputs left unset are treated as unmanaged: Coolify's own default is kept and never overwritten, and `pulumi refresh` does not report it as drift. Inputs that must change the identity of a resource (server, database type, application source, service type) replace it. Changing `projectUuid` or `environmentName` on an application, database or service **moves it in place** instead, see below.
 
@@ -36,6 +42,7 @@ Optional inputs left unset are treated as unmanaged: Coolify's own default is ke
 | `disableDefaultTags` | | Attach no default tags at all (an empty `defaultTags` list counts as unset) |
 
 ```ts
+import * as pulumi from "@pulumi/pulumi";
 import * as coolify from "@bambamboole/coolify";
 
 const provider = new coolify.Provider("coolify", {
@@ -114,6 +121,33 @@ new coolify.VolumeBackup("gitea-data", {
 }, { provider, retainOnDelete: true });
 ```
 
+## Notifications
+
+Notification resources require **Coolify v4.3.0 or newer**. Each channel has one settings object for the provider API token's team, shared across that team's projects. Declare each team/channel combination in only one Pulumi resource. Import IDs have the form `<teamId>/<channel>`, for example `1/slack`; the provider verifies that the token belongs to that team.
+
+For Mattermost, create an incoming webhook and expose its URL from a Pulumi ESC secret as the `mattermostWebhookUrl` Pulumi config key. With the provider above:
+
+```ts
+const config = new pulumi.Config();
+
+new coolify.NotificationSlack("mattermost", {
+    enabled: true,
+    webhookUrl: config.requireSecret("mattermostWebhookUrl"),
+    events: {
+        deploymentSuccess: false,
+        deploymentFailure: true,
+        backupFailure: true,
+        serverUnreachable: true,
+    },
+}, { provider });
+```
+
+**Create adopts; updates patch declared settings.** Coolify exposes GET and PATCH for these settings, with no POST or DELETE endpoints. Its GET endpoint initializes a missing settings object with defaults, so even a read can create the underlying record. The provider changes only declared inputs and event flags: unset values remain unmanaged, `false` and `0` are explicit values, and empty strings clear nullable settings by sending JSON `null`. Updates do not send test notifications.
+
+**Destroy disables delivery and retains configuration.** It leaves credentials, URLs and event choices in Coolify. Email destroy disables all three delivery modes: `smtpEnabled`, `resendEnabled` and `useInstanceEmailSettings`. Set `retainOnDelete: true` to keep delivery enabled when removing a resource from Pulumi.
+
+**Hidden notification fields are Pulumi secrets.** This includes webhook URLs; SMTP sender address/name, recipients, host, username and password; the Resend API key; Telegram token, chat ID and every thread ID; and Pushover user key/API token. Coolify returns these fields only when the token has `read:sensitive` or `root` and its user is a team admin/owner. When fields are omitted, the provider preserves their previous state and compares declared changes against that state so secret rotation still works. An explicit `null` response means a setting was cleared; refresh records that drift so a subsequent update can restore a declared value.
+
 ## Behaviour worth knowing
 
 - **Moving between projects and environments is safe.** Changing `projectUuid` or `environmentName` on a `coolify.Application`, `coolify.Database` or `coolify.Service` calls Coolify's move endpoint (Coolify v4.2.0 or newer). The target environment must already exist, e.g. through the `environments` of a `coolify.Project`. The move is purely organizational: containers keep running, nothing is redeployed, and shared environment variables of the new environment apply on the next deployment. Moves made in the Coolify UI are not detected by `pulumi refresh`.
@@ -143,7 +177,7 @@ make build-sdk    # compile the SDK into sdk/nodejs/bin (what gets published)
 
 ### API client
 
-`internal/coolify/api` is generated with [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) from the checked-in `openapi.yaml`, a snapshot of [Coolify's specification](https://github.com/coollabsio/coolify/blob/main/openapi.yaml). Only the operations listed in `oapi-codegen.yaml` are generated; add an operation ID there when a resource needs a new endpoint. `internal/coolify` wraps the generated client with authentication, error handling, retries and hand-written models where the specification is untyped (databases, S3 storages, GitHub Apps, environments).
+`internal/coolify/api` is generated with [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) from the checked-in `openapi.yaml`, a snapshot of [Coolify's specification](https://github.com/coollabsio/coolify/blob/main/openapi.yaml). Only the operations listed in `oapi-codegen.yaml` are generated; add an operation ID there when a resource needs a new endpoint. `internal/coolify` wraps the generated client with authentication, error handling, retries and hand-written models where the specification is untyped (databases, S3 storages, GitHub Apps, environments, notification settings).
 
 ### Using the provider locally
 

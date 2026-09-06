@@ -6,3 +6,134 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 
+/**
+ * Notification event selection. Omitted events keep their Coolify settings; false disables an event.
+ */
+export interface NotificationEventsArgs {
+    /**
+     * Backup Failure notifications. Leave unset to preserve the current setting.
+     */
+    backupFailure?: pulumi.Input<boolean | undefined>;
+    /**
+     * Backup Success notifications. Leave unset to preserve the current setting.
+     */
+    backupSuccess?: pulumi.Input<boolean | undefined>;
+    /**
+     * Deployment Failure notifications. Leave unset to preserve the current setting.
+     */
+    deploymentFailure?: pulumi.Input<boolean | undefined>;
+    /**
+     * Deployment Success notifications. Leave unset to preserve the current setting.
+     */
+    deploymentSuccess?: pulumi.Input<boolean | undefined>;
+    /**
+     * Docker Cleanup Failure notifications. Leave unset to preserve the current setting.
+     */
+    dockerCleanupFailure?: pulumi.Input<boolean | undefined>;
+    /**
+     * Docker Cleanup Success notifications. Leave unset to preserve the current setting.
+     */
+    dockerCleanupSuccess?: pulumi.Input<boolean | undefined>;
+    /**
+     * Restart Limit Reached notifications. Leave unset to preserve the current setting.
+     */
+    restartLimitReached?: pulumi.Input<boolean | undefined>;
+    /**
+     * Scheduled Task Failure notifications. Leave unset to preserve the current setting.
+     */
+    scheduledTaskFailure?: pulumi.Input<boolean | undefined>;
+    /**
+     * Scheduled Task Success notifications. Leave unset to preserve the current setting.
+     */
+    scheduledTaskSuccess?: pulumi.Input<boolean | undefined>;
+    /**
+     * Server Disk Usage notifications. Leave unset to preserve the current setting.
+     */
+    serverDiskUsage?: pulumi.Input<boolean | undefined>;
+    /**
+     * Server Patch notifications. Leave unset to preserve the current setting.
+     */
+    serverPatch?: pulumi.Input<boolean | undefined>;
+    /**
+     * Server Reachable notifications. Leave unset to preserve the current setting.
+     */
+    serverReachable?: pulumi.Input<boolean | undefined>;
+    /**
+     * Server Unreachable notifications. Leave unset to preserve the current setting.
+     */
+    serverUnreachable?: pulumi.Input<boolean | undefined>;
+    /**
+     * Status Change notifications. Leave unset to preserve the current setting.
+     */
+    statusChange?: pulumi.Input<boolean | undefined>;
+    /**
+     * Traefik Outdated notifications. Leave unset to preserve the current setting.
+     */
+    traefikOutdated?: pulumi.Input<boolean | undefined>;
+}
+
+/**
+ * Telegram thread IDs by event. Unset fields remain unmanaged; an empty string clears the thread ID.
+ */
+export interface NotificationTelegramThreadsArgs {
+    /**
+     * Thread ID for backup failure notifications.
+     */
+    backupFailure?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for backup success notifications.
+     */
+    backupSuccess?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for deployment failure notifications.
+     */
+    deploymentFailure?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for deployment success notifications.
+     */
+    deploymentSuccess?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for docker cleanup failure notifications.
+     */
+    dockerCleanupFailure?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for docker cleanup success notifications.
+     */
+    dockerCleanupSuccess?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for restart limit reached notifications.
+     */
+    restartLimitReached?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for scheduled task failure notifications.
+     */
+    scheduledTaskFailure?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for scheduled task success notifications.
+     */
+    scheduledTaskSuccess?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for server disk usage notifications.
+     */
+    serverDiskUsage?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for server patch notifications.
+     */
+    serverPatch?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for server reachable notifications.
+     */
+    serverReachable?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for server unreachable notifications.
+     */
+    serverUnreachable?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for status change notifications.
+     */
+    statusChange?: pulumi.Input<string | undefined>;
+    /**
+     * Thread ID for traefik outdated notifications.
+     */
+    traefikOutdated?: pulumi.Input<string | undefined>;
+}

@@ -64,6 +64,14 @@ export const DatabaseType = {
 
 export type DatabaseType = (typeof DatabaseType)[keyof typeof DatabaseType];
 
+export const NotificationSMTPEncryption = {
+    STARTTLS: "starttls",
+    TLS: "tls",
+    None: "none",
+} as const;
+
+export type NotificationSMTPEncryption = (typeof NotificationSMTPEncryption)[keyof typeof NotificationSMTPEncryption];
+
 export const StorageType = {
     /**
      * Named Docker volume.

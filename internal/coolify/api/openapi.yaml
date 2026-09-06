@@ -7513,6 +7513,14 @@ paths:
       summary: 'Update email notification settings'
       description: 'Update the current team email notification settings.'
       operationId: update-current-team-email-notifications
+      # Upstream omits requestBody; NotificationsController v4.3.17 accepts a partial JSON object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         '200':
           description: 'Updated email notification settings.'
@@ -7550,6 +7558,14 @@ paths:
       summary: 'Update Discord notification settings'
       description: 'Update the current team Discord notification settings.'
       operationId: update-current-team-discord-notifications
+      # Upstream omits requestBody; NotificationsController v4.3.17 accepts a partial JSON object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         '200':
           description: 'Updated Discord notification settings.'
@@ -7587,6 +7603,14 @@ paths:
       summary: 'Update Slack notification settings'
       description: 'Update the current team Slack notification settings.'
       operationId: update-current-team-slack-notifications
+      # Upstream omits requestBody; NotificationsController v4.3.17 accepts a partial JSON object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         '200':
           description: 'Updated Slack notification settings.'
@@ -7624,6 +7648,14 @@ paths:
       summary: 'Update Telegram notification settings'
       description: 'Update the current team Telegram notification settings.'
       operationId: update-current-team-telegram-notifications
+      # Upstream omits requestBody; NotificationsController v4.3.17 accepts a partial JSON object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         '200':
           description: 'Updated Telegram notification settings.'
@@ -7661,6 +7693,14 @@ paths:
       summary: 'Update Pushover notification settings'
       description: 'Update the current team Pushover notification settings.'
       operationId: update-current-team-pushover-notifications
+      # Upstream omits requestBody; NotificationsController v4.3.17 accepts a partial JSON object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         '200':
           description: 'Updated Pushover notification settings.'
@@ -7698,6 +7738,14 @@ paths:
       summary: 'Update webhook notification settings'
       description: 'Update the current team webhook notification settings.'
       operationId: update-current-team-webhook-notifications
+      # Upstream omits requestBody; NotificationsController v4.3.17 accepts a partial JSON object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       responses:
         '200':
           description: 'Updated webhook notification settings.'
