@@ -105,6 +105,24 @@ func (e ServerProxyType) Valid() bool {
 	}
 }
 
+// Defines values for VolumeBackupScheduleResponseStorageType.
+const (
+	VolumeBackupScheduleResponseStorageTypeDirectory  VolumeBackupScheduleResponseStorageType = "directory"
+	VolumeBackupScheduleResponseStorageTypePersistent VolumeBackupScheduleResponseStorageType = "persistent"
+)
+
+// Valid indicates whether the value is a known member of the VolumeBackupScheduleResponseStorageType enum.
+func (e VolumeBackupScheduleResponseStorageType) Valid() bool {
+	switch e {
+	case VolumeBackupScheduleResponseStorageTypeDirectory:
+		return true
+	case VolumeBackupScheduleResponseStorageTypePersistent:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CreateDockerfileApplicationJSONBodyBuildPack.
 const (
 	CreateDockerfileApplicationJSONBodyBuildPackDockerfile CreateDockerfileApplicationJSONBodyBuildPack = "dockerfile"
@@ -603,6 +621,78 @@ func (e UpdateApplicationByUuid409JSONResponseBodyConflictsResourceType) Valid()
 	case UpdateApplicationByUuid409JSONResponseBodyConflictsResourceTypeInstance:
 		return true
 	case UpdateApplicationByUuid409JSONResponseBodyConflictsResourceTypeService:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UpdateStorageByApplicationUuidJSONBodyType.
+const (
+	UpdateStorageByApplicationUuidJSONBodyTypeFile       UpdateStorageByApplicationUuidJSONBodyType = "file"
+	UpdateStorageByApplicationUuidJSONBodyTypePersistent UpdateStorageByApplicationUuidJSONBodyType = "persistent"
+)
+
+// Valid indicates whether the value is a known member of the UpdateStorageByApplicationUuidJSONBodyType enum.
+func (e UpdateStorageByApplicationUuidJSONBodyType) Valid() bool {
+	switch e {
+	case UpdateStorageByApplicationUuidJSONBodyTypeFile:
+		return true
+	case UpdateStorageByApplicationUuidJSONBodyTypePersistent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CreateStorageByApplicationUuidJSONBodyType.
+const (
+	CreateStorageByApplicationUuidJSONBodyTypeFile       CreateStorageByApplicationUuidJSONBodyType = "file"
+	CreateStorageByApplicationUuidJSONBodyTypePersistent CreateStorageByApplicationUuidJSONBodyType = "persistent"
+)
+
+// Valid indicates whether the value is a known member of the CreateStorageByApplicationUuidJSONBodyType enum.
+func (e CreateStorageByApplicationUuidJSONBodyType) Valid() bool {
+	switch e {
+	case CreateStorageByApplicationUuidJSONBodyTypeFile:
+		return true
+	case CreateStorageByApplicationUuidJSONBodyTypePersistent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for UpdateStorageByDatabaseUuidJSONBodyType.
+const (
+	UpdateStorageByDatabaseUuidJSONBodyTypeFile       UpdateStorageByDatabaseUuidJSONBodyType = "file"
+	UpdateStorageByDatabaseUuidJSONBodyTypePersistent UpdateStorageByDatabaseUuidJSONBodyType = "persistent"
+)
+
+// Valid indicates whether the value is a known member of the UpdateStorageByDatabaseUuidJSONBodyType enum.
+func (e UpdateStorageByDatabaseUuidJSONBodyType) Valid() bool {
+	switch e {
+	case UpdateStorageByDatabaseUuidJSONBodyTypeFile:
+		return true
+	case UpdateStorageByDatabaseUuidJSONBodyTypePersistent:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for CreateStorageByDatabaseUuidJSONBodyType.
+const (
+	CreateStorageByDatabaseUuidJSONBodyTypeFile       CreateStorageByDatabaseUuidJSONBodyType = "file"
+	CreateStorageByDatabaseUuidJSONBodyTypePersistent CreateStorageByDatabaseUuidJSONBodyType = "persistent"
+)
+
+// Valid indicates whether the value is a known member of the CreateStorageByDatabaseUuidJSONBodyType enum.
+func (e CreateStorageByDatabaseUuidJSONBodyType) Valid() bool {
+	switch e {
+	case CreateStorageByDatabaseUuidJSONBodyTypeFile:
+		return true
+	case CreateStorageByDatabaseUuidJSONBodyTypePersistent:
 		return true
 	default:
 		return false
@@ -1284,6 +1374,47 @@ type Service struct {
 	// Uuid The unique identifier of the service.
 	Uuid *string `json:"uuid,omitempty"`
 }
+
+// VolumeBackupScheduleRequest defines model for VolumeBackupScheduleRequest.
+type VolumeBackupScheduleRequest struct {
+	DisableLocalBackup         *bool    `json:"disable_local_backup,omitempty"`
+	Enabled                    *bool    `json:"enabled,omitempty"`
+	Frequency                  string   `json:"frequency"`
+	RetentionAmountLocally     *int     `json:"retention_amount_locally,omitempty"`
+	RetentionAmountS3          *int     `json:"retention_amount_s3,omitempty"`
+	RetentionDaysLocally       *int     `json:"retention_days_locally,omitempty"`
+	RetentionDaysS3            *int     `json:"retention_days_s3,omitempty"`
+	RetentionMaxStorageLocally *float32 `json:"retention_max_storage_locally,omitempty"`
+	RetentionMaxStorageS3      *float32 `json:"retention_max_storage_s3,omitempty"`
+	S3StorageUuid              *string  `json:"s3_storage_uuid,omitempty"`
+	SaveS3                     *bool    `json:"save_s3,omitempty"`
+	StopDuringBackup           *bool    `json:"stop_during_backup,omitempty"`
+	Timeout                    *int     `json:"timeout,omitempty"`
+}
+
+// VolumeBackupScheduleResponse defines model for VolumeBackupScheduleResponse.
+type VolumeBackupScheduleResponse struct {
+	DisableLocalBackup         bool                                    `json:"disable_local_backup"`
+	Enabled                    bool                                    `json:"enabled"`
+	Frequency                  string                                  `json:"frequency"`
+	Message                    string                                  `json:"message"`
+	RetentionAmountLocally     int                                     `json:"retention_amount_locally"`
+	RetentionAmountS3          int                                     `json:"retention_amount_s3"`
+	RetentionDaysLocally       int                                     `json:"retention_days_locally"`
+	RetentionDaysS3            int                                     `json:"retention_days_s3"`
+	RetentionMaxStorageLocally float32                                 `json:"retention_max_storage_locally"`
+	RetentionMaxStorageS3      float32                                 `json:"retention_max_storage_s3"`
+	S3StorageUuid              *string                                 `json:"s3_storage_uuid,omitempty"`
+	SaveS3                     bool                                    `json:"save_s3"`
+	StopDuringBackup           bool                                    `json:"stop_during_backup"`
+	StorageType                VolumeBackupScheduleResponseStorageType `json:"storage_type"`
+	StorageUuid                string                                  `json:"storage_uuid"`
+	Timeout                    int                                     `json:"timeout"`
+	Uuid                       string                                  `json:"uuid"`
+}
+
+// VolumeBackupScheduleResponseStorageType defines model for VolumeBackupScheduleResponse.StorageType.
+type VolumeBackupScheduleResponseStorageType string
 
 // N400 defines model for 400.
 type N400 struct {
@@ -3214,6 +3345,63 @@ type UpdateScheduledTaskByApplicationUuidJSONBody struct {
 	Timeout *int `json:"timeout,omitempty"`
 }
 
+// UpdateStorageByApplicationUuidJSONBody defines parameters for UpdateStorageByApplicationUuid.
+type UpdateStorageByApplicationUuidJSONBody struct {
+	// Content The file content (file only, not allowed for read-only storages).
+	Content *string `json:"content,omitempty"`
+
+	// HostPath The host path (persistent only, not allowed for read-only storages).
+	HostPath *string `json:"host_path,omitempty"`
+
+	// Id The ID of the storage (deprecated, use uuid instead).
+	Id *int `json:"id,omitempty"`
+
+	// IsPreviewSuffixEnabled Whether to add -pr-N suffix for preview deployments.
+	IsPreviewSuffixEnabled *bool `json:"is_preview_suffix_enabled,omitempty"`
+
+	// MountPath The container mount path (not allowed for read-only storages).
+	MountPath *string `json:"mount_path,omitempty"`
+
+	// Name The volume name (persistent only, not allowed for read-only storages).
+	Name *string `json:"name,omitempty"`
+
+	// Type The type of storage: persistent or file.
+	Type UpdateStorageByApplicationUuidJSONBodyType `json:"type"`
+
+	// Uuid The UUID of the storage (preferred).
+	Uuid *string `json:"uuid,omitempty"`
+}
+
+// UpdateStorageByApplicationUuidJSONBodyType defines parameters for UpdateStorageByApplicationUuid.
+type UpdateStorageByApplicationUuidJSONBodyType string
+
+// CreateStorageByApplicationUuidJSONBody defines parameters for CreateStorageByApplicationUuid.
+type CreateStorageByApplicationUuidJSONBody struct {
+	// Content File content (file only, optional).
+	Content *string `json:"content,omitempty"`
+
+	// FsPath Host directory path (required when is_directory is true).
+	FsPath *string `json:"fs_path,omitempty"`
+
+	// HostPath The host path (persistent only, optional).
+	HostPath *string `json:"host_path,omitempty"`
+
+	// IsDirectory Whether this is a directory mount (file only, default false).
+	IsDirectory *bool `json:"is_directory,omitempty"`
+
+	// MountPath The container mount path.
+	MountPath string `json:"mount_path"`
+
+	// Name Volume name (persistent only, required for persistent).
+	Name *string `json:"name,omitempty"`
+
+	// Type The type of storage.
+	Type CreateStorageByApplicationUuidJSONBodyType `json:"type"`
+}
+
+// CreateStorageByApplicationUuidJSONBodyType defines parameters for CreateStorageByApplicationUuid.
+type CreateStorageByApplicationUuidJSONBodyType string
+
 // CreateDatabaseClickhouseJSONBody defines parameters for CreateDatabaseClickhouse.
 type CreateDatabaseClickhouseJSONBody struct {
 	// ClickhouseAdminPassword Clickhouse admin password
@@ -4048,6 +4236,63 @@ type MoveDatabaseByUuidJSONBody struct {
 	EnvironmentUuid string `json:"environment_uuid"`
 }
 
+// UpdateStorageByDatabaseUuidJSONBody defines parameters for UpdateStorageByDatabaseUuid.
+type UpdateStorageByDatabaseUuidJSONBody struct {
+	// Content The file content (file only, not allowed for read-only storages).
+	Content *string `json:"content,omitempty"`
+
+	// HostPath The host path (persistent only, not allowed for read-only storages).
+	HostPath *string `json:"host_path,omitempty"`
+
+	// Id The ID of the storage (deprecated, use uuid instead).
+	Id *int `json:"id,omitempty"`
+
+	// IsPreviewSuffixEnabled Whether to add -pr-N suffix for preview deployments.
+	IsPreviewSuffixEnabled *bool `json:"is_preview_suffix_enabled,omitempty"`
+
+	// MountPath The container mount path (not allowed for read-only storages).
+	MountPath *string `json:"mount_path,omitempty"`
+
+	// Name The volume name (persistent only, not allowed for read-only storages).
+	Name *string `json:"name,omitempty"`
+
+	// Type The type of storage: persistent or file.
+	Type UpdateStorageByDatabaseUuidJSONBodyType `json:"type"`
+
+	// Uuid The UUID of the storage (preferred).
+	Uuid *string `json:"uuid,omitempty"`
+}
+
+// UpdateStorageByDatabaseUuidJSONBodyType defines parameters for UpdateStorageByDatabaseUuid.
+type UpdateStorageByDatabaseUuidJSONBodyType string
+
+// CreateStorageByDatabaseUuidJSONBody defines parameters for CreateStorageByDatabaseUuid.
+type CreateStorageByDatabaseUuidJSONBody struct {
+	// Content File content (file only, optional).
+	Content *string `json:"content,omitempty"`
+
+	// FsPath Host directory path (required when is_directory is true).
+	FsPath *string `json:"fs_path,omitempty"`
+
+	// HostPath The host path (persistent only, optional).
+	HostPath *string `json:"host_path,omitempty"`
+
+	// IsDirectory Whether this is a directory mount (file only, default false).
+	IsDirectory *bool `json:"is_directory,omitempty"`
+
+	// MountPath The container mount path.
+	MountPath string `json:"mount_path"`
+
+	// Name Volume name (persistent only, required for persistent).
+	Name *string `json:"name,omitempty"`
+
+	// Type The type of storage.
+	Type CreateStorageByDatabaseUuidJSONBodyType `json:"type"`
+}
+
+// CreateStorageByDatabaseUuidJSONBodyType defines parameters for CreateStorageByDatabaseUuid.
+type CreateStorageByDatabaseUuidJSONBodyType string
+
 // DeployByTagOrUuidParams defines parameters for DeployByTagOrUuid.
 type DeployByTagOrUuidParams struct {
 	// Tag Tag name(s). Comma separated list is also accepted.
@@ -4494,6 +4739,15 @@ type CreateScheduledTaskByApplicationUuidJSONRequestBody CreateScheduledTaskByAp
 // UpdateScheduledTaskByApplicationUuidJSONRequestBody defines body for UpdateScheduledTaskByApplicationUuid for application/json ContentType.
 type UpdateScheduledTaskByApplicationUuidJSONRequestBody UpdateScheduledTaskByApplicationUuidJSONBody
 
+// UpdateStorageByApplicationUuidJSONRequestBody defines body for UpdateStorageByApplicationUuid for application/json ContentType.
+type UpdateStorageByApplicationUuidJSONRequestBody UpdateStorageByApplicationUuidJSONBody
+
+// CreateStorageByApplicationUuidJSONRequestBody defines body for CreateStorageByApplicationUuid for application/json ContentType.
+type CreateStorageByApplicationUuidJSONRequestBody CreateStorageByApplicationUuidJSONBody
+
+// SetApplicationStorageBackupScheduleJSONRequestBody defines body for SetApplicationStorageBackupSchedule for application/json ContentType.
+type SetApplicationStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleRequest
+
 // CreateDatabaseClickhouseJSONRequestBody defines body for CreateDatabaseClickhouse for application/json ContentType.
 type CreateDatabaseClickhouseJSONRequestBody CreateDatabaseClickhouseJSONBody
 
@@ -4529,6 +4783,15 @@ type UpdateDatabaseBackupJSONRequestBody UpdateDatabaseBackupJSONBody
 
 // MoveDatabaseByUuidJSONRequestBody defines body for MoveDatabaseByUuid for application/json ContentType.
 type MoveDatabaseByUuidJSONRequestBody MoveDatabaseByUuidJSONBody
+
+// UpdateStorageByDatabaseUuidJSONRequestBody defines body for UpdateStorageByDatabaseUuid for application/json ContentType.
+type UpdateStorageByDatabaseUuidJSONRequestBody UpdateStorageByDatabaseUuidJSONBody
+
+// CreateStorageByDatabaseUuidJSONRequestBody defines body for CreateStorageByDatabaseUuid for application/json ContentType.
+type CreateStorageByDatabaseUuidJSONRequestBody CreateStorageByDatabaseUuidJSONBody
+
+// SetDatabaseStorageBackupScheduleJSONRequestBody defines body for SetDatabaseStorageBackupSchedule for application/json ContentType.
+type SetDatabaseStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleRequest
 
 // CreateGithubAppJSONRequestBody defines body for CreateGithubApp for application/json ContentType.
 type CreateGithubAppJSONRequestBody CreateGithubAppJSONBody
@@ -4574,6 +4837,9 @@ type CreateEnvByServiceUuidJSONRequestBody CreateEnvByServiceUuidJSONBody
 
 // MoveServiceByUuidJSONRequestBody defines body for MoveServiceByUuid for application/json ContentType.
 type MoveServiceByUuidJSONRequestBody MoveServiceByUuidJSONBody
+
+// SetServiceStorageBackupScheduleJSONRequestBody defines body for SetServiceStorageBackupSchedule for application/json ContentType.
+type SetServiceStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleRequest
 
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -4896,6 +5162,88 @@ type ClientInterface interface {
 	// Corresponds with PATCH /applications/{uuid}/scheduled-tasks/{task_uuid} (the `UpdateScheduledTaskByApplicationUuid` operationId).
 	UpdateScheduledTaskByApplicationUuid(ctx context.Context, uuid string, taskUuid string, body UpdateScheduledTaskByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListStoragesByApplicationUuid List Storages
+	//
+	// List all persistent storages and file storages by application UUID.
+	//
+	// Corresponds with GET /applications/{uuid}/storages (the `ListStoragesByApplicationUuid` operationId).
+	ListStoragesByApplicationUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateStorageByApplicationUuidWithBody Update Storage
+	//
+	// Update a persistent storage or file storage by application UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+	UpdateStorageByApplicationUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateStorageByApplicationUuid Update Storage
+	//
+	// Update a persistent storage or file storage by application UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+	UpdateStorageByApplicationUuid(ctx context.Context, uuid string, body UpdateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateStorageByApplicationUuidWithBody Create Storage
+	//
+	// Create a persistent storage or file storage for an application.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+	CreateStorageByApplicationUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateStorageByApplicationUuid Create Storage
+	//
+	// Create a persistent storage or file storage for an application.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+	CreateStorageByApplicationUuid(ctx context.Context, uuid string, body CreateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteStorageByApplicationUuid Delete Storage
+	//
+	// Delete a persistent storage or file storage by application UUID.
+	//
+	// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid} (the `DeleteStorageByApplicationUuid` operationId).
+	DeleteStorageByApplicationUuid(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteApplicationStorageBackupSchedule Delete application storage backup schedule
+	//
+	// Delete the backup schedule and its local and S3 archives for an application storage.
+	//
+	// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid}/backups (the `DeleteApplicationStorageBackupSchedule` operationId).
+	DeleteApplicationStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetApplicationStorageBackupScheduleWithBody Set application storage backup schedule
+	//
+	// Create or replace the backup schedule for an application persistent volume or directory storage.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+	SetApplicationStorageBackupScheduleWithBody(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetApplicationStorageBackupSchedule Set application storage backup schedule
+	//
+	// Create or replace the backup schedule for an application persistent volume or directory storage.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+	SetApplicationStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, body SetApplicationStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RunApplicationStorageBackup Run application storage backup
+	//
+	// Queue an immediate volume backup for an application storage that has a schedule.
+	//
+	// Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
+	RunApplicationStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListDatabases List
 	//
 	// List all databases.
@@ -5146,6 +5494,88 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
 	MoveDatabaseByUuid(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListStoragesByDatabaseUuid List Storages
+	//
+	// List all persistent storages and file storages by database UUID.
+	//
+	// Corresponds with GET /databases/{uuid}/storages (the `ListStoragesByDatabaseUuid` operationId).
+	ListStoragesByDatabaseUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateStorageByDatabaseUuidWithBody Update Storage
+	//
+	// Update a persistent storage or file storage by database UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+	UpdateStorageByDatabaseUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateStorageByDatabaseUuid Update Storage
+	//
+	// Update a persistent storage or file storage by database UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+	UpdateStorageByDatabaseUuid(ctx context.Context, uuid string, body UpdateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateStorageByDatabaseUuidWithBody Create Storage
+	//
+	// Create a persistent storage or file storage for a database.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+	CreateStorageByDatabaseUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateStorageByDatabaseUuid Create Storage
+	//
+	// Create a persistent storage or file storage for a database.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+	CreateStorageByDatabaseUuid(ctx context.Context, uuid string, body CreateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteStorageByDatabaseUuid Delete Storage
+	//
+	// Delete a persistent storage or file storage by database UUID.
+	//
+	// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid} (the `DeleteStorageByDatabaseUuid` operationId).
+	DeleteStorageByDatabaseUuid(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteDatabaseStorageBackupSchedule Delete database storage backup schedule
+	//
+	// Delete the backup schedule and its local and S3 archives for a database storage.
+	//
+	// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid}/backups (the `DeleteDatabaseStorageBackupSchedule` operationId).
+	DeleteDatabaseStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetDatabaseStorageBackupScheduleWithBody Set database storage backup schedule
+	//
+	// Create or replace the backup schedule for a database persistent volume or directory storage.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+	SetDatabaseStorageBackupScheduleWithBody(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetDatabaseStorageBackupSchedule Set database storage backup schedule
+	//
+	// Create or replace the backup schedule for a database persistent volume or directory storage.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+	SetDatabaseStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, body SetDatabaseStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RunDatabaseStorageBackup Run database storage backup
+	//
+	// Queue an immediate volume backup for a database storage that has a schedule.
+	//
+	// Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
+	RunDatabaseStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// DeployByTagOrUuid Deploy
 	//
@@ -5577,6 +6007,45 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
 	MoveServiceByUuid(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListStoragesByServiceUuid List Storages
+	//
+	// List all persistent storages and file storages by service UUID.
+	//
+	// Corresponds with GET /services/{uuid}/storages (the `ListStoragesByServiceUuid` operationId).
+	ListStoragesByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteServiceStorageBackupSchedule Delete service storage backup schedule
+	//
+	// Delete the backup schedule and its local and S3 archives for a service storage.
+	//
+	// Corresponds with DELETE /services/{uuid}/storages/{storage_uuid}/backups (the `DeleteServiceStorageBackupSchedule` operationId).
+	DeleteServiceStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetServiceStorageBackupScheduleWithBody Set service storage backup schedule
+	//
+	// Create or replace the backup schedule for a service persistent volume or directory storage.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+	SetServiceStorageBackupScheduleWithBody(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SetServiceStorageBackupSchedule Set service storage backup schedule
+	//
+	// Create or replace the backup schedule for a service persistent volume or directory storage.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+	SetServiceStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, body SetServiceStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RunServiceStorageBackup Run service storage backup
+	//
+	// Queue an immediate volume backup for a service storage that has a schedule.
+	//
+	// Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
+	RunServiceStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // ListApplications List
@@ -6106,6 +6575,188 @@ func (c *Client) UpdateScheduledTaskByApplicationUuidWithBody(ctx context.Contex
 // Corresponds with PATCH /applications/{uuid}/scheduled-tasks/{task_uuid} (the `UpdateScheduledTaskByApplicationUuid` operationId).
 func (c *Client) UpdateScheduledTaskByApplicationUuid(ctx context.Context, uuid string, taskUuid string, body UpdateScheduledTaskByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewUpdateScheduledTaskByApplicationUuidRequest(c.Server, uuid, taskUuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListStoragesByApplicationUuid List Storages
+//
+// List all persistent storages and file storages by application UUID.
+//
+// Corresponds with GET /applications/{uuid}/storages (the `ListStoragesByApplicationUuid` operationId).
+func (c *Client) ListStoragesByApplicationUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStoragesByApplicationUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateStorageByApplicationUuidWithBody Update Storage
+//
+// Update a persistent storage or file storage by application UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+func (c *Client) UpdateStorageByApplicationUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateStorageByApplicationUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateStorageByApplicationUuid Update Storage
+//
+// Update a persistent storage or file storage by application UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+func (c *Client) UpdateStorageByApplicationUuid(ctx context.Context, uuid string, body UpdateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateStorageByApplicationUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateStorageByApplicationUuidWithBody Create Storage
+//
+// Create a persistent storage or file storage for an application.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+func (c *Client) CreateStorageByApplicationUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStorageByApplicationUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateStorageByApplicationUuid Create Storage
+//
+// Create a persistent storage or file storage for an application.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+func (c *Client) CreateStorageByApplicationUuid(ctx context.Context, uuid string, body CreateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStorageByApplicationUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteStorageByApplicationUuid Delete Storage
+//
+// Delete a persistent storage or file storage by application UUID.
+//
+// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid} (the `DeleteStorageByApplicationUuid` operationId).
+func (c *Client) DeleteStorageByApplicationUuid(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStorageByApplicationUuidRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteApplicationStorageBackupSchedule Delete application storage backup schedule
+//
+// Delete the backup schedule and its local and S3 archives for an application storage.
+//
+// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid}/backups (the `DeleteApplicationStorageBackupSchedule` operationId).
+func (c *Client) DeleteApplicationStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteApplicationStorageBackupScheduleRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// SetApplicationStorageBackupScheduleWithBody Set application storage backup schedule
+//
+// Create or replace the backup schedule for an application persistent volume or directory storage.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+func (c *Client) SetApplicationStorageBackupScheduleWithBody(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetApplicationStorageBackupScheduleRequestWithBody(c.Server, uuid, storageUuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// SetApplicationStorageBackupSchedule Set application storage backup schedule
+//
+// Create or replace the backup schedule for an application persistent volume or directory storage.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+func (c *Client) SetApplicationStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, body SetApplicationStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetApplicationStorageBackupScheduleRequest(c.Server, uuid, storageUuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// RunApplicationStorageBackup Run application storage backup
+//
+// Queue an immediate volume backup for an application storage that has a schedule.
+//
+// Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
+func (c *Client) RunApplicationStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunApplicationStorageBackupRequest(c.Server, uuid, storageUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -6647,6 +7298,188 @@ func (c *Client) MoveDatabaseByUuidWithBody(ctx context.Context, uuid string, co
 // Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
 func (c *Client) MoveDatabaseByUuid(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewMoveDatabaseByUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListStoragesByDatabaseUuid List Storages
+//
+// List all persistent storages and file storages by database UUID.
+//
+// Corresponds with GET /databases/{uuid}/storages (the `ListStoragesByDatabaseUuid` operationId).
+func (c *Client) ListStoragesByDatabaseUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStoragesByDatabaseUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateStorageByDatabaseUuidWithBody Update Storage
+//
+// Update a persistent storage or file storage by database UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+func (c *Client) UpdateStorageByDatabaseUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateStorageByDatabaseUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateStorageByDatabaseUuid Update Storage
+//
+// Update a persistent storage or file storage by database UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+func (c *Client) UpdateStorageByDatabaseUuid(ctx context.Context, uuid string, body UpdateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateStorageByDatabaseUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateStorageByDatabaseUuidWithBody Create Storage
+//
+// Create a persistent storage or file storage for a database.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+func (c *Client) CreateStorageByDatabaseUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStorageByDatabaseUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateStorageByDatabaseUuid Create Storage
+//
+// Create a persistent storage or file storage for a database.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+func (c *Client) CreateStorageByDatabaseUuid(ctx context.Context, uuid string, body CreateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateStorageByDatabaseUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteStorageByDatabaseUuid Delete Storage
+//
+// Delete a persistent storage or file storage by database UUID.
+//
+// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid} (the `DeleteStorageByDatabaseUuid` operationId).
+func (c *Client) DeleteStorageByDatabaseUuid(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteStorageByDatabaseUuidRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteDatabaseStorageBackupSchedule Delete database storage backup schedule
+//
+// Delete the backup schedule and its local and S3 archives for a database storage.
+//
+// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid}/backups (the `DeleteDatabaseStorageBackupSchedule` operationId).
+func (c *Client) DeleteDatabaseStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteDatabaseStorageBackupScheduleRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// SetDatabaseStorageBackupScheduleWithBody Set database storage backup schedule
+//
+// Create or replace the backup schedule for a database persistent volume or directory storage.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+func (c *Client) SetDatabaseStorageBackupScheduleWithBody(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetDatabaseStorageBackupScheduleRequestWithBody(c.Server, uuid, storageUuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// SetDatabaseStorageBackupSchedule Set database storage backup schedule
+//
+// Create or replace the backup schedule for a database persistent volume or directory storage.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+func (c *Client) SetDatabaseStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, body SetDatabaseStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetDatabaseStorageBackupScheduleRequest(c.Server, uuid, storageUuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// RunDatabaseStorageBackup Run database storage backup
+//
+// Queue an immediate volume backup for a database storage that has a schedule.
+//
+// Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
+func (c *Client) RunDatabaseStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunDatabaseStorageBackupRequest(c.Server, uuid, storageUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -7618,6 +8451,95 @@ func (c *Client) MoveServiceByUuid(ctx context.Context, uuid string, body MoveSe
 	return c.Client.Do(req)
 }
 
+// ListStoragesByServiceUuid List Storages
+//
+// List all persistent storages and file storages by service UUID.
+//
+// Corresponds with GET /services/{uuid}/storages (the `ListStoragesByServiceUuid` operationId).
+func (c *Client) ListStoragesByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListStoragesByServiceUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteServiceStorageBackupSchedule Delete service storage backup schedule
+//
+// Delete the backup schedule and its local and S3 archives for a service storage.
+//
+// Corresponds with DELETE /services/{uuid}/storages/{storage_uuid}/backups (the `DeleteServiceStorageBackupSchedule` operationId).
+func (c *Client) DeleteServiceStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteServiceStorageBackupScheduleRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// SetServiceStorageBackupScheduleWithBody Set service storage backup schedule
+//
+// Create or replace the backup schedule for a service persistent volume or directory storage.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+func (c *Client) SetServiceStorageBackupScheduleWithBody(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetServiceStorageBackupScheduleRequestWithBody(c.Server, uuid, storageUuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// SetServiceStorageBackupSchedule Set service storage backup schedule
+//
+// Create or replace the backup schedule for a service persistent volume or directory storage.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+func (c *Client) SetServiceStorageBackupSchedule(ctx context.Context, uuid string, storageUuid string, body SetServiceStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSetServiceStorageBackupScheduleRequest(c.Server, uuid, storageUuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// RunServiceStorageBackup Run service storage backup
+//
+// Queue an immediate volume backup for a service storage that has a schedule.
+//
+// Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
+func (c *Client) RunServiceStorageBackup(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRunServiceStorageBackupRequest(c.Server, uuid, storageUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // NewListApplicationsRequest constructs an http.Request for the ListApplications method
 func NewListApplicationsRequest(server string, params *ListApplicationsParams) (*http.Request, error) {
 	var err error
@@ -8442,6 +9364,311 @@ func NewUpdateScheduledTaskByApplicationUuidRequestWithBody(server string, uuid 
 	return req, nil
 }
 
+// NewListStoragesByApplicationUuidRequest constructs an http.Request for the ListStoragesByApplicationUuid method
+func NewListStoragesByApplicationUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateStorageByApplicationUuidRequest calls the generic UpdateStorageByApplicationUuid builder with application/json body
+func NewUpdateStorageByApplicationUuidRequest(server string, uuid string, body UpdateStorageByApplicationUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateStorageByApplicationUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewUpdateStorageByApplicationUuidRequestWithBody constructs an http.Request for the UpdateStorageByApplicationUuid method, with any body, and a specified content type
+func NewUpdateStorageByApplicationUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateStorageByApplicationUuidRequest calls the generic CreateStorageByApplicationUuid builder with application/json body
+func NewCreateStorageByApplicationUuidRequest(server string, uuid string, body CreateStorageByApplicationUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateStorageByApplicationUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateStorageByApplicationUuidRequestWithBody constructs an http.Request for the CreateStorageByApplicationUuid method, with any body, and a specified content type
+func NewCreateStorageByApplicationUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteStorageByApplicationUuidRequest constructs an http.Request for the DeleteStorageByApplicationUuid method
+func NewDeleteStorageByApplicationUuidRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteApplicationStorageBackupScheduleRequest constructs an http.Request for the DeleteApplicationStorageBackupSchedule method
+func NewDeleteApplicationStorageBackupScheduleRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages/%s/backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetApplicationStorageBackupScheduleRequest calls the generic SetApplicationStorageBackupSchedule builder with application/json body
+func NewSetApplicationStorageBackupScheduleRequest(server string, uuid string, storageUuid string, body SetApplicationStorageBackupScheduleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetApplicationStorageBackupScheduleRequestWithBody(server, uuid, storageUuid, "application/json", bodyReader)
+}
+
+// NewSetApplicationStorageBackupScheduleRequestWithBody constructs an http.Request for the SetApplicationStorageBackupSchedule method, with any body, and a specified content type
+func NewSetApplicationStorageBackupScheduleRequestWithBody(server string, uuid string, storageUuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages/%s/backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRunApplicationStorageBackupRequest constructs an http.Request for the RunApplicationStorageBackup method
+func NewRunApplicationStorageBackupRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/applications/%s/storages/%s/backups/run", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListDatabasesRequest constructs an http.Request for the ListDatabases method
 func NewListDatabasesRequest(server string) (*http.Request, error) {
 	var err error
@@ -9213,6 +10440,311 @@ func NewMoveDatabaseByUuidRequestWithBody(server string, uuid string, contentTyp
 	}
 
 	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListStoragesByDatabaseUuidRequest constructs an http.Request for the ListStoragesByDatabaseUuid method
+func NewListStoragesByDatabaseUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateStorageByDatabaseUuidRequest calls the generic UpdateStorageByDatabaseUuid builder with application/json body
+func NewUpdateStorageByDatabaseUuidRequest(server string, uuid string, body UpdateStorageByDatabaseUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateStorageByDatabaseUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewUpdateStorageByDatabaseUuidRequestWithBody constructs an http.Request for the UpdateStorageByDatabaseUuid method, with any body, and a specified content type
+func NewUpdateStorageByDatabaseUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewCreateStorageByDatabaseUuidRequest calls the generic CreateStorageByDatabaseUuid builder with application/json body
+func NewCreateStorageByDatabaseUuidRequest(server string, uuid string, body CreateStorageByDatabaseUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateStorageByDatabaseUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateStorageByDatabaseUuidRequestWithBody constructs an http.Request for the CreateStorageByDatabaseUuid method, with any body, and a specified content type
+func NewCreateStorageByDatabaseUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteStorageByDatabaseUuidRequest constructs an http.Request for the DeleteStorageByDatabaseUuid method
+func NewDeleteStorageByDatabaseUuidRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteDatabaseStorageBackupScheduleRequest constructs an http.Request for the DeleteDatabaseStorageBackupSchedule method
+func NewDeleteDatabaseStorageBackupScheduleRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages/%s/backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetDatabaseStorageBackupScheduleRequest calls the generic SetDatabaseStorageBackupSchedule builder with application/json body
+func NewSetDatabaseStorageBackupScheduleRequest(server string, uuid string, storageUuid string, body SetDatabaseStorageBackupScheduleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetDatabaseStorageBackupScheduleRequestWithBody(server, uuid, storageUuid, "application/json", bodyReader)
+}
+
+// NewSetDatabaseStorageBackupScheduleRequestWithBody constructs an http.Request for the SetDatabaseStorageBackupSchedule method, with any body, and a specified content type
+func NewSetDatabaseStorageBackupScheduleRequestWithBody(server string, uuid string, storageUuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages/%s/backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRunDatabaseStorageBackupRequest constructs an http.Request for the RunDatabaseStorageBackup method
+func NewRunDatabaseStorageBackupRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/databases/%s/storages/%s/backups/run", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
 
 	return req, nil
 }
@@ -10770,6 +12302,176 @@ func NewMoveServiceByUuidRequestWithBody(server string, uuid string, contentType
 	return req, nil
 }
 
+// NewListStoragesByServiceUuidRequest constructs an http.Request for the ListStoragesByServiceUuid method
+func NewListStoragesByServiceUuidRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/storages", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewDeleteServiceStorageBackupScheduleRequest constructs an http.Request for the DeleteServiceStorageBackupSchedule method
+func NewDeleteServiceStorageBackupScheduleRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/storages/%s/backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewSetServiceStorageBackupScheduleRequest calls the generic SetServiceStorageBackupSchedule builder with application/json body
+func NewSetServiceStorageBackupScheduleRequest(server string, uuid string, storageUuid string, body SetServiceStorageBackupScheduleJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSetServiceStorageBackupScheduleRequestWithBody(server, uuid, storageUuid, "application/json", bodyReader)
+}
+
+// NewSetServiceStorageBackupScheduleRequestWithBody constructs an http.Request for the SetServiceStorageBackupSchedule method, with any body, and a specified content type
+func NewSetServiceStorageBackupScheduleRequestWithBody(server string, uuid string, storageUuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/storages/%s/backups", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewRunServiceStorageBackupRequest constructs an http.Request for the RunServiceStorageBackup method
+func NewRunServiceStorageBackupRequest(server string, uuid string, storageUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "storage_uuid", storageUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/storages/%s/backups/run", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -11075,6 +12777,96 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PATCH /applications/{uuid}/scheduled-tasks/{task_uuid} (the `UpdateScheduledTaskByApplicationUuid` operationId).
 	UpdateScheduledTaskByApplicationUuidWithResponse(ctx context.Context, uuid string, taskUuid string, body UpdateScheduledTaskByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateScheduledTaskByApplicationUuidResponse, error)
 
+	// ListStoragesByApplicationUuidWithResponse List Storages
+	//
+	// List all persistent storages and file storages by application UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /applications/{uuid}/storages (the `ListStoragesByApplicationUuid` operationId).
+	ListStoragesByApplicationUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListStoragesByApplicationUuidResponse, error)
+
+	// UpdateStorageByApplicationUuidWithBodyWithResponse Update Storage
+	//
+	// Update a persistent storage or file storage by application UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+	UpdateStorageByApplicationUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateStorageByApplicationUuidResponse, error)
+
+	// UpdateStorageByApplicationUuidWithResponse Update Storage
+	//
+	// Update a persistent storage or file storage by application UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+	UpdateStorageByApplicationUuidWithResponse(ctx context.Context, uuid string, body UpdateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateStorageByApplicationUuidResponse, error)
+
+	// CreateStorageByApplicationUuidWithBodyWithResponse Create Storage
+	//
+	// Create a persistent storage or file storage for an application.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+	CreateStorageByApplicationUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStorageByApplicationUuidResponse, error)
+
+	// CreateStorageByApplicationUuidWithResponse Create Storage
+	//
+	// Create a persistent storage or file storage for an application.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+	CreateStorageByApplicationUuidWithResponse(ctx context.Context, uuid string, body CreateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStorageByApplicationUuidResponse, error)
+
+	// DeleteStorageByApplicationUuidWithResponse Delete Storage
+	//
+	// Delete a persistent storage or file storage by application UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid} (the `DeleteStorageByApplicationUuid` operationId).
+	DeleteStorageByApplicationUuidWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteStorageByApplicationUuidResponse, error)
+
+	// DeleteApplicationStorageBackupScheduleWithResponse Delete application storage backup schedule
+	//
+	// Delete the backup schedule and its local and S3 archives for an application storage.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid}/backups (the `DeleteApplicationStorageBackupSchedule` operationId).
+	DeleteApplicationStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteApplicationStorageBackupScheduleResponse, error)
+
+	// SetApplicationStorageBackupScheduleWithBodyWithResponse Set application storage backup schedule
+	//
+	// Create or replace the backup schedule for an application persistent volume or directory storage.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+	SetApplicationStorageBackupScheduleWithBodyWithResponse(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetApplicationStorageBackupScheduleResponse, error)
+
+	// SetApplicationStorageBackupScheduleWithResponse Set application storage backup schedule
+	//
+	// Create or replace the backup schedule for an application persistent volume or directory storage.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+	SetApplicationStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, body SetApplicationStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetApplicationStorageBackupScheduleResponse, error)
+
+	// RunApplicationStorageBackupWithResponse Run application storage backup
+	//
+	// Queue an immediate volume backup for an application storage that has a schedule.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
+	RunApplicationStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunApplicationStorageBackupResponse, error)
+
 	// ListDatabasesWithResponse List
 	//
 	// List all databases.
@@ -11335,6 +13127,96 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /databases/{uuid}/move (the `MoveDatabaseByUuid` operationId).
 	MoveDatabaseByUuidWithResponse(ctx context.Context, uuid string, body MoveDatabaseByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveDatabaseByUuidResponse, error)
+
+	// ListStoragesByDatabaseUuidWithResponse List Storages
+	//
+	// List all persistent storages and file storages by database UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /databases/{uuid}/storages (the `ListStoragesByDatabaseUuid` operationId).
+	ListStoragesByDatabaseUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListStoragesByDatabaseUuidResponse, error)
+
+	// UpdateStorageByDatabaseUuidWithBodyWithResponse Update Storage
+	//
+	// Update a persistent storage or file storage by database UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+	UpdateStorageByDatabaseUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateStorageByDatabaseUuidResponse, error)
+
+	// UpdateStorageByDatabaseUuidWithResponse Update Storage
+	//
+	// Update a persistent storage or file storage by database UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+	UpdateStorageByDatabaseUuidWithResponse(ctx context.Context, uuid string, body UpdateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateStorageByDatabaseUuidResponse, error)
+
+	// CreateStorageByDatabaseUuidWithBodyWithResponse Create Storage
+	//
+	// Create a persistent storage or file storage for a database.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+	CreateStorageByDatabaseUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStorageByDatabaseUuidResponse, error)
+
+	// CreateStorageByDatabaseUuidWithResponse Create Storage
+	//
+	// Create a persistent storage or file storage for a database.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+	CreateStorageByDatabaseUuidWithResponse(ctx context.Context, uuid string, body CreateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStorageByDatabaseUuidResponse, error)
+
+	// DeleteStorageByDatabaseUuidWithResponse Delete Storage
+	//
+	// Delete a persistent storage or file storage by database UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid} (the `DeleteStorageByDatabaseUuid` operationId).
+	DeleteStorageByDatabaseUuidWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteStorageByDatabaseUuidResponse, error)
+
+	// DeleteDatabaseStorageBackupScheduleWithResponse Delete database storage backup schedule
+	//
+	// Delete the backup schedule and its local and S3 archives for a database storage.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid}/backups (the `DeleteDatabaseStorageBackupSchedule` operationId).
+	DeleteDatabaseStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteDatabaseStorageBackupScheduleResponse, error)
+
+	// SetDatabaseStorageBackupScheduleWithBodyWithResponse Set database storage backup schedule
+	//
+	// Create or replace the backup schedule for a database persistent volume or directory storage.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+	SetDatabaseStorageBackupScheduleWithBodyWithResponse(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDatabaseStorageBackupScheduleResponse, error)
+
+	// SetDatabaseStorageBackupScheduleWithResponse Set database storage backup schedule
+	//
+	// Create or replace the backup schedule for a database persistent volume or directory storage.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+	SetDatabaseStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, body SetDatabaseStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetDatabaseStorageBackupScheduleResponse, error)
+
+	// RunDatabaseStorageBackupWithResponse Run database storage backup
+	//
+	// Queue an immediate volume backup for a database storage that has a schedule.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
+	RunDatabaseStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunDatabaseStorageBackupResponse, error)
 
 	// DeployByTagOrUuidWithResponse Deploy
 	//
@@ -11812,6 +13694,51 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
 	MoveServiceByUuidWithResponse(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveServiceByUuidResponse, error)
+
+	// ListStoragesByServiceUuidWithResponse List Storages
+	//
+	// List all persistent storages and file storages by service UUID.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /services/{uuid}/storages (the `ListStoragesByServiceUuid` operationId).
+	ListStoragesByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListStoragesByServiceUuidResponse, error)
+
+	// DeleteServiceStorageBackupScheduleWithResponse Delete service storage backup schedule
+	//
+	// Delete the backup schedule and its local and S3 archives for a service storage.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /services/{uuid}/storages/{storage_uuid}/backups (the `DeleteServiceStorageBackupSchedule` operationId).
+	DeleteServiceStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteServiceStorageBackupScheduleResponse, error)
+
+	// SetServiceStorageBackupScheduleWithBodyWithResponse Set service storage backup schedule
+	//
+	// Create or replace the backup schedule for a service persistent volume or directory storage.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+	SetServiceStorageBackupScheduleWithBodyWithResponse(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetServiceStorageBackupScheduleResponse, error)
+
+	// SetServiceStorageBackupScheduleWithResponse Set service storage backup schedule
+	//
+	// Create or replace the backup schedule for a service persistent volume or directory storage.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+	SetServiceStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, body SetServiceStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetServiceStorageBackupScheduleResponse, error)
+
+	// RunServiceStorageBackupWithResponse Run service storage backup
+	//
+	// Queue an immediate volume backup for a service storage that has a schedule.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
+	RunServiceStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunServiceStorageBackupResponse, error)
 }
 
 type ListApplicationsResponse struct {
@@ -13093,6 +15020,457 @@ func (r UpdateScheduledTaskByApplicationUuidResponse) ContentType() string {
 	return ""
 }
 
+type ListStoragesByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+		PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListStoragesByApplicationUuidResponse) GetJSON200() *struct {
+	FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+	PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListStoragesByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListStoragesByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListStoragesByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListStoragesByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStoragesByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStoragesByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListStoragesByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateStorageByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *map[string]interface{}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r UpdateStorageByApplicationUuidResponse) GetJSON200() *map[string]interface{} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateStorageByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateStorageByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateStorageByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateStorageByApplicationUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateStorageByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateStorageByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateStorageByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateStorageByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateStorageByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *map[string]interface{}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateStorageByApplicationUuidResponse) GetJSON201() *map[string]interface{} {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateStorageByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateStorageByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateStorageByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateStorageByApplicationUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateStorageByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateStorageByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateStorageByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateStorageByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteStorageByApplicationUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Message *string `json:"message,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r DeleteStorageByApplicationUuidResponse) GetJSON200() *struct {
+	Message *string `json:"message,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r DeleteStorageByApplicationUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteStorageByApplicationUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteStorageByApplicationUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r DeleteStorageByApplicationUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteStorageByApplicationUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStorageByApplicationUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStorageByApplicationUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteStorageByApplicationUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteApplicationStorageBackupScheduleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteApplicationStorageBackupScheduleResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteApplicationStorageBackupScheduleResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteApplicationStorageBackupScheduleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteApplicationStorageBackupScheduleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteApplicationStorageBackupScheduleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteApplicationStorageBackupScheduleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetApplicationStorageBackupScheduleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VolumeBackupScheduleResponse
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *VolumeBackupScheduleResponse
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r SetApplicationStorageBackupScheduleResponse) GetJSON200() *VolumeBackupScheduleResponse {
+	return r.JSON200
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r SetApplicationStorageBackupScheduleResponse) GetJSON201() *VolumeBackupScheduleResponse {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r SetApplicationStorageBackupScheduleResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r SetApplicationStorageBackupScheduleResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r SetApplicationStorageBackupScheduleResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r SetApplicationStorageBackupScheduleResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r SetApplicationStorageBackupScheduleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r SetApplicationStorageBackupScheduleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetApplicationStorageBackupScheduleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetApplicationStorageBackupScheduleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RunApplicationStorageBackupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r RunApplicationStorageBackupResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r RunApplicationStorageBackupResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r RunApplicationStorageBackupResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r RunApplicationStorageBackupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RunApplicationStorageBackupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RunApplicationStorageBackupResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListDatabasesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -14106,6 +16484,457 @@ func (r MoveDatabaseByUuidResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r MoveDatabaseByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListStoragesByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+		PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListStoragesByDatabaseUuidResponse) GetJSON200() *struct {
+	FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+	PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListStoragesByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListStoragesByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListStoragesByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListStoragesByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStoragesByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStoragesByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListStoragesByDatabaseUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateStorageByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *map[string]interface{}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r UpdateStorageByDatabaseUuidResponse) GetJSON200() *map[string]interface{} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateStorageByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateStorageByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateStorageByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateStorageByDatabaseUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateStorageByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateStorageByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateStorageByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateStorageByDatabaseUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateStorageByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *map[string]interface{}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r CreateStorageByDatabaseUuidResponse) GetJSON201() *map[string]interface{} {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r CreateStorageByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateStorageByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateStorageByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateStorageByDatabaseUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateStorageByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateStorageByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateStorageByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateStorageByDatabaseUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteStorageByDatabaseUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Message *string `json:"message,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r DeleteStorageByDatabaseUuidResponse) GetJSON200() *struct {
+	Message *string `json:"message,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r DeleteStorageByDatabaseUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteStorageByDatabaseUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteStorageByDatabaseUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r DeleteStorageByDatabaseUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteStorageByDatabaseUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteStorageByDatabaseUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteStorageByDatabaseUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteStorageByDatabaseUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteDatabaseStorageBackupScheduleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteDatabaseStorageBackupScheduleResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteDatabaseStorageBackupScheduleResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteDatabaseStorageBackupScheduleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteDatabaseStorageBackupScheduleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteDatabaseStorageBackupScheduleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteDatabaseStorageBackupScheduleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetDatabaseStorageBackupScheduleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VolumeBackupScheduleResponse
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *VolumeBackupScheduleResponse
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r SetDatabaseStorageBackupScheduleResponse) GetJSON200() *VolumeBackupScheduleResponse {
+	return r.JSON200
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r SetDatabaseStorageBackupScheduleResponse) GetJSON201() *VolumeBackupScheduleResponse {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r SetDatabaseStorageBackupScheduleResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r SetDatabaseStorageBackupScheduleResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r SetDatabaseStorageBackupScheduleResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r SetDatabaseStorageBackupScheduleResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r SetDatabaseStorageBackupScheduleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r SetDatabaseStorageBackupScheduleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetDatabaseStorageBackupScheduleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetDatabaseStorageBackupScheduleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RunDatabaseStorageBackupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r RunDatabaseStorageBackupResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r RunDatabaseStorageBackupResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r RunDatabaseStorageBackupResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r RunDatabaseStorageBackupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RunDatabaseStorageBackupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RunDatabaseStorageBackupResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -16726,6 +19555,246 @@ func (r MoveServiceByUuidResponse) ContentType() string {
 	return ""
 }
 
+type ListStoragesByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+		PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r ListStoragesByServiceUuidResponse) GetJSON200() *struct {
+	FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+	PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r ListStoragesByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListStoragesByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListStoragesByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListStoragesByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListStoragesByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListStoragesByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListStoragesByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteServiceStorageBackupScheduleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteServiceStorageBackupScheduleResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteServiceStorageBackupScheduleResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteServiceStorageBackupScheduleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteServiceStorageBackupScheduleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteServiceStorageBackupScheduleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteServiceStorageBackupScheduleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type SetServiceStorageBackupScheduleResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *VolumeBackupScheduleResponse
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *VolumeBackupScheduleResponse
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r SetServiceStorageBackupScheduleResponse) GetJSON200() *VolumeBackupScheduleResponse {
+	return r.JSON200
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r SetServiceStorageBackupScheduleResponse) GetJSON201() *VolumeBackupScheduleResponse {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r SetServiceStorageBackupScheduleResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r SetServiceStorageBackupScheduleResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r SetServiceStorageBackupScheduleResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r SetServiceStorageBackupScheduleResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r SetServiceStorageBackupScheduleResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r SetServiceStorageBackupScheduleResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SetServiceStorageBackupScheduleResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r SetServiceStorageBackupScheduleResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type RunServiceStorageBackupResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r RunServiceStorageBackupResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r RunServiceStorageBackupResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r RunServiceStorageBackupResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r RunServiceStorageBackupResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RunServiceStorageBackupResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RunServiceStorageBackupResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 // ListApplicationsWithResponse List
 //
 // List all applications.
@@ -17161,6 +20230,156 @@ func (c *ClientWithResponses) UpdateScheduledTaskByApplicationUuidWithResponse(c
 	return ParseUpdateScheduledTaskByApplicationUuidResponse(rsp)
 }
 
+// ListStoragesByApplicationUuidWithResponse List Storages
+//
+// List all persistent storages and file storages by application UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /applications/{uuid}/storages (the `ListStoragesByApplicationUuid` operationId).
+func (c *ClientWithResponses) ListStoragesByApplicationUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListStoragesByApplicationUuidResponse, error) {
+	rsp, err := c.ListStoragesByApplicationUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStoragesByApplicationUuidResponse(rsp)
+}
+
+// UpdateStorageByApplicationUuidWithBodyWithResponse Update Storage
+//
+// Update a persistent storage or file storage by application UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+func (c *ClientWithResponses) UpdateStorageByApplicationUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateStorageByApplicationUuidResponse, error) {
+	rsp, err := c.UpdateStorageByApplicationUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateStorageByApplicationUuidResponse(rsp)
+}
+
+// UpdateStorageByApplicationUuidWithResponse Update Storage
+//
+// Update a persistent storage or file storage by application UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /applications/{uuid}/storages (the `UpdateStorageByApplicationUuid` operationId).
+func (c *ClientWithResponses) UpdateStorageByApplicationUuidWithResponse(ctx context.Context, uuid string, body UpdateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateStorageByApplicationUuidResponse, error) {
+	rsp, err := c.UpdateStorageByApplicationUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateStorageByApplicationUuidResponse(rsp)
+}
+
+// CreateStorageByApplicationUuidWithBodyWithResponse Create Storage
+//
+// Create a persistent storage or file storage for an application.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+func (c *ClientWithResponses) CreateStorageByApplicationUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStorageByApplicationUuidResponse, error) {
+	rsp, err := c.CreateStorageByApplicationUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStorageByApplicationUuidResponse(rsp)
+}
+
+// CreateStorageByApplicationUuidWithResponse Create Storage
+//
+// Create a persistent storage or file storage for an application.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/storages (the `CreateStorageByApplicationUuid` operationId).
+func (c *ClientWithResponses) CreateStorageByApplicationUuidWithResponse(ctx context.Context, uuid string, body CreateStorageByApplicationUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStorageByApplicationUuidResponse, error) {
+	rsp, err := c.CreateStorageByApplicationUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStorageByApplicationUuidResponse(rsp)
+}
+
+// DeleteStorageByApplicationUuidWithResponse Delete Storage
+//
+// Delete a persistent storage or file storage by application UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid} (the `DeleteStorageByApplicationUuid` operationId).
+func (c *ClientWithResponses) DeleteStorageByApplicationUuidWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteStorageByApplicationUuidResponse, error) {
+	rsp, err := c.DeleteStorageByApplicationUuid(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStorageByApplicationUuidResponse(rsp)
+}
+
+// DeleteApplicationStorageBackupScheduleWithResponse Delete application storage backup schedule
+//
+// Delete the backup schedule and its local and S3 archives for an application storage.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /applications/{uuid}/storages/{storage_uuid}/backups (the `DeleteApplicationStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) DeleteApplicationStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteApplicationStorageBackupScheduleResponse, error) {
+	rsp, err := c.DeleteApplicationStorageBackupSchedule(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteApplicationStorageBackupScheduleResponse(rsp)
+}
+
+// SetApplicationStorageBackupScheduleWithBodyWithResponse Set application storage backup schedule
+//
+// Create or replace the backup schedule for an application persistent volume or directory storage.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) SetApplicationStorageBackupScheduleWithBodyWithResponse(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetApplicationStorageBackupScheduleResponse, error) {
+	rsp, err := c.SetApplicationStorageBackupScheduleWithBody(ctx, uuid, storageUuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetApplicationStorageBackupScheduleResponse(rsp)
+}
+
+// SetApplicationStorageBackupScheduleWithResponse Set application storage backup schedule
+//
+// Create or replace the backup schedule for an application persistent volume or directory storage.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /applications/{uuid}/storages/{storage_uuid}/backups (the `SetApplicationStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) SetApplicationStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, body SetApplicationStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetApplicationStorageBackupScheduleResponse, error) {
+	rsp, err := c.SetApplicationStorageBackupSchedule(ctx, uuid, storageUuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetApplicationStorageBackupScheduleResponse(rsp)
+}
+
+// RunApplicationStorageBackupWithResponse Run application storage backup
+//
+// Queue an immediate volume backup for an application storage that has a schedule.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /applications/{uuid}/storages/{storage_uuid}/backups/run (the `RunApplicationStorageBackup` operationId).
+func (c *ClientWithResponses) RunApplicationStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunApplicationStorageBackupResponse, error) {
+	rsp, err := c.RunApplicationStorageBackup(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunApplicationStorageBackupResponse(rsp)
+}
+
 // ListDatabasesWithResponse List
 //
 // List all databases.
@@ -17594,6 +20813,156 @@ func (c *ClientWithResponses) MoveDatabaseByUuidWithResponse(ctx context.Context
 		return nil, err
 	}
 	return ParseMoveDatabaseByUuidResponse(rsp)
+}
+
+// ListStoragesByDatabaseUuidWithResponse List Storages
+//
+// List all persistent storages and file storages by database UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /databases/{uuid}/storages (the `ListStoragesByDatabaseUuid` operationId).
+func (c *ClientWithResponses) ListStoragesByDatabaseUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListStoragesByDatabaseUuidResponse, error) {
+	rsp, err := c.ListStoragesByDatabaseUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStoragesByDatabaseUuidResponse(rsp)
+}
+
+// UpdateStorageByDatabaseUuidWithBodyWithResponse Update Storage
+//
+// Update a persistent storage or file storage by database UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+func (c *ClientWithResponses) UpdateStorageByDatabaseUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateStorageByDatabaseUuidResponse, error) {
+	rsp, err := c.UpdateStorageByDatabaseUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateStorageByDatabaseUuidResponse(rsp)
+}
+
+// UpdateStorageByDatabaseUuidWithResponse Update Storage
+//
+// Update a persistent storage or file storage by database UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /databases/{uuid}/storages (the `UpdateStorageByDatabaseUuid` operationId).
+func (c *ClientWithResponses) UpdateStorageByDatabaseUuidWithResponse(ctx context.Context, uuid string, body UpdateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateStorageByDatabaseUuidResponse, error) {
+	rsp, err := c.UpdateStorageByDatabaseUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateStorageByDatabaseUuidResponse(rsp)
+}
+
+// CreateStorageByDatabaseUuidWithBodyWithResponse Create Storage
+//
+// Create a persistent storage or file storage for a database.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+func (c *ClientWithResponses) CreateStorageByDatabaseUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateStorageByDatabaseUuidResponse, error) {
+	rsp, err := c.CreateStorageByDatabaseUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStorageByDatabaseUuidResponse(rsp)
+}
+
+// CreateStorageByDatabaseUuidWithResponse Create Storage
+//
+// Create a persistent storage or file storage for a database.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/storages (the `CreateStorageByDatabaseUuid` operationId).
+func (c *ClientWithResponses) CreateStorageByDatabaseUuidWithResponse(ctx context.Context, uuid string, body CreateStorageByDatabaseUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateStorageByDatabaseUuidResponse, error) {
+	rsp, err := c.CreateStorageByDatabaseUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateStorageByDatabaseUuidResponse(rsp)
+}
+
+// DeleteStorageByDatabaseUuidWithResponse Delete Storage
+//
+// Delete a persistent storage or file storage by database UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid} (the `DeleteStorageByDatabaseUuid` operationId).
+func (c *ClientWithResponses) DeleteStorageByDatabaseUuidWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteStorageByDatabaseUuidResponse, error) {
+	rsp, err := c.DeleteStorageByDatabaseUuid(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteStorageByDatabaseUuidResponse(rsp)
+}
+
+// DeleteDatabaseStorageBackupScheduleWithResponse Delete database storage backup schedule
+//
+// Delete the backup schedule and its local and S3 archives for a database storage.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /databases/{uuid}/storages/{storage_uuid}/backups (the `DeleteDatabaseStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) DeleteDatabaseStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteDatabaseStorageBackupScheduleResponse, error) {
+	rsp, err := c.DeleteDatabaseStorageBackupSchedule(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteDatabaseStorageBackupScheduleResponse(rsp)
+}
+
+// SetDatabaseStorageBackupScheduleWithBodyWithResponse Set database storage backup schedule
+//
+// Create or replace the backup schedule for a database persistent volume or directory storage.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) SetDatabaseStorageBackupScheduleWithBodyWithResponse(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetDatabaseStorageBackupScheduleResponse, error) {
+	rsp, err := c.SetDatabaseStorageBackupScheduleWithBody(ctx, uuid, storageUuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetDatabaseStorageBackupScheduleResponse(rsp)
+}
+
+// SetDatabaseStorageBackupScheduleWithResponse Set database storage backup schedule
+//
+// Create or replace the backup schedule for a database persistent volume or directory storage.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /databases/{uuid}/storages/{storage_uuid}/backups (the `SetDatabaseStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) SetDatabaseStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, body SetDatabaseStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetDatabaseStorageBackupScheduleResponse, error) {
+	rsp, err := c.SetDatabaseStorageBackupSchedule(ctx, uuid, storageUuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetDatabaseStorageBackupScheduleResponse(rsp)
+}
+
+// RunDatabaseStorageBackupWithResponse Run database storage backup
+//
+// Queue an immediate volume backup for a database storage that has a schedule.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /databases/{uuid}/storages/{storage_uuid}/backups/run (the `RunDatabaseStorageBackup` operationId).
+func (c *ClientWithResponses) RunDatabaseStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunDatabaseStorageBackupResponse, error) {
+	rsp, err := c.RunDatabaseStorageBackup(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunDatabaseStorageBackupResponse(rsp)
 }
 
 // DeployByTagOrUuidWithResponse Deploy
@@ -18389,6 +21758,81 @@ func (c *ClientWithResponses) MoveServiceByUuidWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseMoveServiceByUuidResponse(rsp)
+}
+
+// ListStoragesByServiceUuidWithResponse List Storages
+//
+// List all persistent storages and file storages by service UUID.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /services/{uuid}/storages (the `ListStoragesByServiceUuid` operationId).
+func (c *ClientWithResponses) ListStoragesByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListStoragesByServiceUuidResponse, error) {
+	rsp, err := c.ListStoragesByServiceUuid(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListStoragesByServiceUuidResponse(rsp)
+}
+
+// DeleteServiceStorageBackupScheduleWithResponse Delete service storage backup schedule
+//
+// Delete the backup schedule and its local and S3 archives for a service storage.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /services/{uuid}/storages/{storage_uuid}/backups (the `DeleteServiceStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) DeleteServiceStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*DeleteServiceStorageBackupScheduleResponse, error) {
+	rsp, err := c.DeleteServiceStorageBackupSchedule(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteServiceStorageBackupScheduleResponse(rsp)
+}
+
+// SetServiceStorageBackupScheduleWithBodyWithResponse Set service storage backup schedule
+//
+// Create or replace the backup schedule for a service persistent volume or directory storage.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) SetServiceStorageBackupScheduleWithBodyWithResponse(ctx context.Context, uuid string, storageUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SetServiceStorageBackupScheduleResponse, error) {
+	rsp, err := c.SetServiceStorageBackupScheduleWithBody(ctx, uuid, storageUuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetServiceStorageBackupScheduleResponse(rsp)
+}
+
+// SetServiceStorageBackupScheduleWithResponse Set service storage backup schedule
+//
+// Create or replace the backup schedule for a service persistent volume or directory storage.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PUT /services/{uuid}/storages/{storage_uuid}/backups (the `SetServiceStorageBackupSchedule` operationId).
+func (c *ClientWithResponses) SetServiceStorageBackupScheduleWithResponse(ctx context.Context, uuid string, storageUuid string, body SetServiceStorageBackupScheduleJSONRequestBody, reqEditors ...RequestEditorFn) (*SetServiceStorageBackupScheduleResponse, error) {
+	rsp, err := c.SetServiceStorageBackupSchedule(ctx, uuid, storageUuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSetServiceStorageBackupScheduleResponse(rsp)
+}
+
+// RunServiceStorageBackupWithResponse Run service storage backup
+//
+// Queue an immediate volume backup for a service storage that has a schedule.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/storages/{storage_uuid}/backups/run (the `RunServiceStorageBackup` operationId).
+func (c *ClientWithResponses) RunServiceStorageBackupWithResponse(ctx context.Context, uuid string, storageUuid string, reqEditors ...RequestEditorFn) (*RunServiceStorageBackupResponse, error) {
+	rsp, err := c.RunServiceStorageBackup(ctx, uuid, storageUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRunServiceStorageBackupResponse(rsp)
 }
 
 // ParseListApplicationsResponse parses an HTTP response from a ListApplicationsWithResponse call
@@ -19315,6 +22759,362 @@ func ParseUpdateScheduledTaskByApplicationUuidResponse(rsp *http.Response) (*Upd
 	return response, nil
 }
 
+// ParseListStoragesByApplicationUuidResponse parses an HTTP response from a ListStoragesByApplicationUuidWithResponse call
+func ParseListStoragesByApplicationUuidResponse(rsp *http.Response) (*ListStoragesByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStoragesByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+			PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateStorageByApplicationUuidResponse parses an HTTP response from a UpdateStorageByApplicationUuidWithResponse call
+func ParseUpdateStorageByApplicationUuidResponse(rsp *http.Response) (*UpdateStorageByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateStorageByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateStorageByApplicationUuidResponse parses an HTTP response from a CreateStorageByApplicationUuidWithResponse call
+func ParseCreateStorageByApplicationUuidResponse(rsp *http.Response) (*CreateStorageByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateStorageByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteStorageByApplicationUuidResponse parses an HTTP response from a DeleteStorageByApplicationUuidWithResponse call
+func ParseDeleteStorageByApplicationUuidResponse(rsp *http.Response) (*DeleteStorageByApplicationUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStorageByApplicationUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteApplicationStorageBackupScheduleResponse parses an HTTP response from a DeleteApplicationStorageBackupScheduleWithResponse call
+func ParseDeleteApplicationStorageBackupScheduleResponse(rsp *http.Response) (*DeleteApplicationStorageBackupScheduleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteApplicationStorageBackupScheduleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	}
+
+	return response, nil
+}
+
+// ParseSetApplicationStorageBackupScheduleResponse parses an HTTP response from a SetApplicationStorageBackupScheduleWithResponse call
+func ParseSetApplicationStorageBackupScheduleResponse(rsp *http.Response) (*SetApplicationStorageBackupScheduleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetApplicationStorageBackupScheduleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeBackupScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest VolumeBackupScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRunApplicationStorageBackupResponse parses an HTTP response from a RunApplicationStorageBackupWithResponse call
+func ParseRunApplicationStorageBackupResponse(rsp *http.Response) (*RunApplicationStorageBackupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RunApplicationStorageBackupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseListDatabasesResponse parses an HTTP response from a ListDatabasesWithResponse call
 func ParseListDatabasesResponse(rsp *http.Response) (*ListDatabasesResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -20089,6 +23889,362 @@ func ParseMoveDatabaseByUuidResponse(rsp *http.Response) (*MoveDatabaseByUuidRes
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListStoragesByDatabaseUuidResponse parses an HTTP response from a ListStoragesByDatabaseUuidWithResponse call
+func ParseListStoragesByDatabaseUuidResponse(rsp *http.Response) (*ListStoragesByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStoragesByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+			PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateStorageByDatabaseUuidResponse parses an HTTP response from a UpdateStorageByDatabaseUuidWithResponse call
+func ParseUpdateStorageByDatabaseUuidResponse(rsp *http.Response) (*UpdateStorageByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateStorageByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateStorageByDatabaseUuidResponse parses an HTTP response from a CreateStorageByDatabaseUuidWithResponse call
+func ParseCreateStorageByDatabaseUuidResponse(rsp *http.Response) (*CreateStorageByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateStorageByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest map[string]interface{}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteStorageByDatabaseUuidResponse parses an HTTP response from a DeleteStorageByDatabaseUuidWithResponse call
+func ParseDeleteStorageByDatabaseUuidResponse(rsp *http.Response) (*DeleteStorageByDatabaseUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteStorageByDatabaseUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteDatabaseStorageBackupScheduleResponse parses an HTTP response from a DeleteDatabaseStorageBackupScheduleWithResponse call
+func ParseDeleteDatabaseStorageBackupScheduleResponse(rsp *http.Response) (*DeleteDatabaseStorageBackupScheduleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteDatabaseStorageBackupScheduleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	}
+
+	return response, nil
+}
+
+// ParseSetDatabaseStorageBackupScheduleResponse parses an HTTP response from a SetDatabaseStorageBackupScheduleWithResponse call
+func ParseSetDatabaseStorageBackupScheduleResponse(rsp *http.Response) (*SetDatabaseStorageBackupScheduleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetDatabaseStorageBackupScheduleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeBackupScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest VolumeBackupScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRunDatabaseStorageBackupResponse parses an HTTP response from a RunDatabaseStorageBackupWithResponse call
+func ParseRunDatabaseStorageBackupResponse(rsp *http.Response) (*RunDatabaseStorageBackupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RunDatabaseStorageBackupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 
@@ -22026,6 +26182,198 @@ func ParseMoveServiceByUuidResponse(rsp *http.Response) (*MoveServiceByUuidRespo
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListStoragesByServiceUuidResponse parses an HTTP response from a ListStoragesByServiceUuidWithResponse call
+func ParseListStoragesByServiceUuidResponse(rsp *http.Response) (*ListStoragesByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListStoragesByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			FileStorages       *[]map[string]interface{} `json:"file_storages,omitempty"`
+			PersistentStorages *[]map[string]interface{} `json:"persistent_storages,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteServiceStorageBackupScheduleResponse parses an HTTP response from a DeleteServiceStorageBackupScheduleWithResponse call
+func ParseDeleteServiceStorageBackupScheduleResponse(rsp *http.Response) (*DeleteServiceStorageBackupScheduleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteServiceStorageBackupScheduleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	}
+
+	return response, nil
+}
+
+// ParseSetServiceStorageBackupScheduleResponse parses an HTTP response from a SetServiceStorageBackupScheduleWithResponse call
+func ParseSetServiceStorageBackupScheduleResponse(rsp *http.Response) (*SetServiceStorageBackupScheduleResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SetServiceStorageBackupScheduleResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest VolumeBackupScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest VolumeBackupScheduleResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 403:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRunServiceStorageBackupResponse parses an HTTP response from a RunServiceStorageBackupWithResponse call
+func ParseRunServiceStorageBackupResponse(rsp *http.Response) (*RunServiceStorageBackupResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RunServiceStorageBackupResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 

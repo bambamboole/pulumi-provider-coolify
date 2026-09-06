@@ -1,9 +1,12 @@
 package provider
 
 import (
+	"context"
 	"testing"
 
 	p "github.com/pulumi/pulumi-go-provider"
+
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
 )
 
 type diffArgsFixture struct {
@@ -78,4 +81,10 @@ func TestPatchHelpers(t *testing.T) {
 	if enabled == nil || *enabled || port == nil || *port != 22 {
 		t.Fatal("changed boolean and integer must be sent")
 	}
+}
+
+// withClient injects the fake's client so resource methods that call client(ctx)
+// can run without a configured provider.
+func withClient(ctx context.Context, c *coolify.Client) context.Context {
+	return context.WithValue(ctx, clientKey{}, c)
 }

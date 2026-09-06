@@ -79,6 +79,25 @@ output-options:
     - move-service-by-uuid
     - list-envs-by-service-uuid
     - create-env-by-service-uuid
+    # Storages (persistent volumes and file/directory mounts) and volume backups
+    - list-storages-by-application-uuid
+    - create-storage-by-application-uuid
+    - update-storage-by-application-uuid
+    - delete-storage-by-application-uuid
+    - list-storages-by-database-uuid
+    - create-storage-by-database-uuid
+    - update-storage-by-database-uuid
+    - delete-storage-by-database-uuid
+    - list-storages-by-service-uuid
+    - set-application-storage-backup-schedule
+    - delete-application-storage-backup-schedule
+    - run-application-storage-backup
+    - set-database-storage-backup-schedule
+    - delete-database-storage-backup-schedule
+    - run-database-storage-backup
+    - set-service-storage-backup-schedule
+    - delete-service-storage-backup-schedule
+    - run-service-storage-backup
     # GitHub Apps
     - list-github-apps
     - create-github-app

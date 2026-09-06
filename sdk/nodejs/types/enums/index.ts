@@ -63,3 +63,16 @@ export const DatabaseType = {
 } as const;
 
 export type DatabaseType = (typeof DatabaseType)[keyof typeof DatabaseType];
+
+export const StorageType = {
+    /**
+     * Named Docker volume.
+     */
+    Persistent: "persistent",
+    /**
+     * Host directory mounted into the container.
+     */
+    Directory: "directory",
+} as const;
+
+export type StorageType = (typeof StorageType)[keyof typeof StorageType];
