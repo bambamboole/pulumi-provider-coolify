@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.7.1...v0.8.0) (2026-09-06)
+
+
+### Features
+
+* manage team notification channels ([b56bcf3](https://github.com/bambamboole/pulumi-provider-coolify/commit/b56bcf3d3f4619db61d5398cb5e9c0727c44d4a4))
+
 ## [0.7.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.7.0...v0.7.1) (2026-09-06)
 
 
