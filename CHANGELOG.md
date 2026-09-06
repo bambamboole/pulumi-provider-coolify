@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.8.0...v0.8.1) (2026-09-06)
+
+
+### Bug Fixes
+
+* support root team notification settings ([c4d3282](https://github.com/bambamboole/pulumi-provider-coolify/commit/c4d328266e37315abca1a30d3288ed517866992d))
+
 ## [0.8.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.7.1...v0.8.0) (2026-09-06)
 
 
