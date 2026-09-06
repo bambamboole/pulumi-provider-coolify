@@ -47,7 +47,8 @@ type ServiceArgs struct {
 type ServiceState struct {
 	ServiceArgs
 	// Tags the provider attached: the provider's default tags plus the declared ones.
-	AppliedTags []string `pulumi:"appliedTags"`
+	// Optional for states written before tag management was introduced.
+	AppliedTags []string `pulumi:"appliedTags,optional"`
 	// UUID of the service in Coolify.
 	UUID string `pulumi:"uuid"`
 }

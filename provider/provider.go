@@ -9,7 +9,7 @@ import (
 // New builds the Coolify provider, wiring configuration and all supported
 // resources into the schema.
 func New() (p.Provider, error) {
-	return infer.NewProviderBuilder().
+	provider, err := infer.NewProviderBuilder().
 		WithConfig(infer.Config(&Config{})).
 		// Enum types pick up the Go package name as their module; publish them
 		// alongside the resources instead.
@@ -45,4 +45,9 @@ func New() (p.Provider, error) {
 		// Pulumi CLI on download.
 		WithPluginDownloadURL("https://github.com/bambamboole/pulumi-provider-coolify/releases/download/v$%7BVERSION%7D").
 		Build()
+	if err != nil {
+		return p.Provider{}, err
+	}
+	provider.DiffConfig = diffTagConfig(provider.DiffConfig)
+	return provider, nil
 }

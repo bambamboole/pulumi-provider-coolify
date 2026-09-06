@@ -37,7 +37,7 @@ export class Service extends pulumi.CustomResource {
     /**
      * Tags the provider attached: the provider's default tags plus the declared ones.
      */
-    declare public /*out*/ readonly appliedTags: pulumi.Output<string[]>;
+    declare public /*out*/ readonly appliedTags: pulumi.Output<string[] | undefined>;
     /**
      * Connect the service to Coolify's predefined Docker network.
      */

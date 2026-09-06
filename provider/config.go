@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 
+	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
 
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
@@ -37,6 +39,35 @@ func (c *Config) Annotate(a infer.Annotator) {
 	a.Describe(&c.DisableDefaultTags, "Attach no default tags at all. Needed because an empty defaultTags list is indistinguishable from an unset one.")
 	a.SetDefault(&c.BaseURL, "", envBaseURL)
 	a.SetDefault(&c.ApiToken, "", envAPIToken)
+}
+
+// diffTagConfig keeps the inferred property diff (including unknowns and secrets)
+// but allows tag settings to change in place. infer otherwise replaces providers
+// on every config change, including the false value Check adds on a 0.6 upgrade.
+// Connection changes retain their replacement behavior because they may target
+// another Coolify instance or team.
+func diffTagConfig(diffConfig func(context.Context, p.DiffRequest) (p.DiffResponse, error)) func(context.Context, p.DiffRequest) (p.DiffResponse, error) {
+	return func(ctx context.Context, req p.DiffRequest) (p.DiffResponse, error) {
+		response, err := diffConfig(ctx, req)
+		if err != nil {
+			return response, err
+		}
+		for key, diff := range response.DetailedDiff {
+			if key != "disableDefaultTags" && key != "defaultTags" && !strings.HasPrefix(key, "defaultTags[") {
+				continue
+			}
+			switch diff.Kind {
+			case p.AddReplace:
+				diff.Kind = p.Add
+			case p.DeleteReplace:
+				diff.Kind = p.Delete
+			case p.UpdateReplace:
+				diff.Kind = p.Update
+			}
+			response.DetailedDiff[key] = diff
+		}
+		return response, nil
+	}
 }
 
 // Configure validates the configuration and builds the API client once per

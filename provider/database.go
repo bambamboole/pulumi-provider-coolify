@@ -70,7 +70,8 @@ type DatabaseArgs struct {
 type DatabaseState struct {
 	DatabaseArgs
 	// Tags the provider attached: the provider's default tags plus the declared ones.
-	AppliedTags []string `pulumi:"appliedTags"`
+	// Optional for states written before tag management was introduced.
+	AppliedTags []string `pulumi:"appliedTags,optional"`
 	// UUID of the database in Coolify.
 	UUID string `pulumi:"uuid"`
 	// ID of the Coolify environment the database lives in.
