@@ -7,6 +7,10 @@ A native [Pulumi](https://www.pulumi.com) provider for [Coolify](https://coolify
 | Resource | Manages | Identity for adoption |
 | --- | --- | --- |
 | `coolify.Project` | Project and the environments declared on it (environments are only added, never removed) | project name |
+| `coolify.TeamSharedVariable` | Shared variable for the provider token's team | key within the team scope |
+| `coolify.ProjectSharedVariable` | Shared variable for a project | key within the project scope |
+| `coolify.EnvironmentSharedVariable` | Shared variable for a project environment | key within the environment scope |
+| `coolify.ServerSharedVariable` | Shared variable for a server | key within the server scope |
 | `coolify.Database` | Standalone PostgreSQL, MySQL, MariaDB, MongoDB, Redis, KeyDB, Dragonfly or ClickHouse database | database name within the environment |
 | `coolify.DatabaseBackup` | Scheduled backup configuration of a database, optionally uploaded to an S3 storage | frequency string within the database |
 | `coolify.PrivateKey` | SSH private key | key name |
@@ -121,6 +125,63 @@ new coolify.VolumeBackup("gitea-data", {
 }, { provider, retainOnDelete: true });
 ```
 
+## Shared Variables
+
+Shared variable resources require **Coolify v4.3.0 or newer**. Each resource manages one key in one scope. Create adopts a matching key and reconciles the declared settings; updates address its numeric API ID, so renaming a key preserves its identity. Changing the owning project, environment or server replaces the variable. Destroy deletes it; use `retainOnDelete: true` to retain it in Coolify.
+
+```ts
+const config = new pulumi.Config();
+
+const token = new coolify.TeamSharedVariable("registry-token", {
+    key: "REGISTRY_TOKEN",
+    value: config.requireSecret("registryToken"),
+    isLiteral: true,
+}, { provider });
+
+const projectMode = new coolify.ProjectSharedVariable("app-mode", {
+    projectUuid: project.uuid,
+    key: "APP_MODE",
+    value: "production",
+}, { provider });
+
+const databaseUrl = new coolify.EnvironmentSharedVariable("database-url", {
+    projectUuid: project.uuid,
+    environmentName: "production", // also accepts the environment UUID
+    key: "DATABASE_URL",
+    value: db.internalUrl,
+}, { provider });
+
+const region = new coolify.ServerSharedVariable("region", {
+    serverUuid: server.uuid,
+    key: "REGION",
+    value: "eu-central",
+}, { provider });
+
+// Use these outputs in an Application or Service's environmentVariables input.
+// References establish Pulumi dependencies and contain no secret values.
+const environmentVariables = {
+    REGISTRY_TOKEN: token.reference,          // {{team.REGISTRY_TOKEN}}
+    APP_MODE: projectMode.reference,          // {{project.APP_MODE}}
+    DATABASE_URL: databaseUrl.reference,      // {{environment.DATABASE_URL}}
+    REGION: region.reference,                 // {{server.REGION}}
+};
+```
+
+`value` is always a Pulumi secret. All settings except `key` and the scope selectors are optional: omit a setting to leave it unmanaged, use `false` to disable a flag, or an empty string to clear `value` or `comment`. Supported flags are `isLiteral`, `isMultiline` and `isShownOnce`; comments accept up to 256 characters.
+
+Coolify returns values only with sensitive-read permission (`read:sensitive` or `root`), and always omits them when `isShownOnce` is enabled. Refresh preserves a managed value when it is omitted; an explicit `null` is recorded as an empty value. Hidden values can still be rotated, but external changes to them cannot be detected. Importing a hidden variable leaves its value unmanaged until you supply one.
+
+Import IDs include the scope and the numeric `variableId` reported by Coolify:
+
+| Resource | Import ID |
+| --- | --- |
+| `TeamSharedVariable` | `team/<variableId>` |
+| `ProjectSharedVariable` | `project/<projectUuid>/<variableId>` |
+| `EnvironmentSharedVariable` | `environment/<projectUuid>/<environmentNameOrUuid>/<variableId>` |
+| `ServerSharedVariable` | `server/<serverUuid>/<variableId>` |
+
+URL-encode path components containing slashes, such as an environment named `feature/api` (`feature%2Fapi`). Shared variables are resolved when Coolify prepares a resource's configuration. Updating them does not restart or redeploy workloads; manage that separately with a `Deployment` resource and suitable `triggers`. Renaming a key also requires updating its references in consumers. See the [Coolify shared variable documentation](https://next.coolify.io/docs/core/team/shared-variables).
+
 ## Notifications
 
 Notification resources require **Coolify v4.3.0 or newer**. Each channel has one settings object for the provider API token's team, shared across that team's projects. Declare each team/channel combination in only one Pulumi resource. Import IDs have the form `<teamId>/<channel>`, for example `1/slack`; the provider verifies that the token belongs to that team. Coolify's Root Team has ID `0`, so its Slack notification import ID is `0/slack`.
@@ -173,6 +234,7 @@ make gen-client   # regenerate internal/coolify/api from the OpenAPI snapshot
 make schema       # write schema.json
 make gen-sdk      # regenerate the TypeScript SDK sources in sdk/nodejs
 make build-sdk    # compile the SDK into sdk/nodejs/bin (what gets published)
+make test-sdk     # build the SDK and verify shared variable inputs using Pulumi mocks
 ```
 
 ### API client

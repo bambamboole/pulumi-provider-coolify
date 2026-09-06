@@ -15,3 +15,15 @@ pkg.publishConfig = { access: "public" };
 
 fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
 console.log("patched", pkg.name);
+
+// The generator uses a truthiness check for optional secrets, which drops
+// value: "" instead of clearing a shared variable. Preserve explicit empties.
+for (const scope of ["team", "project", "environment", "server"]) {
+    const sourcePath = path.join(__dirname, "sdk", "nodejs", `${scope}SharedVariable.ts`);
+    const source = fs.readFileSync(sourcePath, "utf8");
+    const patched = source.replace(
+        'args?.value ? pulumi.secret(args.value) : undefined',
+        'args?.value !== undefined ? pulumi.secret(args.value) : undefined',
+    );
+    fs.writeFileSync(sourcePath, patched);
+}
