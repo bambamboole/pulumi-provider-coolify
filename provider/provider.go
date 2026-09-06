@@ -28,6 +28,12 @@ func New() (p.Provider, error) {
 			infer.Resource(DatabaseBackup{}),
 			infer.Resource(Storage{}),
 			infer.Resource(VolumeBackup{}),
+			infer.Resource(NotificationSlack{}),
+			infer.Resource(NotificationDiscord{}),
+			infer.Resource(NotificationEmail{}),
+			infer.Resource(NotificationTelegram{}),
+			infer.Resource(NotificationPushover{}),
+			infer.Resource(NotificationWebhook{}),
 		).
 		WithFunctions(
 			infer.Function(GetStorage{}),
@@ -49,5 +55,6 @@ func New() (p.Provider, error) {
 		return p.Provider{}, err
 	}
 	provider.DiffConfig = diffTagConfig(provider.DiffConfig)
+	provider.Check = checkNotificationUnknowns(provider.Check)
 	return provider, nil
 }

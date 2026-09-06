@@ -6,3 +6,135 @@ import * as inputs from "../types/input";
 import * as outputs from "../types/output";
 import * as enums from "../types/enums";
 
+/**
+ * Notification event selection. Omitted events keep their Coolify settings; false disables an event.
+ */
+export interface NotificationEvents {
+    /**
+     * Backup Failure notifications. Leave unset to preserve the current setting.
+     */
+    backupFailure?: boolean;
+    /**
+     * Backup Success notifications. Leave unset to preserve the current setting.
+     */
+    backupSuccess?: boolean;
+    /**
+     * Deployment Failure notifications. Leave unset to preserve the current setting.
+     */
+    deploymentFailure?: boolean;
+    /**
+     * Deployment Success notifications. Leave unset to preserve the current setting.
+     */
+    deploymentSuccess?: boolean;
+    /**
+     * Docker Cleanup Failure notifications. Leave unset to preserve the current setting.
+     */
+    dockerCleanupFailure?: boolean;
+    /**
+     * Docker Cleanup Success notifications. Leave unset to preserve the current setting.
+     */
+    dockerCleanupSuccess?: boolean;
+    /**
+     * Restart Limit Reached notifications. Leave unset to preserve the current setting.
+     */
+    restartLimitReached?: boolean;
+    /**
+     * Scheduled Task Failure notifications. Leave unset to preserve the current setting.
+     */
+    scheduledTaskFailure?: boolean;
+    /**
+     * Scheduled Task Success notifications. Leave unset to preserve the current setting.
+     */
+    scheduledTaskSuccess?: boolean;
+    /**
+     * Server Disk Usage notifications. Leave unset to preserve the current setting.
+     */
+    serverDiskUsage?: boolean;
+    /**
+     * Server Patch notifications. Leave unset to preserve the current setting.
+     */
+    serverPatch?: boolean;
+    /**
+     * Server Reachable notifications. Leave unset to preserve the current setting.
+     */
+    serverReachable?: boolean;
+    /**
+     * Server Unreachable notifications. Leave unset to preserve the current setting.
+     */
+    serverUnreachable?: boolean;
+    /**
+     * Status Change notifications. Leave unset to preserve the current setting.
+     */
+    statusChange?: boolean;
+    /**
+     * Traefik Outdated notifications. Leave unset to preserve the current setting.
+     */
+    traefikOutdated?: boolean;
+}
+
+/**
+ * Telegram thread IDs by event. Unset fields remain unmanaged; an empty string clears the thread ID.
+ */
+export interface NotificationTelegramThreads {
+    /**
+     * Thread ID for backup failure notifications.
+     */
+    backupFailure?: string;
+    /**
+     * Thread ID for backup success notifications.
+     */
+    backupSuccess?: string;
+    /**
+     * Thread ID for deployment failure notifications.
+     */
+    deploymentFailure?: string;
+    /**
+     * Thread ID for deployment success notifications.
+     */
+    deploymentSuccess?: string;
+    /**
+     * Thread ID for docker cleanup failure notifications.
+     */
+    dockerCleanupFailure?: string;
+    /**
+     * Thread ID for docker cleanup success notifications.
+     */
+    dockerCleanupSuccess?: string;
+    /**
+     * Thread ID for restart limit reached notifications.
+     */
+    restartLimitReached?: string;
+    /**
+     * Thread ID for scheduled task failure notifications.
+     */
+    scheduledTaskFailure?: string;
+    /**
+     * Thread ID for scheduled task success notifications.
+     */
+    scheduledTaskSuccess?: string;
+    /**
+     * Thread ID for server disk usage notifications.
+     */
+    serverDiskUsage?: string;
+    /**
+     * Thread ID for server patch notifications.
+     */
+    serverPatch?: string;
+    /**
+     * Thread ID for server reachable notifications.
+     */
+    serverReachable?: string;
+    /**
+     * Thread ID for server unreachable notifications.
+     */
+    serverUnreachable?: string;
+    /**
+     * Thread ID for status change notifications.
+     */
+    statusChange?: string;
+    /**
+     * Thread ID for traefik outdated notifications.
+     */
+    traefikOutdated?: string;
+}
+

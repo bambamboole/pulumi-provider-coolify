@@ -35,6 +35,36 @@ export type GitHubApp = import("./gitHubApp").GitHubApp;
 export const GitHubApp: typeof import("./gitHubApp").GitHubApp = null as any;
 utilities.lazyLoad(exports, ["GitHubApp"], () => require("./gitHubApp"));
 
+export { NotificationDiscordArgs } from "./notificationDiscord";
+export type NotificationDiscord = import("./notificationDiscord").NotificationDiscord;
+export const NotificationDiscord: typeof import("./notificationDiscord").NotificationDiscord = null as any;
+utilities.lazyLoad(exports, ["NotificationDiscord"], () => require("./notificationDiscord"));
+
+export { NotificationEmailArgs } from "./notificationEmail";
+export type NotificationEmail = import("./notificationEmail").NotificationEmail;
+export const NotificationEmail: typeof import("./notificationEmail").NotificationEmail = null as any;
+utilities.lazyLoad(exports, ["NotificationEmail"], () => require("./notificationEmail"));
+
+export { NotificationPushoverArgs } from "./notificationPushover";
+export type NotificationPushover = import("./notificationPushover").NotificationPushover;
+export const NotificationPushover: typeof import("./notificationPushover").NotificationPushover = null as any;
+utilities.lazyLoad(exports, ["NotificationPushover"], () => require("./notificationPushover"));
+
+export { NotificationSlackArgs } from "./notificationSlack";
+export type NotificationSlack = import("./notificationSlack").NotificationSlack;
+export const NotificationSlack: typeof import("./notificationSlack").NotificationSlack = null as any;
+utilities.lazyLoad(exports, ["NotificationSlack"], () => require("./notificationSlack"));
+
+export { NotificationTelegramArgs } from "./notificationTelegram";
+export type NotificationTelegram = import("./notificationTelegram").NotificationTelegram;
+export const NotificationTelegram: typeof import("./notificationTelegram").NotificationTelegram = null as any;
+utilities.lazyLoad(exports, ["NotificationTelegram"], () => require("./notificationTelegram"));
+
+export { NotificationWebhookArgs } from "./notificationWebhook";
+export type NotificationWebhook = import("./notificationWebhook").NotificationWebhook;
+export const NotificationWebhook: typeof import("./notificationWebhook").NotificationWebhook = null as any;
+utilities.lazyLoad(exports, ["NotificationWebhook"], () => require("./notificationWebhook"));
+
 export { PrivateKeyArgs } from "./privateKey";
 export type PrivateKey = import("./privateKey").PrivateKey;
 export const PrivateKey: typeof import("./privateKey").PrivateKey = null as any;
@@ -107,6 +137,18 @@ const _module = {
                 return new Deployment(name, <any>undefined, { urn })
             case "coolify:index:GitHubApp":
                 return new GitHubApp(name, <any>undefined, { urn })
+            case "coolify:index:NotificationDiscord":
+                return new NotificationDiscord(name, <any>undefined, { urn })
+            case "coolify:index:NotificationEmail":
+                return new NotificationEmail(name, <any>undefined, { urn })
+            case "coolify:index:NotificationPushover":
+                return new NotificationPushover(name, <any>undefined, { urn })
+            case "coolify:index:NotificationSlack":
+                return new NotificationSlack(name, <any>undefined, { urn })
+            case "coolify:index:NotificationTelegram":
+                return new NotificationTelegram(name, <any>undefined, { urn })
+            case "coolify:index:NotificationWebhook":
+                return new NotificationWebhook(name, <any>undefined, { urn })
             case "coolify:index:PrivateKey":
                 return new PrivateKey(name, <any>undefined, { urn })
             case "coolify:index:Project":
