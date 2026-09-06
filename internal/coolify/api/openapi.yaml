@@ -12538,6 +12538,25 @@ paths:
       summary: 'Update Team Shared Env'
       description: 'Update a team shared environment variable by id.'
       operationId: update-team-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: env_id
@@ -12589,6 +12608,27 @@ paths:
       summary: 'Create Project Shared Env'
       description: 'Create a shared environment variable for a project (type=project).'
       operationId: create-project-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - key
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: uuid
@@ -12649,6 +12689,25 @@ paths:
       summary: 'Update Project Shared Env'
       description: 'Update a project shared environment variable by id.'
       operationId: update-project-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: uuid
@@ -12714,6 +12773,27 @@ paths:
       summary: 'Create Environment Shared Env'
       description: 'Create a shared environment variable for a project environment (type=environment).'
       operationId: create-environment-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - key
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: uuid
@@ -12788,6 +12868,25 @@ paths:
       summary: 'Update Environment Shared Env'
       description: 'Update an environment shared environment variable by id.'
       operationId: update-environment-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: uuid
@@ -12853,6 +12952,27 @@ paths:
       summary: 'Create Server Shared Env'
       description: 'Create a shared environment variable for a server (type=server).'
       operationId: create-server-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - key
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: uuid
@@ -12913,6 +13033,25 @@ paths:
       summary: 'Update Server Shared Env'
       description: 'Update a server shared environment variable by id.'
       operationId: update-server-shared-env
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                key:
+                  type: string
+                value:
+                  type: [string, 'null']
+                is_literal:
+                  type: boolean
+                is_multiline:
+                  type: boolean
+                is_shown_once:
+                  type: boolean
+                comment:
+                  type: [string, 'null']
+              type: object
       parameters:
         -
           name: uuid

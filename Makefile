@@ -3,7 +3,7 @@ VERSION ?= $(shell node -p "require('./pulumi-plugin.json').version")
 LDFLAGS := -X main.version=$(VERSION)
 SDK_DIR := sdk/nodejs
 
-.PHONY: build test vet lint fmt gen-client schema gen-sdk build-sdk install-local clean
+.PHONY: build test vet lint fmt gen-client schema gen-sdk build-sdk test-sdk install-local clean
 
 build:
 	go build -ldflags "$(LDFLAGS)" -o $(BIN) ./cmd/pulumi-resource-coolify
@@ -45,6 +45,9 @@ build-sdk:
 	cd $(SDK_DIR) && npm ci --no-audit --no-fund && npm run build
 	cp $(SDK_DIR)/package.json $(SDK_DIR)/README.md LICENSE $(SDK_DIR)/bin/
 	cd $(SDK_DIR)/bin && node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.version='$(VERSION)';p.pulumi.version='$(VERSION)';delete p.scripts.prepare;delete p.devDependencies;fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+
+test-sdk: build-sdk
+	node --test tests/*-sdk.test.cjs
 
 # Build the plugin and install it into the local Pulumi plugin cache so `pulumi`
 # resolves it without a GitHub release.

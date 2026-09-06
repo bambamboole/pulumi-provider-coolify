@@ -8,6 +8,24 @@ generate:
   models: true
 output-options:
   include-operation-ids:
+    # Shared environment variables: requestBody declarations missing upstream
+    # are filled in locally from SharedEnvironmentVariablesController (v4.3.17).
+    - list-team-shared-envs
+    - create-team-shared-env
+    - update-team-shared-env
+    - delete-team-shared-env
+    - list-project-shared-envs
+    - create-project-shared-env
+    - update-project-shared-env
+    - delete-project-shared-env
+    - list-environment-shared-envs
+    - create-environment-shared-env
+    - update-environment-shared-env
+    - delete-environment-shared-env
+    - list-server-shared-envs
+    - create-server-shared-env
+    - update-server-shared-env
+    - delete-server-shared-env
     # Projects and environments
     - list-projects
     - create-project

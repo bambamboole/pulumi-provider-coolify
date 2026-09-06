@@ -25,6 +25,11 @@ export type Deployment = import("./deployment").Deployment;
 export const Deployment: typeof import("./deployment").Deployment = null as any;
 utilities.lazyLoad(exports, ["Deployment"], () => require("./deployment"));
 
+export { EnvironmentSharedVariableArgs } from "./environmentSharedVariable";
+export type EnvironmentSharedVariable = import("./environmentSharedVariable").EnvironmentSharedVariable;
+export const EnvironmentSharedVariable: typeof import("./environmentSharedVariable").EnvironmentSharedVariable = null as any;
+utilities.lazyLoad(exports, ["EnvironmentSharedVariable"], () => require("./environmentSharedVariable"));
+
 export { GetStorageArgs, GetStorageResult, GetStorageOutputArgs } from "./getStorage";
 export const getStorage: typeof import("./getStorage").getStorage = null as any;
 export const getStorageOutput: typeof import("./getStorage").getStorageOutput = null as any;
@@ -75,6 +80,11 @@ export type Project = import("./project").Project;
 export const Project: typeof import("./project").Project = null as any;
 utilities.lazyLoad(exports, ["Project"], () => require("./project"));
 
+export { ProjectSharedVariableArgs } from "./projectSharedVariable";
+export type ProjectSharedVariable = import("./projectSharedVariable").ProjectSharedVariable;
+export const ProjectSharedVariable: typeof import("./projectSharedVariable").ProjectSharedVariable = null as any;
+utilities.lazyLoad(exports, ["ProjectSharedVariable"], () => require("./projectSharedVariable"));
+
 export { ProviderArgs } from "./provider";
 export type Provider = import("./provider").Provider;
 export const Provider: typeof import("./provider").Provider = null as any;
@@ -95,6 +105,11 @@ export type Server = import("./server").Server;
 export const Server: typeof import("./server").Server = null as any;
 utilities.lazyLoad(exports, ["Server"], () => require("./server"));
 
+export { ServerSharedVariableArgs } from "./serverSharedVariable";
+export type ServerSharedVariable = import("./serverSharedVariable").ServerSharedVariable;
+export const ServerSharedVariable: typeof import("./serverSharedVariable").ServerSharedVariable = null as any;
+utilities.lazyLoad(exports, ["ServerSharedVariable"], () => require("./serverSharedVariable"));
+
 export { ServiceArgs } from "./service";
 export type Service = import("./service").Service;
 export const Service: typeof import("./service").Service = null as any;
@@ -104,6 +119,11 @@ export { StorageArgs } from "./storage";
 export type Storage = import("./storage").Storage;
 export const Storage: typeof import("./storage").Storage = null as any;
 utilities.lazyLoad(exports, ["Storage"], () => require("./storage"));
+
+export { TeamSharedVariableArgs } from "./teamSharedVariable";
+export type TeamSharedVariable = import("./teamSharedVariable").TeamSharedVariable;
+export const TeamSharedVariable: typeof import("./teamSharedVariable").TeamSharedVariable = null as any;
+utilities.lazyLoad(exports, ["TeamSharedVariable"], () => require("./teamSharedVariable"));
 
 export { VolumeBackupArgs } from "./volumeBackup";
 export type VolumeBackup = import("./volumeBackup").VolumeBackup;
@@ -135,6 +155,8 @@ const _module = {
                 return new DatabaseBackup(name, <any>undefined, { urn })
             case "coolify:index:Deployment":
                 return new Deployment(name, <any>undefined, { urn })
+            case "coolify:index:EnvironmentSharedVariable":
+                return new EnvironmentSharedVariable(name, <any>undefined, { urn })
             case "coolify:index:GitHubApp":
                 return new GitHubApp(name, <any>undefined, { urn })
             case "coolify:index:NotificationDiscord":
@@ -153,16 +175,22 @@ const _module = {
                 return new PrivateKey(name, <any>undefined, { urn })
             case "coolify:index:Project":
                 return new Project(name, <any>undefined, { urn })
+            case "coolify:index:ProjectSharedVariable":
+                return new ProjectSharedVariable(name, <any>undefined, { urn })
             case "coolify:index:S3Storage":
                 return new S3Storage(name, <any>undefined, { urn })
             case "coolify:index:ScheduledTask":
                 return new ScheduledTask(name, <any>undefined, { urn })
             case "coolify:index:Server":
                 return new Server(name, <any>undefined, { urn })
+            case "coolify:index:ServerSharedVariable":
+                return new ServerSharedVariable(name, <any>undefined, { urn })
             case "coolify:index:Service":
                 return new Service(name, <any>undefined, { urn })
             case "coolify:index:Storage":
                 return new Storage(name, <any>undefined, { urn })
+            case "coolify:index:TeamSharedVariable":
+                return new TeamSharedVariable(name, <any>undefined, { urn })
             case "coolify:index:VolumeBackup":
                 return new VolumeBackup(name, <any>undefined, { urn })
             default:

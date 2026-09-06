@@ -58,4 +58,4 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: sdk/nodejs/package-lock.json
-      - run: make build-sdk
+      - run: make test-sdk

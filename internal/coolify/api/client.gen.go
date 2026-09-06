@@ -4466,6 +4466,46 @@ type CreateEnvironmentJSONBody struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// CreateEnvironmentSharedEnvJSONBody defines parameters for CreateEnvironmentSharedEnv.
+type CreateEnvironmentSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         string  `json:"key"`
+	Value       *string `json:"value,omitempty"`
+}
+
+// UpdateEnvironmentSharedEnvJSONBody defines parameters for UpdateEnvironmentSharedEnv.
+type UpdateEnvironmentSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Value       *string `json:"value,omitempty"`
+}
+
+// CreateProjectSharedEnvJSONBody defines parameters for CreateProjectSharedEnv.
+type CreateProjectSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         string  `json:"key"`
+	Value       *string `json:"value,omitempty"`
+}
+
+// UpdateProjectSharedEnvJSONBody defines parameters for UpdateProjectSharedEnv.
+type UpdateProjectSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Value       *string `json:"value,omitempty"`
+}
+
 // CreateS3StorageJSONBody defines parameters for CreateS3Storage.
 type CreateS3StorageJSONBody struct {
 	// Bucket S3 bucket name.
@@ -4618,6 +4658,26 @@ type UpdateServerByUuidJSONBody struct {
 // UpdateServerByUuidJSONBodyProxyType defines parameters for UpdateServerByUuid.
 type UpdateServerByUuidJSONBodyProxyType string
 
+// CreateServerSharedEnvJSONBody defines parameters for CreateServerSharedEnv.
+type CreateServerSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         string  `json:"key"`
+	Value       *string `json:"value,omitempty"`
+}
+
+// UpdateServerSharedEnvJSONBody defines parameters for UpdateServerSharedEnv.
+type UpdateServerSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Value       *string `json:"value,omitempty"`
+}
+
 // CreateServiceJSONBody defines parameters for CreateService.
 type CreateServiceJSONBody struct {
 	// Description Description of the service.
@@ -4759,6 +4819,26 @@ type CreateTagByServiceUuidJSONBody struct {
 	TagNames *[]string `json:"tag_names,omitempty"`
 }
 
+// CreateTeamSharedEnvJSONBody defines parameters for CreateTeamSharedEnv.
+type CreateTeamSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         string  `json:"key"`
+	Value       *string `json:"value,omitempty"`
+}
+
+// UpdateTeamSharedEnvJSONBody defines parameters for UpdateTeamSharedEnv.
+type UpdateTeamSharedEnvJSONBody struct {
+	Comment     *string `json:"comment,omitempty"`
+	IsLiteral   *bool   `json:"is_literal,omitempty"`
+	IsMultiline *bool   `json:"is_multiline,omitempty"`
+	IsShownOnce *bool   `json:"is_shown_once,omitempty"`
+	Key         *string `json:"key,omitempty"`
+	Value       *string `json:"value,omitempty"`
+}
+
 // CreateDockerfileApplicationJSONRequestBody defines body for CreateDockerfileApplication for application/json ContentType.
 type CreateDockerfileApplicationJSONRequestBody CreateDockerfileApplicationJSONBody
 
@@ -4885,6 +4965,18 @@ type UpdateProjectByUuidJSONRequestBody UpdateProjectByUuidJSONBody
 // CreateEnvironmentJSONRequestBody defines body for CreateEnvironment for application/json ContentType.
 type CreateEnvironmentJSONRequestBody CreateEnvironmentJSONBody
 
+// CreateEnvironmentSharedEnvJSONRequestBody defines body for CreateEnvironmentSharedEnv for application/json ContentType.
+type CreateEnvironmentSharedEnvJSONRequestBody CreateEnvironmentSharedEnvJSONBody
+
+// UpdateEnvironmentSharedEnvJSONRequestBody defines body for UpdateEnvironmentSharedEnv for application/json ContentType.
+type UpdateEnvironmentSharedEnvJSONRequestBody UpdateEnvironmentSharedEnvJSONBody
+
+// CreateProjectSharedEnvJSONRequestBody defines body for CreateProjectSharedEnv for application/json ContentType.
+type CreateProjectSharedEnvJSONRequestBody CreateProjectSharedEnvJSONBody
+
+// UpdateProjectSharedEnvJSONRequestBody defines body for UpdateProjectSharedEnv for application/json ContentType.
+type UpdateProjectSharedEnvJSONRequestBody UpdateProjectSharedEnvJSONBody
+
 // CreateS3StorageJSONRequestBody defines body for CreateS3Storage for application/json ContentType.
 type CreateS3StorageJSONRequestBody CreateS3StorageJSONBody
 
@@ -4903,6 +4995,12 @@ type CreateServerJSONRequestBody CreateServerJSONBody
 // UpdateServerByUuidJSONRequestBody defines body for UpdateServerByUuid for application/json ContentType.
 type UpdateServerByUuidJSONRequestBody UpdateServerByUuidJSONBody
 
+// CreateServerSharedEnvJSONRequestBody defines body for CreateServerSharedEnv for application/json ContentType.
+type CreateServerSharedEnvJSONRequestBody CreateServerSharedEnvJSONBody
+
+// UpdateServerSharedEnvJSONRequestBody defines body for UpdateServerSharedEnv for application/json ContentType.
+type UpdateServerSharedEnvJSONRequestBody UpdateServerSharedEnvJSONBody
+
 // CreateServiceJSONRequestBody defines body for CreateService for application/json ContentType.
 type CreateServiceJSONRequestBody CreateServiceJSONBody
 
@@ -4920,6 +5018,12 @@ type SetServiceStorageBackupScheduleJSONRequestBody = VolumeBackupScheduleReques
 
 // CreateTagByServiceUuidJSONRequestBody defines body for CreateTagByServiceUuid for application/json ContentType.
 type CreateTagByServiceUuidJSONRequestBody CreateTagByServiceUuidJSONBody
+
+// CreateTeamSharedEnvJSONRequestBody defines body for CreateTeamSharedEnv for application/json ContentType.
+type CreateTeamSharedEnvJSONRequestBody CreateTeamSharedEnvJSONBody
+
+// UpdateTeamSharedEnvJSONRequestBody defines body for UpdateTeamSharedEnv for application/json ContentType.
+type UpdateTeamSharedEnvJSONRequestBody UpdateTeamSharedEnvJSONBody
 
 // RequestEditorFn is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -6024,6 +6128,106 @@ type ClientInterface interface {
 	// Corresponds with DELETE /projects/{uuid}/environments/{environment_name_or_uuid} (the `DeleteEnvironment` operationId).
 	DeleteEnvironment(ctx context.Context, uuid string, environmentNameOrUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListEnvironmentSharedEnvs List Environment Shared Envs
+	//
+	// List shared environment variables for a project environment (type=environment).
+	//
+	// Corresponds with GET /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `ListEnvironmentSharedEnvs` operationId).
+	ListEnvironmentSharedEnvs(ctx context.Context, uuid string, environmentNameOrUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateEnvironmentSharedEnvWithBody Create Environment Shared Env
+	//
+	// Create a shared environment variable for a project environment (type=environment).
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+	CreateEnvironmentSharedEnvWithBody(ctx context.Context, uuid string, environmentNameOrUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateEnvironmentSharedEnv Create Environment Shared Env
+	//
+	// Create a shared environment variable for a project environment (type=environment).
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+	CreateEnvironmentSharedEnv(ctx context.Context, uuid string, environmentNameOrUuid string, body CreateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteEnvironmentSharedEnv Delete Environment Shared Env
+	//
+	// Delete an environment shared environment variable by id.
+	//
+	// Corresponds with DELETE /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `DeleteEnvironmentSharedEnv` operationId).
+	DeleteEnvironmentSharedEnv(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateEnvironmentSharedEnvWithBody Update Environment Shared Env
+	//
+	// Update an environment shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+	UpdateEnvironmentSharedEnvWithBody(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateEnvironmentSharedEnv Update Environment Shared Env
+	//
+	// Update an environment shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+	UpdateEnvironmentSharedEnv(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, body UpdateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListProjectSharedEnvs List Project Shared Envs
+	//
+	// List shared environment variables for a project (type=project).
+	//
+	// Corresponds with GET /projects/{uuid}/envs (the `ListProjectSharedEnvs` operationId).
+	ListProjectSharedEnvs(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateProjectSharedEnvWithBody Create Project Shared Env
+	//
+	// Create a shared environment variable for a project (type=project).
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+	CreateProjectSharedEnvWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateProjectSharedEnv Create Project Shared Env
+	//
+	// Create a shared environment variable for a project (type=project).
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+	CreateProjectSharedEnv(ctx context.Context, uuid string, body CreateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteProjectSharedEnv Delete Project Shared Env
+	//
+	// Delete a project shared environment variable by id.
+	//
+	// Corresponds with DELETE /projects/{uuid}/envs/{env_id} (the `DeleteProjectSharedEnv` operationId).
+	DeleteProjectSharedEnv(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateProjectSharedEnvWithBody Update Project Shared Env
+	//
+	// Update a project shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+	UpdateProjectSharedEnvWithBody(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateProjectSharedEnv Update Project Shared Env
+	//
+	// Update a project shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+	UpdateProjectSharedEnv(ctx context.Context, uuid string, envId int, body UpdateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// GetEnvironmentByNameOrUuid Environment
 	//
 	// Get environment by name or UUID.
@@ -6202,6 +6406,56 @@ type ClientInterface interface {
 	// Corresponds with PATCH /servers/{uuid} (the `UpdateServerByUuid` operationId).
 	UpdateServerByUuid(ctx context.Context, uuid string, body UpdateServerByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
+	// ListServerSharedEnvs List Server Shared Envs
+	//
+	// List shared environment variables for a server (type=server).
+	//
+	// Corresponds with GET /servers/{uuid}/envs (the `ListServerSharedEnvs` operationId).
+	ListServerSharedEnvs(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateServerSharedEnvWithBody Create Server Shared Env
+	//
+	// Create a shared environment variable for a server (type=server).
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+	CreateServerSharedEnvWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateServerSharedEnv Create Server Shared Env
+	//
+	// Create a shared environment variable for a server (type=server).
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+	CreateServerSharedEnv(ctx context.Context, uuid string, body CreateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteServerSharedEnv Delete Server Shared Env
+	//
+	// Delete a server shared environment variable by id.
+	//
+	// Corresponds with DELETE /servers/{uuid}/envs/{env_id} (the `DeleteServerSharedEnv` operationId).
+	DeleteServerSharedEnv(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateServerSharedEnvWithBody Update Server Shared Env
+	//
+	// Update a server shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+	UpdateServerSharedEnvWithBody(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateServerSharedEnv Update Server Shared Env
+	//
+	// Update a server shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+	UpdateServerSharedEnv(ctx context.Context, uuid string, envId int, body UpdateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
 	// ListServices List
 	//
 	// List all services.
@@ -6372,6 +6626,56 @@ type ClientInterface interface {
 	//
 	// Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
 	DeleteTagByServiceUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// ListTeamSharedEnvs List Team Shared Envs
+	//
+	// List shared environment variables for the current team (type=team).
+	//
+	// Corresponds with GET /team/envs (the `ListTeamSharedEnvs` operationId).
+	ListTeamSharedEnvs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTeamSharedEnvWithBody Create Team Shared Env
+	//
+	// Create a shared environment variable for the current team (type=team).
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+	CreateTeamSharedEnvWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// CreateTeamSharedEnv Create Team Shared Env
+	//
+	// Create a shared environment variable for the current team (type=team).
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+	CreateTeamSharedEnv(ctx context.Context, body CreateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// DeleteTeamSharedEnv Delete Team Shared Env
+	//
+	// Delete a team shared environment variable by id.
+	//
+	// Corresponds with DELETE /team/envs/{env_id} (the `DeleteTeamSharedEnv` operationId).
+	DeleteTeamSharedEnv(ctx context.Context, envId int, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateTeamSharedEnvWithBody Update Team Shared Env
+	//
+	// Update a team shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+	UpdateTeamSharedEnvWithBody(ctx context.Context, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateTeamSharedEnv Update Team Shared Env
+	//
+	// Update a team shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+	UpdateTeamSharedEnv(ctx context.Context, envId int, body UpdateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 // ListApplications List
@@ -8633,6 +8937,226 @@ func (c *Client) DeleteEnvironment(ctx context.Context, uuid string, environment
 	return c.Client.Do(req)
 }
 
+// ListEnvironmentSharedEnvs List Environment Shared Envs
+//
+// List shared environment variables for a project environment (type=environment).
+//
+// Corresponds with GET /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `ListEnvironmentSharedEnvs` operationId).
+func (c *Client) ListEnvironmentSharedEnvs(ctx context.Context, uuid string, environmentNameOrUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListEnvironmentSharedEnvsRequest(c.Server, uuid, environmentNameOrUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateEnvironmentSharedEnvWithBody Create Environment Shared Env
+//
+// Create a shared environment variable for a project environment (type=environment).
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+func (c *Client) CreateEnvironmentSharedEnvWithBody(ctx context.Context, uuid string, environmentNameOrUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEnvironmentSharedEnvRequestWithBody(c.Server, uuid, environmentNameOrUuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateEnvironmentSharedEnv Create Environment Shared Env
+//
+// Create a shared environment variable for a project environment (type=environment).
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+func (c *Client) CreateEnvironmentSharedEnv(ctx context.Context, uuid string, environmentNameOrUuid string, body CreateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateEnvironmentSharedEnvRequest(c.Server, uuid, environmentNameOrUuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteEnvironmentSharedEnv Delete Environment Shared Env
+//
+// Delete an environment shared environment variable by id.
+//
+// Corresponds with DELETE /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `DeleteEnvironmentSharedEnv` operationId).
+func (c *Client) DeleteEnvironmentSharedEnv(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteEnvironmentSharedEnvRequest(c.Server, uuid, environmentNameOrUuid, envId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateEnvironmentSharedEnvWithBody Update Environment Shared Env
+//
+// Update an environment shared environment variable by id.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+func (c *Client) UpdateEnvironmentSharedEnvWithBody(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEnvironmentSharedEnvRequestWithBody(c.Server, uuid, environmentNameOrUuid, envId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateEnvironmentSharedEnv Update Environment Shared Env
+//
+// Update an environment shared environment variable by id.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+func (c *Client) UpdateEnvironmentSharedEnv(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, body UpdateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEnvironmentSharedEnvRequest(c.Server, uuid, environmentNameOrUuid, envId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListProjectSharedEnvs List Project Shared Envs
+//
+// List shared environment variables for a project (type=project).
+//
+// Corresponds with GET /projects/{uuid}/envs (the `ListProjectSharedEnvs` operationId).
+func (c *Client) ListProjectSharedEnvs(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListProjectSharedEnvsRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateProjectSharedEnvWithBody Create Project Shared Env
+//
+// Create a shared environment variable for a project (type=project).
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+func (c *Client) CreateProjectSharedEnvWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProjectSharedEnvRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateProjectSharedEnv Create Project Shared Env
+//
+// Create a shared environment variable for a project (type=project).
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+func (c *Client) CreateProjectSharedEnv(ctx context.Context, uuid string, body CreateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateProjectSharedEnvRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteProjectSharedEnv Delete Project Shared Env
+//
+// Delete a project shared environment variable by id.
+//
+// Corresponds with DELETE /projects/{uuid}/envs/{env_id} (the `DeleteProjectSharedEnv` operationId).
+func (c *Client) DeleteProjectSharedEnv(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteProjectSharedEnvRequest(c.Server, uuid, envId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateProjectSharedEnvWithBody Update Project Shared Env
+//
+// Update a project shared environment variable by id.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+func (c *Client) UpdateProjectSharedEnvWithBody(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProjectSharedEnvRequestWithBody(c.Server, uuid, envId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateProjectSharedEnv Update Project Shared Env
+//
+// Update a project shared environment variable by id.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+func (c *Client) UpdateProjectSharedEnv(ctx context.Context, uuid string, envId int, body UpdateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateProjectSharedEnvRequest(c.Server, uuid, envId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // GetEnvironmentByNameOrUuid Environment
 //
 // Get environment by name or UUID.
@@ -9031,6 +9555,116 @@ func (c *Client) UpdateServerByUuid(ctx context.Context, uuid string, body Updat
 	return c.Client.Do(req)
 }
 
+// ListServerSharedEnvs List Server Shared Envs
+//
+// List shared environment variables for a server (type=server).
+//
+// Corresponds with GET /servers/{uuid}/envs (the `ListServerSharedEnvs` operationId).
+func (c *Client) ListServerSharedEnvs(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListServerSharedEnvsRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateServerSharedEnvWithBody Create Server Shared Env
+//
+// Create a shared environment variable for a server (type=server).
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+func (c *Client) CreateServerSharedEnvWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateServerSharedEnvRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateServerSharedEnv Create Server Shared Env
+//
+// Create a shared environment variable for a server (type=server).
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+func (c *Client) CreateServerSharedEnv(ctx context.Context, uuid string, body CreateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateServerSharedEnvRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteServerSharedEnv Delete Server Shared Env
+//
+// Delete a server shared environment variable by id.
+//
+// Corresponds with DELETE /servers/{uuid}/envs/{env_id} (the `DeleteServerSharedEnv` operationId).
+func (c *Client) DeleteServerSharedEnv(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteServerSharedEnvRequest(c.Server, uuid, envId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateServerSharedEnvWithBody Update Server Shared Env
+//
+// Update a server shared environment variable by id.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+func (c *Client) UpdateServerSharedEnvWithBody(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateServerSharedEnvRequestWithBody(c.Server, uuid, envId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateServerSharedEnv Update Server Shared Env
+//
+// Update a server shared environment variable by id.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+func (c *Client) UpdateServerSharedEnv(ctx context.Context, uuid string, envId int, body UpdateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateServerSharedEnvRequest(c.Server, uuid, envId, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
 // ListServices List
 //
 // List all services.
@@ -9402,6 +10036,116 @@ func (c *Client) CreateTagByServiceUuid(ctx context.Context, uuid string, body C
 // Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
 func (c *Client) DeleteTagByServiceUuid(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewDeleteTagByServiceUuidRequest(c.Server, uuid, tagUuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// ListTeamSharedEnvs List Team Shared Envs
+//
+// List shared environment variables for the current team (type=team).
+//
+// Corresponds with GET /team/envs (the `ListTeamSharedEnvs` operationId).
+func (c *Client) ListTeamSharedEnvs(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewListTeamSharedEnvsRequest(c.Server)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTeamSharedEnvWithBody Create Team Shared Env
+//
+// Create a shared environment variable for the current team (type=team).
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+func (c *Client) CreateTeamSharedEnvWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTeamSharedEnvRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// CreateTeamSharedEnv Create Team Shared Env
+//
+// Create a shared environment variable for the current team (type=team).
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+func (c *Client) CreateTeamSharedEnv(ctx context.Context, body CreateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewCreateTeamSharedEnvRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// DeleteTeamSharedEnv Delete Team Shared Env
+//
+// Delete a team shared environment variable by id.
+//
+// Corresponds with DELETE /team/envs/{env_id} (the `DeleteTeamSharedEnv` operationId).
+func (c *Client) DeleteTeamSharedEnv(ctx context.Context, envId int, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewDeleteTeamSharedEnvRequest(c.Server, envId)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateTeamSharedEnvWithBody Update Team Shared Env
+//
+// Update a team shared environment variable by id.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+func (c *Client) UpdateTeamSharedEnvWithBody(ctx context.Context, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTeamSharedEnvRequestWithBody(c.Server, envId, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateTeamSharedEnv Update Team Shared Env
+//
+// Update a team shared environment variable by id.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+func (c *Client) UpdateTeamSharedEnv(ctx context.Context, envId int, body UpdateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateTeamSharedEnvRequest(c.Server, envId, body)
 	if err != nil {
 		return nil, err
 	}
@@ -12867,6 +13611,386 @@ func NewDeleteEnvironmentRequest(server string, uuid string, environmentNameOrUu
 	return req, nil
 }
 
+// NewListEnvironmentSharedEnvsRequest constructs an http.Request for the ListEnvironmentSharedEnvs method
+func NewListEnvironmentSharedEnvsRequest(server string, uuid string, environmentNameOrUuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "environment_name_or_uuid", environmentNameOrUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/environments/%s/envs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateEnvironmentSharedEnvRequest calls the generic CreateEnvironmentSharedEnv builder with application/json body
+func NewCreateEnvironmentSharedEnvRequest(server string, uuid string, environmentNameOrUuid string, body CreateEnvironmentSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateEnvironmentSharedEnvRequestWithBody(server, uuid, environmentNameOrUuid, "application/json", bodyReader)
+}
+
+// NewCreateEnvironmentSharedEnvRequestWithBody constructs an http.Request for the CreateEnvironmentSharedEnv method, with any body, and a specified content type
+func NewCreateEnvironmentSharedEnvRequestWithBody(server string, uuid string, environmentNameOrUuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "environment_name_or_uuid", environmentNameOrUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/environments/%s/envs", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteEnvironmentSharedEnvRequest constructs an http.Request for the DeleteEnvironmentSharedEnv method
+func NewDeleteEnvironmentSharedEnvRequest(server string, uuid string, environmentNameOrUuid string, envId int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "environment_name_or_uuid", environmentNameOrUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/environments/%s/envs/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateEnvironmentSharedEnvRequest calls the generic UpdateEnvironmentSharedEnv builder with application/json body
+func NewUpdateEnvironmentSharedEnvRequest(server string, uuid string, environmentNameOrUuid string, envId int, body UpdateEnvironmentSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateEnvironmentSharedEnvRequestWithBody(server, uuid, environmentNameOrUuid, envId, "application/json", bodyReader)
+}
+
+// NewUpdateEnvironmentSharedEnvRequestWithBody constructs an http.Request for the UpdateEnvironmentSharedEnv method, with any body, and a specified content type
+func NewUpdateEnvironmentSharedEnvRequestWithBody(server string, uuid string, environmentNameOrUuid string, envId int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "environment_name_or_uuid", environmentNameOrUuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam2 string
+
+	pathParam2, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/environments/%s/envs/%s", pathParam0, pathParam1, pathParam2)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListProjectSharedEnvsRequest constructs an http.Request for the ListProjectSharedEnvs method
+func NewListProjectSharedEnvsRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateProjectSharedEnvRequest calls the generic CreateProjectSharedEnv builder with application/json body
+func NewCreateProjectSharedEnvRequest(server string, uuid string, body CreateProjectSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateProjectSharedEnvRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateProjectSharedEnvRequestWithBody constructs an http.Request for the CreateProjectSharedEnv method, with any body, and a specified content type
+func NewCreateProjectSharedEnvRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteProjectSharedEnvRequest constructs an http.Request for the DeleteProjectSharedEnv method
+func NewDeleteProjectSharedEnvRequest(server string, uuid string, envId int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/envs/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateProjectSharedEnvRequest calls the generic UpdateProjectSharedEnv builder with application/json body
+func NewUpdateProjectSharedEnvRequest(server string, uuid string, envId int, body UpdateProjectSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateProjectSharedEnvRequestWithBody(server, uuid, envId, "application/json", bodyReader)
+}
+
+// NewUpdateProjectSharedEnvRequestWithBody constructs an http.Request for the UpdateProjectSharedEnv method, with any body, and a specified content type
+func NewUpdateProjectSharedEnvRequestWithBody(server string, uuid string, envId int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/projects/%s/envs/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewGetEnvironmentByNameOrUuidRequest constructs an http.Request for the GetEnvironmentByNameOrUuid method
 func NewGetEnvironmentByNameOrUuidRequest(server string, uuid string, environmentNameOrUuid string) (*http.Request, error) {
 	var err error
@@ -13428,6 +14552,182 @@ func NewUpdateServerByUuidRequestWithBody(server string, uuid string, contentTyp
 	}
 
 	operationPath := fmt.Sprintf("/servers/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewListServerSharedEnvsRequest constructs an http.Request for the ListServerSharedEnvs method
+func NewListServerSharedEnvsRequest(server string, uuid string) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateServerSharedEnvRequest calls the generic CreateServerSharedEnv builder with application/json body
+func NewCreateServerSharedEnvRequest(server string, uuid string, body CreateServerSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateServerSharedEnvRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewCreateServerSharedEnvRequestWithBody constructs an http.Request for the CreateServerSharedEnv method, with any body, and a specified content type
+func NewCreateServerSharedEnvRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteServerSharedEnvRequest constructs an http.Request for the DeleteServerSharedEnv method
+func NewDeleteServerSharedEnvRequest(server string, uuid string, envId int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/envs/%s", pathParam0, pathParam1)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateServerSharedEnvRequest calls the generic UpdateServerSharedEnv builder with application/json body
+func NewUpdateServerSharedEnvRequest(server string, uuid string, envId int, body UpdateServerSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateServerSharedEnvRequestWithBody(server, uuid, envId, "application/json", bodyReader)
+}
+
+// NewUpdateServerSharedEnvRequestWithBody constructs an http.Request for the UpdateServerSharedEnv method, with any body, and a specified content type
+func NewUpdateServerSharedEnvRequestWithBody(server string, uuid string, envId int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	var pathParam1 string
+
+	pathParam1, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/servers/%s/envs/%s", pathParam0, pathParam1)
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -14108,6 +15408,154 @@ func NewDeleteTagByServiceUuidRequest(server string, uuid string, tagUuid string
 	if err != nil {
 		return nil, err
 	}
+
+	return req, nil
+}
+
+// NewListTeamSharedEnvsRequest constructs an http.Request for the ListTeamSharedEnvs method
+func NewListTeamSharedEnvsRequest(server string) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/envs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewCreateTeamSharedEnvRequest calls the generic CreateTeamSharedEnv builder with application/json body
+func NewCreateTeamSharedEnvRequest(server string, body CreateTeamSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewCreateTeamSharedEnvRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewCreateTeamSharedEnvRequestWithBody constructs an http.Request for the CreateTeamSharedEnv method, with any body, and a specified content type
+func NewCreateTeamSharedEnvRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/envs")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewDeleteTeamSharedEnvRequest constructs an http.Request for the DeleteTeamSharedEnv method
+func NewDeleteTeamSharedEnvRequest(server string, envId int) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/envs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
+// NewUpdateTeamSharedEnvRequest calls the generic UpdateTeamSharedEnv builder with application/json body
+func NewUpdateTeamSharedEnvRequest(server string, envId int, body UpdateTeamSharedEnvJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateTeamSharedEnvRequestWithBody(server, envId, "application/json", bodyReader)
+}
+
+// NewUpdateTeamSharedEnvRequestWithBody constructs an http.Request for the UpdateTeamSharedEnv method, with any body, and a specified content type
+func NewUpdateTeamSharedEnvRequestWithBody(server string, envId int, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "env_id", envId, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "integer", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/team/envs/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
 
 	return req, nil
 }
@@ -15263,6 +16711,114 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with DELETE /projects/{uuid}/environments/{environment_name_or_uuid} (the `DeleteEnvironment` operationId).
 	DeleteEnvironmentWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, reqEditors ...RequestEditorFn) (*DeleteEnvironmentResponse, error)
 
+	// ListEnvironmentSharedEnvsWithResponse List Environment Shared Envs
+	//
+	// List shared environment variables for a project environment (type=environment).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `ListEnvironmentSharedEnvs` operationId).
+	ListEnvironmentSharedEnvsWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, reqEditors ...RequestEditorFn) (*ListEnvironmentSharedEnvsResponse, error)
+
+	// CreateEnvironmentSharedEnvWithBodyWithResponse Create Environment Shared Env
+	//
+	// Create a shared environment variable for a project environment (type=environment).
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+	CreateEnvironmentSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEnvironmentSharedEnvResponse, error)
+
+	// CreateEnvironmentSharedEnvWithResponse Create Environment Shared Env
+	//
+	// Create a shared environment variable for a project environment (type=environment).
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+	CreateEnvironmentSharedEnvWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, body CreateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEnvironmentSharedEnvResponse, error)
+
+	// DeleteEnvironmentSharedEnvWithResponse Delete Environment Shared Env
+	//
+	// Delete an environment shared environment variable by id.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `DeleteEnvironmentSharedEnv` operationId).
+	DeleteEnvironmentSharedEnvWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, reqEditors ...RequestEditorFn) (*DeleteEnvironmentSharedEnvResponse, error)
+
+	// UpdateEnvironmentSharedEnvWithBodyWithResponse Update Environment Shared Env
+	//
+	// Update an environment shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+	UpdateEnvironmentSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEnvironmentSharedEnvResponse, error)
+
+	// UpdateEnvironmentSharedEnvWithResponse Update Environment Shared Env
+	//
+	// Update an environment shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+	UpdateEnvironmentSharedEnvWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, body UpdateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEnvironmentSharedEnvResponse, error)
+
+	// ListProjectSharedEnvsWithResponse List Project Shared Envs
+	//
+	// List shared environment variables for a project (type=project).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /projects/{uuid}/envs (the `ListProjectSharedEnvs` operationId).
+	ListProjectSharedEnvsWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListProjectSharedEnvsResponse, error)
+
+	// CreateProjectSharedEnvWithBodyWithResponse Create Project Shared Env
+	//
+	// Create a shared environment variable for a project (type=project).
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+	CreateProjectSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectSharedEnvResponse, error)
+
+	// CreateProjectSharedEnvWithResponse Create Project Shared Env
+	//
+	// Create a shared environment variable for a project (type=project).
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+	CreateProjectSharedEnvWithResponse(ctx context.Context, uuid string, body CreateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectSharedEnvResponse, error)
+
+	// DeleteProjectSharedEnvWithResponse Delete Project Shared Env
+	//
+	// Delete a project shared environment variable by id.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /projects/{uuid}/envs/{env_id} (the `DeleteProjectSharedEnv` operationId).
+	DeleteProjectSharedEnvWithResponse(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*DeleteProjectSharedEnvResponse, error)
+
+	// UpdateProjectSharedEnvWithBodyWithResponse Update Project Shared Env
+	//
+	// Update a project shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+	UpdateProjectSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProjectSharedEnvResponse, error)
+
+	// UpdateProjectSharedEnvWithResponse Update Project Shared Env
+	//
+	// Update a project shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+	UpdateProjectSharedEnvWithResponse(ctx context.Context, uuid string, envId int, body UpdateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProjectSharedEnvResponse, error)
+
 	// GetEnvironmentByNameOrUuidWithResponse Environment
 	//
 	// Get environment by name or UUID.
@@ -15461,6 +17017,60 @@ type ClientWithResponsesInterface interface {
 	// Corresponds with PATCH /servers/{uuid} (the `UpdateServerByUuid` operationId).
 	UpdateServerByUuidWithResponse(ctx context.Context, uuid string, body UpdateServerByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateServerByUuidResponse, error)
 
+	// ListServerSharedEnvsWithResponse List Server Shared Envs
+	//
+	// List shared environment variables for a server (type=server).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /servers/{uuid}/envs (the `ListServerSharedEnvs` operationId).
+	ListServerSharedEnvsWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListServerSharedEnvsResponse, error)
+
+	// CreateServerSharedEnvWithBodyWithResponse Create Server Shared Env
+	//
+	// Create a shared environment variable for a server (type=server).
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+	CreateServerSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServerSharedEnvResponse, error)
+
+	// CreateServerSharedEnvWithResponse Create Server Shared Env
+	//
+	// Create a shared environment variable for a server (type=server).
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+	CreateServerSharedEnvWithResponse(ctx context.Context, uuid string, body CreateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateServerSharedEnvResponse, error)
+
+	// DeleteServerSharedEnvWithResponse Delete Server Shared Env
+	//
+	// Delete a server shared environment variable by id.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /servers/{uuid}/envs/{env_id} (the `DeleteServerSharedEnv` operationId).
+	DeleteServerSharedEnvWithResponse(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*DeleteServerSharedEnvResponse, error)
+
+	// UpdateServerSharedEnvWithBodyWithResponse Update Server Shared Env
+	//
+	// Update a server shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+	UpdateServerSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateServerSharedEnvResponse, error)
+
+	// UpdateServerSharedEnvWithResponse Update Server Shared Env
+	//
+	// Update a server shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+	UpdateServerSharedEnvWithResponse(ctx context.Context, uuid string, envId int, body UpdateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateServerSharedEnvResponse, error)
+
 	// ListServicesWithResponse List
 	//
 	// List all services.
@@ -15649,6 +17259,60 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with DELETE /services/{uuid}/tags/{tag_uuid} (the `DeleteTagByServiceUuid` operationId).
 	DeleteTagByServiceUuidWithResponse(ctx context.Context, uuid string, tagUuid string, reqEditors ...RequestEditorFn) (*DeleteTagByServiceUuidResponse, error)
+
+	// ListTeamSharedEnvsWithResponse List Team Shared Envs
+	//
+	// List shared environment variables for the current team (type=team).
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with GET /team/envs (the `ListTeamSharedEnvs` operationId).
+	ListTeamSharedEnvsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListTeamSharedEnvsResponse, error)
+
+	// CreateTeamSharedEnvWithBodyWithResponse Create Team Shared Env
+	//
+	// Create a shared environment variable for the current team (type=team).
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+	CreateTeamSharedEnvWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTeamSharedEnvResponse, error)
+
+	// CreateTeamSharedEnvWithResponse Create Team Shared Env
+	//
+	// Create a shared environment variable for the current team (type=team).
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+	CreateTeamSharedEnvWithResponse(ctx context.Context, body CreateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTeamSharedEnvResponse, error)
+
+	// DeleteTeamSharedEnvWithResponse Delete Team Shared Env
+	//
+	// Delete a team shared environment variable by id.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with DELETE /team/envs/{env_id} (the `DeleteTeamSharedEnv` operationId).
+	DeleteTeamSharedEnvWithResponse(ctx context.Context, envId int, reqEditors ...RequestEditorFn) (*DeleteTeamSharedEnvResponse, error)
+
+	// UpdateTeamSharedEnvWithBodyWithResponse Update Team Shared Env
+	//
+	// Update a team shared environment variable by id.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+	UpdateTeamSharedEnvWithBodyWithResponse(ctx context.Context, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTeamSharedEnvResponse, error)
+
+	// UpdateTeamSharedEnvWithResponse Update Team Shared Env
+	//
+	// Update a team shared environment variable by id.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+	UpdateTeamSharedEnvWithResponse(ctx context.Context, envId int, body UpdateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTeamSharedEnvResponse, error)
 }
 
 type ListApplicationsResponse struct {
@@ -20787,6 +22451,418 @@ func (r DeleteEnvironmentResponse) ContentType() string {
 	return ""
 }
 
+type ListEnvironmentSharedEnvsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListEnvironmentSharedEnvsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListEnvironmentSharedEnvsResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListEnvironmentSharedEnvsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListEnvironmentSharedEnvsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListEnvironmentSharedEnvsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListEnvironmentSharedEnvsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateEnvironmentSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateEnvironmentSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateEnvironmentSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateEnvironmentSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateEnvironmentSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateEnvironmentSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateEnvironmentSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateEnvironmentSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteEnvironmentSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteEnvironmentSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteEnvironmentSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteEnvironmentSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteEnvironmentSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteEnvironmentSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteEnvironmentSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateEnvironmentSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateEnvironmentSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateEnvironmentSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateEnvironmentSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateEnvironmentSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateEnvironmentSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateEnvironmentSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateEnvironmentSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListProjectSharedEnvsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListProjectSharedEnvsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListProjectSharedEnvsResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListProjectSharedEnvsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListProjectSharedEnvsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListProjectSharedEnvsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListProjectSharedEnvsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateProjectSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateProjectSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateProjectSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateProjectSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateProjectSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateProjectSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateProjectSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateProjectSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteProjectSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteProjectSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteProjectSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteProjectSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteProjectSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteProjectSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteProjectSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateProjectSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateProjectSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateProjectSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateProjectSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateProjectSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateProjectSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateProjectSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateProjectSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type GetEnvironmentByNameOrUuidResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -21849,6 +23925,212 @@ func (r UpdateServerByUuidResponse) ContentType() string {
 	return ""
 }
 
+type ListServerSharedEnvsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListServerSharedEnvsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r ListServerSharedEnvsResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r ListServerSharedEnvsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListServerSharedEnvsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListServerSharedEnvsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListServerSharedEnvsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateServerSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateServerSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r CreateServerSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateServerSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateServerSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateServerSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateServerSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateServerSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteServerSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteServerSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteServerSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteServerSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteServerSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteServerSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteServerSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateServerSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateServerSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateServerSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateServerSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateServerSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateServerSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateServerSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateServerSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListServicesResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -22875,6 +25157,198 @@ func (r DeleteTagByServiceUuidResponse) StatusCode() int {
 
 // ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
 func (r DeleteTagByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type ListTeamSharedEnvsResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r ListTeamSharedEnvsResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetBody returns the raw response body bytes
+func (r ListTeamSharedEnvsResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r ListTeamSharedEnvsResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r ListTeamSharedEnvsResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r ListTeamSharedEnvsResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type CreateTeamSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r CreateTeamSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r CreateTeamSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r CreateTeamSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r CreateTeamSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r CreateTeamSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r CreateTeamSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type DeleteTeamSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r DeleteTeamSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r DeleteTeamSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r DeleteTeamSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r DeleteTeamSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r DeleteTeamSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r DeleteTeamSharedEnvResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
+type UpdateTeamSharedEnvResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateTeamSharedEnvResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateTeamSharedEnvResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateTeamSharedEnvResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateTeamSharedEnvResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateTeamSharedEnvResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateTeamSharedEnvResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateTeamSharedEnvResponse) ContentType() string {
 	if r.HTTPResponse != nil {
 		return r.HTTPResponse.Header.Get("Content-Type")
 	}
@@ -24726,6 +27200,186 @@ func (c *ClientWithResponses) DeleteEnvironmentWithResponse(ctx context.Context,
 	return ParseDeleteEnvironmentResponse(rsp)
 }
 
+// ListEnvironmentSharedEnvsWithResponse List Environment Shared Envs
+//
+// List shared environment variables for a project environment (type=environment).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `ListEnvironmentSharedEnvs` operationId).
+func (c *ClientWithResponses) ListEnvironmentSharedEnvsWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, reqEditors ...RequestEditorFn) (*ListEnvironmentSharedEnvsResponse, error) {
+	rsp, err := c.ListEnvironmentSharedEnvs(ctx, uuid, environmentNameOrUuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListEnvironmentSharedEnvsResponse(rsp)
+}
+
+// CreateEnvironmentSharedEnvWithBodyWithResponse Create Environment Shared Env
+//
+// Create a shared environment variable for a project environment (type=environment).
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+func (c *ClientWithResponses) CreateEnvironmentSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateEnvironmentSharedEnvResponse, error) {
+	rsp, err := c.CreateEnvironmentSharedEnvWithBody(ctx, uuid, environmentNameOrUuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEnvironmentSharedEnvResponse(rsp)
+}
+
+// CreateEnvironmentSharedEnvWithResponse Create Environment Shared Env
+//
+// Create a shared environment variable for a project environment (type=environment).
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{uuid}/environments/{environment_name_or_uuid}/envs (the `CreateEnvironmentSharedEnv` operationId).
+func (c *ClientWithResponses) CreateEnvironmentSharedEnvWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, body CreateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateEnvironmentSharedEnvResponse, error) {
+	rsp, err := c.CreateEnvironmentSharedEnv(ctx, uuid, environmentNameOrUuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateEnvironmentSharedEnvResponse(rsp)
+}
+
+// DeleteEnvironmentSharedEnvWithResponse Delete Environment Shared Env
+//
+// Delete an environment shared environment variable by id.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `DeleteEnvironmentSharedEnv` operationId).
+func (c *ClientWithResponses) DeleteEnvironmentSharedEnvWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, reqEditors ...RequestEditorFn) (*DeleteEnvironmentSharedEnvResponse, error) {
+	rsp, err := c.DeleteEnvironmentSharedEnv(ctx, uuid, environmentNameOrUuid, envId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteEnvironmentSharedEnvResponse(rsp)
+}
+
+// UpdateEnvironmentSharedEnvWithBodyWithResponse Update Environment Shared Env
+//
+// Update an environment shared environment variable by id.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateEnvironmentSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEnvironmentSharedEnvResponse, error) {
+	rsp, err := c.UpdateEnvironmentSharedEnvWithBody(ctx, uuid, environmentNameOrUuid, envId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEnvironmentSharedEnvResponse(rsp)
+}
+
+// UpdateEnvironmentSharedEnvWithResponse Update Environment Shared Env
+//
+// Update an environment shared environment variable by id.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /projects/{uuid}/environments/{environment_name_or_uuid}/envs/{env_id} (the `UpdateEnvironmentSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateEnvironmentSharedEnvWithResponse(ctx context.Context, uuid string, environmentNameOrUuid string, envId int, body UpdateEnvironmentSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEnvironmentSharedEnvResponse, error) {
+	rsp, err := c.UpdateEnvironmentSharedEnv(ctx, uuid, environmentNameOrUuid, envId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEnvironmentSharedEnvResponse(rsp)
+}
+
+// ListProjectSharedEnvsWithResponse List Project Shared Envs
+//
+// List shared environment variables for a project (type=project).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /projects/{uuid}/envs (the `ListProjectSharedEnvs` operationId).
+func (c *ClientWithResponses) ListProjectSharedEnvsWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListProjectSharedEnvsResponse, error) {
+	rsp, err := c.ListProjectSharedEnvs(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListProjectSharedEnvsResponse(rsp)
+}
+
+// CreateProjectSharedEnvWithBodyWithResponse Create Project Shared Env
+//
+// Create a shared environment variable for a project (type=project).
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+func (c *ClientWithResponses) CreateProjectSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateProjectSharedEnvResponse, error) {
+	rsp, err := c.CreateProjectSharedEnvWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProjectSharedEnvResponse(rsp)
+}
+
+// CreateProjectSharedEnvWithResponse Create Project Shared Env
+//
+// Create a shared environment variable for a project (type=project).
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /projects/{uuid}/envs (the `CreateProjectSharedEnv` operationId).
+func (c *ClientWithResponses) CreateProjectSharedEnvWithResponse(ctx context.Context, uuid string, body CreateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateProjectSharedEnvResponse, error) {
+	rsp, err := c.CreateProjectSharedEnv(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateProjectSharedEnvResponse(rsp)
+}
+
+// DeleteProjectSharedEnvWithResponse Delete Project Shared Env
+//
+// Delete a project shared environment variable by id.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /projects/{uuid}/envs/{env_id} (the `DeleteProjectSharedEnv` operationId).
+func (c *ClientWithResponses) DeleteProjectSharedEnvWithResponse(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*DeleteProjectSharedEnvResponse, error) {
+	rsp, err := c.DeleteProjectSharedEnv(ctx, uuid, envId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteProjectSharedEnvResponse(rsp)
+}
+
+// UpdateProjectSharedEnvWithBodyWithResponse Update Project Shared Env
+//
+// Update a project shared environment variable by id.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateProjectSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateProjectSharedEnvResponse, error) {
+	rsp, err := c.UpdateProjectSharedEnvWithBody(ctx, uuid, envId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProjectSharedEnvResponse(rsp)
+}
+
+// UpdateProjectSharedEnvWithResponse Update Project Shared Env
+//
+// Update a project shared environment variable by id.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /projects/{uuid}/envs/{env_id} (the `UpdateProjectSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateProjectSharedEnvWithResponse(ctx context.Context, uuid string, envId int, body UpdateProjectSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateProjectSharedEnvResponse, error) {
+	rsp, err := c.UpdateProjectSharedEnv(ctx, uuid, envId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateProjectSharedEnvResponse(rsp)
+}
+
 // GetEnvironmentByNameOrUuidWithResponse Environment
 //
 // Get environment by name or UUID.
@@ -25056,6 +27710,96 @@ func (c *ClientWithResponses) UpdateServerByUuidWithResponse(ctx context.Context
 	return ParseUpdateServerByUuidResponse(rsp)
 }
 
+// ListServerSharedEnvsWithResponse List Server Shared Envs
+//
+// List shared environment variables for a server (type=server).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /servers/{uuid}/envs (the `ListServerSharedEnvs` operationId).
+func (c *ClientWithResponses) ListServerSharedEnvsWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListServerSharedEnvsResponse, error) {
+	rsp, err := c.ListServerSharedEnvs(ctx, uuid, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListServerSharedEnvsResponse(rsp)
+}
+
+// CreateServerSharedEnvWithBodyWithResponse Create Server Shared Env
+//
+// Create a shared environment variable for a server (type=server).
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+func (c *ClientWithResponses) CreateServerSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateServerSharedEnvResponse, error) {
+	rsp, err := c.CreateServerSharedEnvWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateServerSharedEnvResponse(rsp)
+}
+
+// CreateServerSharedEnvWithResponse Create Server Shared Env
+//
+// Create a shared environment variable for a server (type=server).
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /servers/{uuid}/envs (the `CreateServerSharedEnv` operationId).
+func (c *ClientWithResponses) CreateServerSharedEnvWithResponse(ctx context.Context, uuid string, body CreateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateServerSharedEnvResponse, error) {
+	rsp, err := c.CreateServerSharedEnv(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateServerSharedEnvResponse(rsp)
+}
+
+// DeleteServerSharedEnvWithResponse Delete Server Shared Env
+//
+// Delete a server shared environment variable by id.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /servers/{uuid}/envs/{env_id} (the `DeleteServerSharedEnv` operationId).
+func (c *ClientWithResponses) DeleteServerSharedEnvWithResponse(ctx context.Context, uuid string, envId int, reqEditors ...RequestEditorFn) (*DeleteServerSharedEnvResponse, error) {
+	rsp, err := c.DeleteServerSharedEnv(ctx, uuid, envId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteServerSharedEnvResponse(rsp)
+}
+
+// UpdateServerSharedEnvWithBodyWithResponse Update Server Shared Env
+//
+// Update a server shared environment variable by id.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateServerSharedEnvWithBodyWithResponse(ctx context.Context, uuid string, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateServerSharedEnvResponse, error) {
+	rsp, err := c.UpdateServerSharedEnvWithBody(ctx, uuid, envId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateServerSharedEnvResponse(rsp)
+}
+
+// UpdateServerSharedEnvWithResponse Update Server Shared Env
+//
+// Update a server shared environment variable by id.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /servers/{uuid}/envs/{env_id} (the `UpdateServerSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateServerSharedEnvWithResponse(ctx context.Context, uuid string, envId int, body UpdateServerSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateServerSharedEnvResponse, error) {
+	rsp, err := c.UpdateServerSharedEnv(ctx, uuid, envId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateServerSharedEnvResponse(rsp)
+}
+
 // ListServicesWithResponse List
 //
 // List all services.
@@ -25369,6 +28113,96 @@ func (c *ClientWithResponses) DeleteTagByServiceUuidWithResponse(ctx context.Con
 		return nil, err
 	}
 	return ParseDeleteTagByServiceUuidResponse(rsp)
+}
+
+// ListTeamSharedEnvsWithResponse List Team Shared Envs
+//
+// List shared environment variables for the current team (type=team).
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with GET /team/envs (the `ListTeamSharedEnvs` operationId).
+func (c *ClientWithResponses) ListTeamSharedEnvsWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*ListTeamSharedEnvsResponse, error) {
+	rsp, err := c.ListTeamSharedEnvs(ctx, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseListTeamSharedEnvsResponse(rsp)
+}
+
+// CreateTeamSharedEnvWithBodyWithResponse Create Team Shared Env
+//
+// Create a shared environment variable for the current team (type=team).
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+func (c *ClientWithResponses) CreateTeamSharedEnvWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*CreateTeamSharedEnvResponse, error) {
+	rsp, err := c.CreateTeamSharedEnvWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTeamSharedEnvResponse(rsp)
+}
+
+// CreateTeamSharedEnvWithResponse Create Team Shared Env
+//
+// Create a shared environment variable for the current team (type=team).
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /team/envs (the `CreateTeamSharedEnv` operationId).
+func (c *ClientWithResponses) CreateTeamSharedEnvWithResponse(ctx context.Context, body CreateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*CreateTeamSharedEnvResponse, error) {
+	rsp, err := c.CreateTeamSharedEnv(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseCreateTeamSharedEnvResponse(rsp)
+}
+
+// DeleteTeamSharedEnvWithResponse Delete Team Shared Env
+//
+// Delete a team shared environment variable by id.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with DELETE /team/envs/{env_id} (the `DeleteTeamSharedEnv` operationId).
+func (c *ClientWithResponses) DeleteTeamSharedEnvWithResponse(ctx context.Context, envId int, reqEditors ...RequestEditorFn) (*DeleteTeamSharedEnvResponse, error) {
+	rsp, err := c.DeleteTeamSharedEnv(ctx, envId, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseDeleteTeamSharedEnvResponse(rsp)
+}
+
+// UpdateTeamSharedEnvWithBodyWithResponse Update Team Shared Env
+//
+// Update a team shared environment variable by id.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateTeamSharedEnvWithBodyWithResponse(ctx context.Context, envId int, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateTeamSharedEnvResponse, error) {
+	rsp, err := c.UpdateTeamSharedEnvWithBody(ctx, envId, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTeamSharedEnvResponse(rsp)
+}
+
+// UpdateTeamSharedEnvWithResponse Update Team Shared Env
+//
+// Update a team shared environment variable by id.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /team/envs/{env_id} (the `UpdateTeamSharedEnv` operationId).
+func (c *ClientWithResponses) UpdateTeamSharedEnvWithResponse(ctx context.Context, envId int, body UpdateTeamSharedEnvJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateTeamSharedEnvResponse, error) {
+	rsp, err := c.UpdateTeamSharedEnv(ctx, envId, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateTeamSharedEnvResponse(rsp)
 }
 
 // ParseListApplicationsResponse parses an HTTP response from a ListApplicationsWithResponse call
@@ -29273,6 +32107,328 @@ func ParseDeleteEnvironmentResponse(rsp *http.Response) (*DeleteEnvironmentRespo
 	return response, nil
 }
 
+// ParseListEnvironmentSharedEnvsResponse parses an HTTP response from a ListEnvironmentSharedEnvsWithResponse call
+func ParseListEnvironmentSharedEnvsResponse(rsp *http.Response) (*ListEnvironmentSharedEnvsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListEnvironmentSharedEnvsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateEnvironmentSharedEnvResponse parses an HTTP response from a CreateEnvironmentSharedEnvWithResponse call
+func ParseCreateEnvironmentSharedEnvResponse(rsp *http.Response) (*CreateEnvironmentSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateEnvironmentSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 201:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteEnvironmentSharedEnvResponse parses an HTTP response from a DeleteEnvironmentSharedEnvWithResponse call
+func ParseDeleteEnvironmentSharedEnvResponse(rsp *http.Response) (*DeleteEnvironmentSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteEnvironmentSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateEnvironmentSharedEnvResponse parses an HTTP response from a UpdateEnvironmentSharedEnvWithResponse call
+func ParseUpdateEnvironmentSharedEnvResponse(rsp *http.Response) (*UpdateEnvironmentSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateEnvironmentSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListProjectSharedEnvsResponse parses an HTTP response from a ListProjectSharedEnvsWithResponse call
+func ParseListProjectSharedEnvsResponse(rsp *http.Response) (*ListProjectSharedEnvsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListProjectSharedEnvsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateProjectSharedEnvResponse parses an HTTP response from a CreateProjectSharedEnvWithResponse call
+func ParseCreateProjectSharedEnvResponse(rsp *http.Response) (*CreateProjectSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateProjectSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 201:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteProjectSharedEnvResponse parses an HTTP response from a DeleteProjectSharedEnvWithResponse call
+func ParseDeleteProjectSharedEnvResponse(rsp *http.Response) (*DeleteProjectSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteProjectSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateProjectSharedEnvResponse parses an HTTP response from a UpdateProjectSharedEnvWithResponse call
+func ParseUpdateProjectSharedEnvResponse(rsp *http.Response) (*UpdateProjectSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateProjectSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
 // ParseGetEnvironmentByNameOrUuidResponse parses an HTTP response from a GetEnvironmentByNameOrUuidWithResponse call
 func ParseGetEnvironmentByNameOrUuidResponse(rsp *http.Response) (*GetEnvironmentByNameOrUuidResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -30032,6 +33188,167 @@ func ParseUpdateServerByUuidResponse(rsp *http.Response) (*UpdateServerByUuidRes
 			return nil, err
 		}
 		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListServerSharedEnvsResponse parses an HTTP response from a ListServerSharedEnvsWithResponse call
+func ParseListServerSharedEnvsResponse(rsp *http.Response) (*ListServerSharedEnvsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListServerSharedEnvsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateServerSharedEnvResponse parses an HTTP response from a CreateServerSharedEnvWithResponse call
+func ParseCreateServerSharedEnvResponse(rsp *http.Response) (*CreateServerSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateServerSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 201:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteServerSharedEnvResponse parses an HTTP response from a DeleteServerSharedEnvWithResponse call
+func ParseDeleteServerSharedEnvResponse(rsp *http.Response) (*DeleteServerSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteServerSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateServerSharedEnvResponse parses an HTTP response from a UpdateServerSharedEnvWithResponse call
+func ParseUpdateServerSharedEnvResponse(rsp *http.Response) (*UpdateServerSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateServerSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
 		var dest N401
@@ -30834,6 +34151,153 @@ func ParseDeleteTagByServiceUuidResponse(rsp *http.Response) (*DeleteTagByServic
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseListTeamSharedEnvsResponse parses an HTTP response from a ListTeamSharedEnvsWithResponse call
+func ParseListTeamSharedEnvsResponse(rsp *http.Response) (*ListTeamSharedEnvsResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &ListTeamSharedEnvsResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseCreateTeamSharedEnvResponse parses an HTTP response from a CreateTeamSharedEnvWithResponse call
+func ParseCreateTeamSharedEnvResponse(rsp *http.Response) (*CreateTeamSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &CreateTeamSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 201:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case rsp.StatusCode == 409:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseDeleteTeamSharedEnvResponse parses an HTTP response from a DeleteTeamSharedEnvWithResponse call
+func ParseDeleteTeamSharedEnvResponse(rsp *http.Response) (*DeleteTeamSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &DeleteTeamSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateTeamSharedEnvResponse parses an HTTP response from a UpdateTeamSharedEnvWithResponse call
+func ParseUpdateTeamSharedEnvResponse(rsp *http.Response) (*UpdateTeamSharedEnvResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateTeamSharedEnvResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case rsp.StatusCode == 200:
+		break // No content-type
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	}
 

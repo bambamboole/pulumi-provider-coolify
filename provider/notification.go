@@ -17,27 +17,29 @@ import (
 
 // infer v1.6.0's secret annotation walker turns already-secret computed
 // values into known zero values during Check. Preserve the input unknowns for
-// notification resources so a preview cannot turn a future credential into a
-// request to clear it. Keep inferred validation and secret annotations intact.
-func checkNotificationUnknowns(check func(context.Context, p.CheckRequest) (p.CheckResponse, error)) func(context.Context, p.CheckRequest) (p.CheckResponse, error) {
+// notification and shared variable resources so a preview cannot turn a future
+// credential into a request to clear it. Keep validation and secret annotations intact.
+func checkSecretUnknowns(check func(context.Context, p.CheckRequest) (p.CheckResponse, error)) func(context.Context, p.CheckRequest) (p.CheckResponse, error) {
 	return func(ctx context.Context, req p.CheckRequest) (p.CheckResponse, error) {
 		response, err := check(ctx, req)
-		if err != nil || !strings.HasPrefix(string(req.Urn.Type()), "coolify:index:Notification") {
+		token := string(req.Urn.Type())
+		sharedVariable := token == "coolify:index:TeamSharedVariable" || token == "coolify:index:ProjectSharedVariable" || token == "coolify:index:EnvironmentSharedVariable" || token == "coolify:index:ServerSharedVariable"
+		if err != nil || (!strings.HasPrefix(token, "coolify:index:Notification") && !sharedVariable) {
 			return response, err
 		}
-		response.Inputs = restoreNotificationUnknowns(property.New(req.Inputs), property.New(response.Inputs)).AsMap()
+		response.Inputs = restoreSecretUnknowns(property.New(req.Inputs), property.New(response.Inputs)).AsMap()
 		return response, nil
 	}
 }
 
-func restoreNotificationUnknowns(original, checked property.Value) property.Value {
+func restoreSecretUnknowns(original, checked property.Value) property.Value {
 	if original.IsComputed() {
 		return original.WithSecret(original.Secret() || checked.Secret())
 	}
 	if original.IsMap() && checked.IsMap() {
 		out := checked.AsMap()
 		for key, value := range original.AsMap().All {
-			out = out.Set(key, restoreNotificationUnknowns(value, out.Get(key)))
+			out = out.Set(key, restoreSecretUnknowns(value, out.Get(key)))
 		}
 		return property.New(out).WithSecret(checked.Secret())
 	}

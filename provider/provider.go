@@ -16,6 +16,10 @@ func New() (p.Provider, error) {
 		WithModuleMap(map[tokens.ModuleName]tokens.ModuleName{"provider": "index"}).
 		WithResources(
 			infer.Resource(Project{}),
+			infer.Resource(TeamSharedVariable{}),
+			infer.Resource(ProjectSharedVariable{}),
+			infer.Resource(EnvironmentSharedVariable{}),
+			infer.Resource(ServerSharedVariable{}),
 			infer.Resource(Database{}),
 			infer.Resource(PrivateKey{}),
 			infer.Resource(Server{}),
@@ -39,7 +43,7 @@ func New() (p.Provider, error) {
 			infer.Function(GetStorage{}),
 		).
 		WithDisplayName("Coolify").
-		WithDescription("Manage resources on a Coolify instance: projects, databases and their backups, private keys, GitHub Apps, servers, S3 storage, applications, services, storages and their volume backups, scheduled tasks and deployments.").
+		WithDescription("Manage resources on a Coolify instance: projects, shared variables, databases and their backups, private keys, GitHub Apps, servers, S3 storage, applications, services, storages and their volume backups, scheduled tasks and deployments.").
 		WithPublisher("bambamboole").
 		WithRepository("https://github.com/bambamboole/pulumi-provider-coolify").
 		WithHomepage("https://coolify.io").
@@ -55,6 +59,6 @@ func New() (p.Provider, error) {
 		return p.Provider{}, err
 	}
 	provider.DiffConfig = diffTagConfig(provider.DiffConfig)
-	provider.Check = checkNotificationUnknowns(provider.Check)
+	provider.Check = checkSecretUnknowns(provider.Check)
 	return provider, nil
 }
