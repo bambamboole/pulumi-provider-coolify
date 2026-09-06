@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.5.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.4.2...v0.5.0) (2026-09-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Database and Application take projectUuid and environmentName instead of project and environment names; Database outputs username, password, databaseName, internalUrl and externalUrl replace the postgres-specific outputs; Application.source is required; Deployment Read no longer errors on pruned deployments. Existing databases and applications are replaced on the next update.
+* the internal client API changed; resources are updated in the following commit.
+
+### Features
+
+* generate the Coolify API client from the OpenAPI specification ([d440a7e](https://github.com/bambamboole/pulumi-provider-coolify/commit/d440a7e06cae4e92ed1b10c16eb5b035c1a5eeeb))
+* reference by UUID, reconcile every field and add GitHubApp and ScheduledTask ([9075a16](https://github.com/bambamboole/pulumi-provider-coolify/commit/9075a162e57d0590762527cdd5861731dfa6c5e1))
+
+
+### Bug Fixes
+
+* **release:** bump the SDK's pulumi.version alongside its package version ([430eef1](https://github.com/bambamboole/pulumi-provider-coolify/commit/430eef1a3083ee8af8e779a77c1dd26b3fdc356f))
+
 ## [0.4.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.3.2...v0.4.0) (2026-09-05)
 
 
