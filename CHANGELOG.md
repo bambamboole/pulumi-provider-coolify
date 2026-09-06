@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.7.0...v0.7.1) (2026-09-06)
+
+
+### Bug Fixes
+
+* preserve resources when upgrading tag support ([d971849](https://github.com/bambamboole/pulumi-provider-coolify/commit/d971849d55a38f516d4ad9122e887fce58f13966))
+
 ## [0.7.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.6.0...v0.7.0) (2026-09-06)
 
 
