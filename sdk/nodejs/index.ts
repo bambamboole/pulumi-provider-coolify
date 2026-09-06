@@ -25,6 +25,11 @@ export type Deployment = import("./deployment").Deployment;
 export const Deployment: typeof import("./deployment").Deployment = null as any;
 utilities.lazyLoad(exports, ["Deployment"], () => require("./deployment"));
 
+export { GetStorageArgs, GetStorageResult, GetStorageOutputArgs } from "./getStorage";
+export const getStorage: typeof import("./getStorage").getStorage = null as any;
+export const getStorageOutput: typeof import("./getStorage").getStorageOutput = null as any;
+utilities.lazyLoad(exports, ["getStorage","getStorageOutput"], () => require("./getStorage"));
+
 export { GitHubAppArgs } from "./gitHubApp";
 export type GitHubApp = import("./gitHubApp").GitHubApp;
 export const GitHubApp: typeof import("./gitHubApp").GitHubApp = null as any;
@@ -65,6 +70,16 @@ export type Service = import("./service").Service;
 export const Service: typeof import("./service").Service = null as any;
 utilities.lazyLoad(exports, ["Service"], () => require("./service"));
 
+export { StorageArgs } from "./storage";
+export type Storage = import("./storage").Storage;
+export const Storage: typeof import("./storage").Storage = null as any;
+utilities.lazyLoad(exports, ["Storage"], () => require("./storage"));
+
+export { VolumeBackupArgs } from "./volumeBackup";
+export type VolumeBackup = import("./volumeBackup").VolumeBackup;
+export const VolumeBackup: typeof import("./volumeBackup").VolumeBackup = null as any;
+utilities.lazyLoad(exports, ["VolumeBackup"], () => require("./volumeBackup"));
+
 
 // Export enums:
 export * from "./types/enums";
@@ -104,6 +119,10 @@ const _module = {
                 return new Server(name, <any>undefined, { urn })
             case "coolify:index:Service":
                 return new Service(name, <any>undefined, { urn })
+            case "coolify:index:Storage":
+                return new Storage(name, <any>undefined, { urn })
+            case "coolify:index:VolumeBackup":
+                return new VolumeBackup(name, <any>undefined, { urn })
             default:
                 throw new Error(`unknown resource type ${type}`);
         }

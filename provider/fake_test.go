@@ -29,22 +29,31 @@ type fakeCoolify struct {
 	githubApps   map[string]map[string]any
 	services     map[string]map[string]any
 	backups      map[string][]map[string]any
-	requests     []string
+	// storages are keyed by owner UUID; "_persistent" marks volumes, the rest
+	// are file/directory mounts.
+	storages map[string][]map[string]any
+	// volumeBackups are keyed by storage UUID.
+	volumeBackups map[string]map[string]any
+	volumeRuns    map[string]int
+	requests      []string
 }
 
 func newFakeCoolify(t *testing.T) *fakeCoolify {
 	f := &fakeCoolify{
-		t:            t,
-		projects:     map[string]map[string]any{},
-		environments: map[string][]map[string]any{},
-		databases:    map[string]map[string]any{},
-		applications: map[string]map[string]any{},
-		envVars:      map[string][]map[string]any{},
-		deployments:  map[string]map[string]any{},
-		tasks:        map[string][]map[string]any{},
-		githubApps:   map[string]map[string]any{},
-		services:     map[string]map[string]any{},
-		backups:      map[string][]map[string]any{},
+		t:             t,
+		projects:      map[string]map[string]any{},
+		environments:  map[string][]map[string]any{},
+		databases:     map[string]map[string]any{},
+		applications:  map[string]map[string]any{},
+		envVars:       map[string][]map[string]any{},
+		deployments:   map[string]map[string]any{},
+		tasks:         map[string][]map[string]any{},
+		githubApps:    map[string]map[string]any{},
+		services:      map[string]map[string]any{},
+		backups:       map[string][]map[string]any{},
+		storages:      map[string][]map[string]any{},
+		volumeBackups: map[string]map[string]any{},
+		volumeRuns:    map[string]int{},
 	}
 	f.server = httptest.NewServer(http.HandlerFunc(f.handle))
 	t.Cleanup(f.server.Close)
@@ -124,6 +133,18 @@ func (f *fakeCoolify) addBackup(databaseUUID string, record map[string]any) stri
 	uuid := fmt.Sprintf("u-backup-%d", f.id())
 	record["uuid"] = uuid
 	f.backups[databaseUUID] = append(f.backups[databaseUUID], record)
+	return uuid
+}
+
+// addStorage registers a storage on an owner. Persistent volumes carry "name",
+// mounts carry "is_directory"; service storages should carry "resource_uuid".
+func (f *fakeCoolify) addStorage(ownerUUID string, persistent bool, record map[string]any) string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	uuid := fmt.Sprintf("u-storage-%d", f.id())
+	record["uuid"] = uuid
+	record["_persistent"] = persistent
+	f.storages[ownerUUID] = append(f.storages[ownerUUID], record)
 	return uuid
 }
 
@@ -300,6 +321,8 @@ func (f *fakeCoolify) handleDatabases(w http.ResponseWriter, r *http.Request, pa
 		f.handleMove(w, r, f.databases, parts[0], "Database")
 	case len(parts) >= 2 && parts[1] == "backups":
 		f.handleBackups(w, r, parts[0], parts[2:])
+	case len(parts) >= 2 && parts[1] == "storages":
+		f.handleStorages(w, r, f.databases, parts[0], parts[2:])
 	default:
 		writeError(w, http.StatusNotFound, "No route.")
 	}
@@ -451,6 +474,8 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 		}
 	case len(parts) == 2 && parts[1] == "move":
 		f.handleMove(w, r, f.applications, parts[0], "Application")
+	case len(parts) >= 2 && parts[1] == "storages":
+		f.handleStorages(w, r, f.applications, parts[0], parts[2:])
 	case len(parts) >= 2 && parts[1] == "scheduled-tasks":
 		f.handleScheduledTasks(w, r, parts[0], parts[2:])
 	case len(parts) == 2 && parts[1] == "envs":
@@ -526,12 +551,166 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 		}
 	case len(parts) == 2 && parts[1] == "move":
 		f.handleMove(w, r, f.services, parts[0], "Service")
+	case len(parts) >= 2 && parts[1] == "storages":
+		f.handleStorages(w, r, f.services, parts[0], parts[2:])
 	case len(parts) == 2 && parts[1] == "envs":
 		if _, ok := f.services[parts[0]]; !ok {
 			writeError(w, http.StatusNotFound, "Service not found.")
 			return
 		}
 		f.handleEnvVars(w, r, parts[0])
+	default:
+		writeError(w, http.StatusNotFound, "No route.")
+	}
+}
+
+// handleStorages mirrors the storage endpoints and the volume backup schedule
+// endpoints nested below them. Storage rows are returned without the
+// "_persistent" marker, split into the two lists Coolify uses.
+func (f *fakeCoolify) handleStorages(w http.ResponseWriter, r *http.Request, owners map[string]map[string]any, ownerUUID string, parts []string) {
+	if _, ok := owners[ownerUUID]; !ok {
+		writeError(w, http.StatusNotFound, "Resource not found.")
+		return
+	}
+	public := func(record map[string]any) map[string]any {
+		out := map[string]any{}
+		for key, value := range record {
+			if key != "_persistent" {
+				out[key] = value
+			}
+		}
+		return out
+	}
+	find := func(uuid string) (int, map[string]any) {
+		for i, storage := range f.storages[ownerUUID] {
+			if storage["uuid"] == uuid {
+				return i, storage
+			}
+		}
+		return -1, nil
+	}
+	switch {
+	case len(parts) == 0 && r.Method == http.MethodGet:
+		persistent, files := []map[string]any{}, []map[string]any{}
+		for _, storage := range f.storages[ownerUUID] {
+			if storage["_persistent"] == true {
+				persistent = append(persistent, public(storage))
+			} else {
+				files = append(files, public(storage))
+			}
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"persistent_storages": persistent, "file_storages": files})
+	case len(parts) == 0 && r.Method == http.MethodPost:
+		body := readJSON(r)
+		uuid := fmt.Sprintf("u-storage-%d", f.id())
+		record := map[string]any{"uuid": uuid, "mount_path": body["mount_path"], "is_preview_suffix_enabled": false}
+		if body["type"] == "persistent" {
+			if body["name"] == nil {
+				writeError(w, http.StatusUnprocessableEntity, "The name field is required for persistent storages.")
+				return
+			}
+			record["_persistent"] = true
+			record["name"] = ownerUUID + "-" + body["name"].(string)
+			record["host_path"] = body["host_path"]
+		} else {
+			record["_persistent"] = false
+			record["is_directory"] = body["is_directory"] == true
+			record["is_host_file"] = false
+			record["fs_path"] = body["fs_path"]
+		}
+		f.storages[ownerUUID] = append(f.storages[ownerUUID], record)
+		writeJSON(w, http.StatusCreated, map[string]any{"uuid": uuid})
+	case len(parts) == 0 && r.Method == http.MethodPatch:
+		body := readJSON(r)
+		_, storage := find(fmt.Sprint(body["uuid"]))
+		if storage == nil {
+			writeError(w, http.StatusNotFound, "Storage not found.")
+			return
+		}
+		delete(body, "uuid")
+		delete(body, "type")
+		merge(storage, body)
+		writeJSON(w, http.StatusOK, public(storage))
+	case len(parts) == 1 && r.Method == http.MethodDelete:
+		i, storage := find(parts[0])
+		if storage == nil {
+			writeError(w, http.StatusNotFound, "Storage not found.")
+			return
+		}
+		if _, scheduled := f.volumeBackups[parts[0]]; scheduled {
+			writeError(w, http.StatusUnprocessableEntity, "Delete this volume backup schedule and its archives before deleting the volume.")
+			return
+		}
+		f.storages[ownerUUID] = append(f.storages[ownerUUID][:i], f.storages[ownerUUID][i+1:]...)
+		writeJSON(w, http.StatusOK, map[string]any{"message": "Storage deleted."})
+	case len(parts) >= 2 && parts[1] == "backups":
+		_, storage := find(parts[0])
+		if storage == nil {
+			writeError(w, http.StatusNotFound, "Storage not found.")
+			return
+		}
+		f.handleVolumeBackup(w, r, storage, parts[2:])
+	default:
+		writeError(w, http.StatusNotFound, "No route.")
+	}
+}
+
+// handleVolumeBackup mirrors Coolify's upsert semantics: omitted fields fall
+// back to the defaults, the response echoes the full schedule.
+func (f *fakeCoolify) handleVolumeBackup(w http.ResponseWriter, r *http.Request, storage map[string]any, parts []string) {
+	storageUUID := storage["uuid"].(string)
+	storageType := "persistent"
+	if storage["_persistent"] != true {
+		storageType = "directory"
+	}
+	switch {
+	case len(parts) == 0 && r.Method == http.MethodPut:
+		if storage["_persistent"] != true && storage["is_directory"] != true {
+			writeError(w, http.StatusUnprocessableEntity, "Only directory file storages can be backed up.")
+			return
+		}
+		body := readJSON(r)
+		if body["save_s3"] == true && body["s3_storage_uuid"] == nil {
+			writeError(w, http.StatusUnprocessableEntity, "Select a usable S3 storage owned by your team.")
+			return
+		}
+		if body["disable_local_backup"] == true && body["save_s3"] != true {
+			writeError(w, http.StatusUnprocessableEntity, "Local backups can only be disabled when S3 backups are enabled.")
+			return
+		}
+		defaults := map[string]any{
+			"enabled": true, "save_s3": false, "disable_local_backup": false, "stop_during_backup": false, "s3_storage_uuid": nil,
+			"retention_amount_locally": 7, "retention_days_locally": 0, "retention_max_storage_locally": 0,
+			"retention_amount_s3": 7, "retention_days_s3": 0, "retention_max_storage_s3": 0,
+		}
+		existing, created := f.volumeBackups[storageUUID]
+		if !created {
+			existing = map[string]any{"uuid": fmt.Sprintf("u-vbackup-%d", f.id()), "timeout": 3600}
+			f.volumeBackups[storageUUID] = existing
+		}
+		merge(existing, defaults)
+		merge(existing, body)
+		status := http.StatusOK
+		if !created {
+			status = http.StatusCreated
+		}
+		response := map[string]any{"message": "Storage backup schedule set.", "storage_uuid": storageUUID, "storage_type": storageType}
+		merge(response, existing)
+		writeJSON(w, status, response)
+	case len(parts) == 0 && r.Method == http.MethodDelete:
+		if _, ok := f.volumeBackups[storageUUID]; !ok {
+			writeError(w, http.StatusNotFound, "Storage backup schedule not found.")
+			return
+		}
+		delete(f.volumeBackups, storageUUID)
+		writeJSON(w, http.StatusOK, map[string]any{"message": "Storage backup schedule and archives deleted."})
+	case len(parts) == 1 && parts[0] == "run" && r.Method == http.MethodPost:
+		if _, ok := f.volumeBackups[storageUUID]; !ok {
+			writeError(w, http.StatusNotFound, "Storage backup schedule not found.")
+			return
+		}
+		f.volumeRuns[storageUUID]++
+		writeJSON(w, http.StatusOK, map[string]any{"message": "Storage backup queued."})
 	default:
 		writeError(w, http.StatusNotFound, "No route.")
 	}

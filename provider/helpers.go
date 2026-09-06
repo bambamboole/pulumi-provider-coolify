@@ -13,8 +13,15 @@ import (
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
+// clientKey carries a client injected directly into the context; tests use it
+// to exercise resource methods without a configured provider.
+type clientKey struct{}
+
 // client returns the Coolify API client configured by the provider.
 func client(ctx context.Context) *coolify.Client {
+	if c, ok := ctx.Value(clientKey{}).(*coolify.Client); ok {
+		return c
+	}
 	return infer.GetConfig[Config](ctx).client
 }
 

@@ -15,8 +15,12 @@ A native [Pulumi](https://www.pulumi.com) provider for [Coolify](https://coolify
 | `coolify.S3Storage` | S3-compatible storage destination, e.g. an R2 bucket | storage name |
 | `coolify.Application` | Application from a public or private git repository, a Docker image or a Dockerfile, including its environment variables | application name within the environment |
 | `coolify.Service` | Service from a one-click template or a docker compose file, including its environment variables | service name within the environment |
+| `coolify.Storage` | Persistent volume or directory mount of an application or database | mount path within the owner |
+| `coolify.VolumeBackup` | Backup schedule of a persistent volume or directory mount of an application, database or service, optionally uploaded to an S3 storage | the storage (one schedule per storage) |
 | `coolify.ScheduledTask` | Cron task on an application | task name within the application |
 | `coolify.Deployment` | Triggers a deployment and waits for it to finish | none (one deployment per input change) |
+
+The function `coolify.getStorage` looks up a storage of an application, database or service by mount path and/or volume name, e.g. a volume declared in a service's compose file.
 
 On **create**, every resource adopts an existing Coolify resource with the same identity instead of creating a duplicate, and reconciles its settings with the declared inputs. **Updates and deletes always address the resource by UUID**, so renaming a resource renames it in Coolify rather than creating a new one.
 
@@ -78,12 +82,41 @@ new coolify.Deployment("api", {
     application: app.uuid,
     triggers: ["1.4.2"],
 }, { provider });
+
+// Nightly dump of the database to S3, and a volume backup of a compose service.
+const s3 = new coolify.S3Storage("backups", { /* ... */ }, { provider });
+
+new coolify.DatabaseBackup("main-db", {
+    databaseUuid: db.uuid,
+    frequency: "0 3 * * *",
+    saveS3: true,
+    s3StorageUuid: s3.uuid,
+    retentionAmountS3: 30,
+}, { provider });
+
+const gitea = new coolify.Service("gitea", {
+    type: "gitea-with-mysql",
+    projectUuid: project.uuid,
+    environmentName: "production",
+    serverUuid: server.uuid,
+}, { provider });
+
+new coolify.VolumeBackup("gitea-data", {
+    serviceUuid: gitea.uuid,
+    mountPath: "/data",
+    volumeName: "gitea-data",
+    frequency: "daily",
+    saveS3: true,
+    s3StorageUuid: s3.uuid,
+    stopDuringBackup: true,
+}, { provider, retainOnDelete: true });
 ```
 
 ## Behaviour worth knowing
 
 - **Moving between projects and environments is safe.** Changing `projectUuid` or `environmentName` on a `coolify.Application`, `coolify.Database` or `coolify.Service` calls Coolify's move endpoint (Coolify v4.2.0 or newer). The target environment must already exist, e.g. through the `environments` of a `coolify.Project`. The move is purely organizational: containers keep running, nothing is redeployed, and shared environment variables of the new environment apply on the next deployment. Moves made in the Coolify UI are not detected by `pulumi refresh`.
 - **Database backups are adopted by frequency.** `coolify.DatabaseBackup` adopts an existing configuration whose frequency string is identical; databases created in the Coolify UI come with a `0 0 * * *` schedule that can be adopted this way. Coolify never reports the configured S3 storage, so `s3StorageUuid` is applied when it changes but drift on it is not detected. Redis, KeyDB and Dragonfly reject backup configurations.
+- **Volume backups are write-only and destroy deletes the archives.** Coolify has no endpoint to read a volume backup schedule, so `coolify.VolumeBackup` re-sends the complete schedule on every update and `pulumi refresh` only detects a vanished storage, not changes made in the UI. Destroying the resource deletes the schedule **and all local and S3 archives**; set `retainOnDelete` to keep them. Deleting a `coolify.Storage` fails while a schedule exists, so make the backup depend on the storage. Single-file mounts cannot be backed up.
 - **Service compose files are write-only.** Coolify hides `dockerCompose` from the API, so it is sent on create and whenever the input changes, but drift on it is not detected.
 - **Private keys cannot be updated.** Coolify's `PATCH /security/keys` endpoint cannot address a key, so changing `name` or `privateKey` replaces the key and `description` is only applied on create.
 - **Application environment variables are managed by key.** Declared keys that are missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched. Coolify masks hidden values, so values are never compared.

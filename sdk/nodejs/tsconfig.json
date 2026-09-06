@@ -25,6 +25,7 @@
         "database.ts",
         "databaseBackup.ts",
         "deployment.ts",
+        "getStorage.ts",
         "gitHubApp.ts",
         "index.ts",
         "privateKey.ts",
@@ -34,10 +35,12 @@
         "scheduledTask.ts",
         "server.ts",
         "service.ts",
+        "storage.ts",
         "types/enums/index.ts",
         "types/index.ts",
         "types/input.ts",
         "types/output.ts",
-        "utilities.ts"
+        "utilities.ts",
+        "volumeBackup.ts"
     ]
 }

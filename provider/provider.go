@@ -26,9 +26,14 @@ func New() (p.Provider, error) {
 			infer.Resource(GitHubApp{}),
 			infer.Resource(Service{}),
 			infer.Resource(DatabaseBackup{}),
+			infer.Resource(Storage{}),
+			infer.Resource(VolumeBackup{}),
+		).
+		WithFunctions(
+			infer.Function(GetStorage{}),
 		).
 		WithDisplayName("Coolify").
-		WithDescription("Manage resources on a Coolify instance: projects, databases and their backups, private keys, GitHub Apps, servers, S3 storage, applications, services, scheduled tasks and deployments.").
+		WithDescription("Manage resources on a Coolify instance: projects, databases and their backups, private keys, GitHub Apps, servers, S3 storage, applications, services, storages and their volume backups, scheduled tasks and deployments.").
 		WithPublisher("bambamboole").
 		WithRepository("https://github.com/bambamboole/pulumi-provider-coolify").
 		WithHomepage("https://coolify.io").
