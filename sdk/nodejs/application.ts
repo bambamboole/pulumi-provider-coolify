@@ -2,10 +2,13 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
+import * as enums from "./types/enums";
 import * as utilities from "./utilities";
 
 /**
- * A Coolify application built from a git repository, a Docker image, or a Dockerfile.
+ * A Coolify application built from a git repository, a Docker image, or a Dockerfile. An existing application with the same name in the environment is adopted on create.
  */
 export class Application extends pulumi.CustomResource {
     /**
@@ -34,25 +37,161 @@ export class Application extends pulumi.CustomResource {
         return obj['__pulumiType'] === Application.__pulumiType;
     }
 
-    declare public readonly autoDeployEnabled: pulumi.Output<boolean>;
-    declare public readonly buildPack: pulumi.Output<string>;
-    declare public readonly description: pulumi.Output<string>;
-    declare public readonly environment: pulumi.Output<string>;
-    declare public readonly environmentVariables: pulumi.Output<{[key: string]: string}>;
     /**
-     * The FQDN Coolify exposes the application at.
+     * Deploy automatically on git push.
+     */
+    declare public readonly autoDeployEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * Directory inside the repository to build from.
+     */
+    declare public readonly baseDirectory: pulumi.Output<string | undefined>;
+    /**
+     * Build command override.
+     */
+    declare public readonly buildCommand: pulumi.Output<string | undefined>;
+    /**
+     * Build pack for git sources: nixpacks, railpack, static, dockerfile or dockercompose.
+     */
+    declare public readonly buildPack: pulumi.Output<string | undefined>;
+    /**
+     * Description of the application.
+     */
+    declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Image name for docker-image sources.
+     */
+    declare public readonly dockerRegistryImageName: pulumi.Output<string | undefined>;
+    /**
+     * Image tag for docker-image sources. Defaults to latest.
+     */
+    declare public readonly dockerRegistryImageTag: pulumi.Output<string | undefined>;
+    /**
+     * Dockerfile content for dockerfile sources.
+     */
+    declare public readonly dockerfile: pulumi.Output<string | undefined>;
+    /**
+     * Location of the Dockerfile inside the repository.
+     */
+    declare public readonly dockerfileLocation: pulumi.Output<string | undefined>;
+    /**
+     * Comma separated domains the application is served on.
+     */
+    declare public readonly domains: pulumi.Output<string | undefined>;
+    /**
+     * Name of the environment inside the project.
+     */
+    declare public readonly environmentName: pulumi.Output<string>;
+    /**
+     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     */
+    declare public readonly environmentVariables: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Redirect HTTP to HTTPS.
+     */
+    declare public readonly forceHttpsEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * FQDN Coolify serves the application on.
      */
     declare public /*out*/ readonly fqdn: pulumi.Output<string>;
-    declare public readonly gitBranch: pulumi.Output<string>;
-    declare public readonly gitRepository: pulumi.Output<string>;
-    declare public readonly name: pulumi.Output<string>;
-    declare public readonly project: pulumi.Output<string>;
+    /**
+     * Git branch to deploy for git sources.
+     */
+    declare public readonly gitBranch: pulumi.Output<string | undefined>;
+    /**
+     * Git commit SHA to deploy. Defaults to the branch head.
+     */
+    declare public readonly gitCommitSha: pulumi.Output<string | undefined>;
+    /**
+     * Git repository URL for git sources.
+     */
+    declare public readonly gitRepository: pulumi.Output<string | undefined>;
+    /**
+     * UUID of the Coolify GitHub App for private-github-app sources. Changing it replaces the application.
+     */
+    declare public readonly githubAppUuid: pulumi.Output<string | undefined>;
+    /**
+     * Enable the container health check.
+     */
+    declare public readonly healthCheckEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * Health check HTTP method.
+     */
+    declare public readonly healthCheckMethod: pulumi.Output<string | undefined>;
+    /**
+     * Health check path.
+     */
+    declare public readonly healthCheckPath: pulumi.Output<string | undefined>;
+    /**
+     * Health check port.
+     */
+    declare public readonly healthCheckPort: pulumi.Output<string | undefined>;
+    /**
+     * Install command override.
+     */
+    declare public readonly installCommand: pulumi.Output<string | undefined>;
+    /**
+     * Deploy right after creating the application. Only relevant on create.
+     */
+    declare public readonly instantDeploy: pulumi.Output<boolean | undefined>;
+    /**
+     * CPU limit, e.g. "0.5".
+     */
+    declare public readonly limitsCPUs: pulumi.Output<string | undefined>;
+    /**
+     * Memory limit, e.g. "512m".
+     */
+    declare public readonly limitsMemory: pulumi.Output<string | undefined>;
+    /**
+     * Application name. Defaults to the Pulumi resource name. An existing application with this name in the environment is adopted.
+     */
+    declare public readonly name: pulumi.Output<string | undefined>;
+    /**
+     * Port the container exposes.
+     */
+    declare public readonly portsExposes: pulumi.Output<string | undefined>;
+    /**
+     * Host to container port mappings.
+     */
+    declare public readonly portsMappings: pulumi.Output<string | undefined>;
+    /**
+     * Deploy previews for pull requests.
+     */
+    declare public readonly previewDeploymentsEnabled: pulumi.Output<boolean | undefined>;
+    /**
+     * UUID of the Coolify private key for private-deploy-key sources. Changing it replaces the application.
+     */
+    declare public readonly privateKeyUuid: pulumi.Output<string | undefined>;
+    /**
+     * UUID of the Coolify project (the uuid output of a Project resource).
+     */
+    declare public readonly projectUuid: pulumi.Output<string>;
+    /**
+     * Directory with the build output for static sites.
+     */
+    declare public readonly publishDirectory: pulumi.Output<string | undefined>;
+    /**
+     * UUID of the server hosting the application (the uuid output of a Server resource).
+     */
     declare public readonly serverUuid: pulumi.Output<string>;
-    declare public readonly source: pulumi.Output<string>;
+    /**
+     * Where the application is built from.
+     */
+    declare public readonly source: pulumi.Output<enums.ApplicationSource>;
+    /**
+     * Start command override.
+     */
+    declare public readonly startCommand: pulumi.Output<string | undefined>;
     /**
      * Status reported by Coolify.
      */
     declare public /*out*/ readonly status: pulumi.Output<string>;
+    /**
+     * Tags assigned on create. Only relevant on create.
+     */
+    declare public readonly tags: pulumi.Output<string[] | undefined>;
+    /**
+     * UUID of the application in Coolify.
+     */
     declare public /*out*/ readonly uuid: pulumi.Output<string>;
 
     /**
@@ -66,14 +205,17 @@ export class Application extends pulumi.CustomResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
-            if (args?.environment === undefined && !opts.urn) {
-                throw new Error("Missing required property 'environment'");
+            if (args?.environmentName === undefined && !opts.urn) {
+                throw new Error("Missing required property 'environmentName'");
             }
-            if (args?.project === undefined && !opts.urn) {
-                throw new Error("Missing required property 'project'");
+            if (args?.projectUuid === undefined && !opts.urn) {
+                throw new Error("Missing required property 'projectUuid'");
             }
             if (args?.serverUuid === undefined && !opts.urn) {
                 throw new Error("Missing required property 'serverUuid'");
+            }
+            if (args?.source === undefined && !opts.urn) {
+                throw new Error("Missing required property 'source'");
             }
             resourceInputs["autoDeployEnabled"] = args?.autoDeployEnabled;
             resourceInputs["baseDirectory"] = args?.baseDirectory;
@@ -85,7 +227,7 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["dockerfile"] = args?.dockerfile;
             resourceInputs["dockerfileLocation"] = args?.dockerfileLocation;
             resourceInputs["domains"] = args?.domains;
-            resourceInputs["environment"] = args?.environment;
+            resourceInputs["environmentName"] = args?.environmentName;
             resourceInputs["environmentVariables"] = args?.environmentVariables;
             resourceInputs["forceHttpsEnabled"] = args?.forceHttpsEnabled;
             resourceInputs["gitBranch"] = args?.gitBranch;
@@ -105,7 +247,7 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["portsMappings"] = args?.portsMappings;
             resourceInputs["previewDeploymentsEnabled"] = args?.previewDeploymentsEnabled;
             resourceInputs["privateKeyUuid"] = args?.privateKeyUuid;
-            resourceInputs["project"] = args?.project;
+            resourceInputs["projectUuid"] = args?.projectUuid;
             resourceInputs["publishDirectory"] = args?.publishDirectory;
             resourceInputs["serverUuid"] = args?.serverUuid;
             resourceInputs["source"] = args?.source;
@@ -116,18 +258,43 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["uuid"] = undefined /*out*/;
         } else {
             resourceInputs["autoDeployEnabled"] = undefined /*out*/;
+            resourceInputs["baseDirectory"] = undefined /*out*/;
+            resourceInputs["buildCommand"] = undefined /*out*/;
             resourceInputs["buildPack"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
-            resourceInputs["environment"] = undefined /*out*/;
+            resourceInputs["dockerRegistryImageName"] = undefined /*out*/;
+            resourceInputs["dockerRegistryImageTag"] = undefined /*out*/;
+            resourceInputs["dockerfile"] = undefined /*out*/;
+            resourceInputs["dockerfileLocation"] = undefined /*out*/;
+            resourceInputs["domains"] = undefined /*out*/;
+            resourceInputs["environmentName"] = undefined /*out*/;
             resourceInputs["environmentVariables"] = undefined /*out*/;
+            resourceInputs["forceHttpsEnabled"] = undefined /*out*/;
             resourceInputs["fqdn"] = undefined /*out*/;
             resourceInputs["gitBranch"] = undefined /*out*/;
+            resourceInputs["gitCommitSha"] = undefined /*out*/;
             resourceInputs["gitRepository"] = undefined /*out*/;
+            resourceInputs["githubAppUuid"] = undefined /*out*/;
+            resourceInputs["healthCheckEnabled"] = undefined /*out*/;
+            resourceInputs["healthCheckMethod"] = undefined /*out*/;
+            resourceInputs["healthCheckPath"] = undefined /*out*/;
+            resourceInputs["healthCheckPort"] = undefined /*out*/;
+            resourceInputs["installCommand"] = undefined /*out*/;
+            resourceInputs["instantDeploy"] = undefined /*out*/;
+            resourceInputs["limitsCPUs"] = undefined /*out*/;
+            resourceInputs["limitsMemory"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
-            resourceInputs["project"] = undefined /*out*/;
+            resourceInputs["portsExposes"] = undefined /*out*/;
+            resourceInputs["portsMappings"] = undefined /*out*/;
+            resourceInputs["previewDeploymentsEnabled"] = undefined /*out*/;
+            resourceInputs["privateKeyUuid"] = undefined /*out*/;
+            resourceInputs["projectUuid"] = undefined /*out*/;
+            resourceInputs["publishDirectory"] = undefined /*out*/;
             resourceInputs["serverUuid"] = undefined /*out*/;
             resourceInputs["source"] = undefined /*out*/;
+            resourceInputs["startCommand"] = undefined /*out*/;
             resourceInputs["status"] = undefined /*out*/;
+            resourceInputs["tags"] = undefined /*out*/;
             resourceInputs["uuid"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
@@ -139,43 +306,148 @@ export class Application extends pulumi.CustomResource {
  * The set of arguments for constructing a Application resource.
  */
 export interface ApplicationArgs {
-    autoDeployEnabled?: pulumi.Input<boolean | undefined>;
-    baseDirectory?: pulumi.Input<string | undefined>;
-    buildCommand?: pulumi.Input<string | undefined>;
-    buildPack?: pulumi.Input<string | undefined>;
-    description?: pulumi.Input<string | undefined>;
-    dockerRegistryImageName?: pulumi.Input<string | undefined>;
-    dockerRegistryImageTag?: pulumi.Input<string | undefined>;
-    dockerfile?: pulumi.Input<string | undefined>;
-    dockerfileLocation?: pulumi.Input<string | undefined>;
-    domains?: pulumi.Input<string | undefined>;
-    environment: pulumi.Input<string>;
     /**
-     * Environment variables applied to the application. Declared keys missing on the Coolify side are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     * Deploy automatically on git push.
+     */
+    autoDeployEnabled?: pulumi.Input<boolean | undefined>;
+    /**
+     * Directory inside the repository to build from.
+     */
+    baseDirectory?: pulumi.Input<string | undefined>;
+    /**
+     * Build command override.
+     */
+    buildCommand?: pulumi.Input<string | undefined>;
+    /**
+     * Build pack for git sources: nixpacks, railpack, static, dockerfile or dockercompose.
+     */
+    buildPack?: pulumi.Input<string | undefined>;
+    /**
+     * Description of the application.
+     */
+    description?: pulumi.Input<string | undefined>;
+    /**
+     * Image name for docker-image sources.
+     */
+    dockerRegistryImageName?: pulumi.Input<string | undefined>;
+    /**
+     * Image tag for docker-image sources. Defaults to latest.
+     */
+    dockerRegistryImageTag?: pulumi.Input<string | undefined>;
+    /**
+     * Dockerfile content for dockerfile sources.
+     */
+    dockerfile?: pulumi.Input<string | undefined>;
+    /**
+     * Location of the Dockerfile inside the repository.
+     */
+    dockerfileLocation?: pulumi.Input<string | undefined>;
+    /**
+     * Comma separated domains the application is served on.
+     */
+    domains?: pulumi.Input<string | undefined>;
+    /**
+     * Name of the environment inside the project.
+     */
+    environmentName: pulumi.Input<string>;
+    /**
+     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
      */
     environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    /**
+     * Redirect HTTP to HTTPS.
+     */
     forceHttpsEnabled?: pulumi.Input<boolean | undefined>;
+    /**
+     * Git branch to deploy for git sources.
+     */
     gitBranch?: pulumi.Input<string | undefined>;
+    /**
+     * Git commit SHA to deploy. Defaults to the branch head.
+     */
     gitCommitSha?: pulumi.Input<string | undefined>;
+    /**
+     * Git repository URL for git sources.
+     */
     gitRepository?: pulumi.Input<string | undefined>;
+    /**
+     * UUID of the Coolify GitHub App for private-github-app sources. Changing it replaces the application.
+     */
     githubAppUuid?: pulumi.Input<string | undefined>;
+    /**
+     * Enable the container health check.
+     */
     healthCheckEnabled?: pulumi.Input<boolean | undefined>;
+    /**
+     * Health check HTTP method.
+     */
     healthCheckMethod?: pulumi.Input<string | undefined>;
+    /**
+     * Health check path.
+     */
     healthCheckPath?: pulumi.Input<string | undefined>;
+    /**
+     * Health check port.
+     */
     healthCheckPort?: pulumi.Input<string | undefined>;
+    /**
+     * Install command override.
+     */
     installCommand?: pulumi.Input<string | undefined>;
+    /**
+     * Deploy right after creating the application. Only relevant on create.
+     */
     instantDeploy?: pulumi.Input<boolean | undefined>;
+    /**
+     * CPU limit, e.g. "0.5".
+     */
     limitsCPUs?: pulumi.Input<string | undefined>;
+    /**
+     * Memory limit, e.g. "512m".
+     */
     limitsMemory?: pulumi.Input<string | undefined>;
+    /**
+     * Application name. Defaults to the Pulumi resource name. An existing application with this name in the environment is adopted.
+     */
     name?: pulumi.Input<string | undefined>;
+    /**
+     * Port the container exposes.
+     */
     portsExposes?: pulumi.Input<string | undefined>;
+    /**
+     * Host to container port mappings.
+     */
     portsMappings?: pulumi.Input<string | undefined>;
+    /**
+     * Deploy previews for pull requests.
+     */
     previewDeploymentsEnabled?: pulumi.Input<boolean | undefined>;
+    /**
+     * UUID of the Coolify private key for private-deploy-key sources. Changing it replaces the application.
+     */
     privateKeyUuid?: pulumi.Input<string | undefined>;
-    project: pulumi.Input<string>;
+    /**
+     * UUID of the Coolify project (the uuid output of a Project resource).
+     */
+    projectUuid: pulumi.Input<string>;
+    /**
+     * Directory with the build output for static sites.
+     */
     publishDirectory?: pulumi.Input<string | undefined>;
+    /**
+     * UUID of the server hosting the application (the uuid output of a Server resource).
+     */
     serverUuid: pulumi.Input<string>;
-    source?: pulumi.Input<string | undefined>;
+    /**
+     * Where the application is built from.
+     */
+    source: pulumi.Input<enums.ApplicationSource>;
+    /**
+     * Start command override.
+     */
     startCommand?: pulumi.Input<string | undefined>;
+    /**
+     * Tags assigned on create. Only relevant on create.
+     */
     tags?: pulumi.Input<pulumi.Input<string>[] | undefined>;
 }

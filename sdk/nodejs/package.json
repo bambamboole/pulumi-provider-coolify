@@ -5,8 +5,7 @@
   "repository": "https://github.com/bambamboole/pulumi-provider-coolify",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "tsc",
-    "prepare": "tsc"
+    "build": "tsc"
   },
   "dependencies": {
     "@pulumi/pulumi": "^3.142.0"
@@ -22,15 +21,7 @@
     "server": "https://github.com/bambamboole/pulumi-provider-coolify/releases/download/v$%7BVERSION%7D"
   },
   "main": "index.js",
-  "typings": "index.d.ts",
-  "files": [
-    "*.js",
-    "*.d.ts",
-    "*.ts",
-    "config",
-    "README.md",
-    "LICENSE"
-  ],
+  "types": "index.d.ts",
   "publishConfig": {
     "access": "public"
   }

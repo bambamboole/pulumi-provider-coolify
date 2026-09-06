@@ -20,6 +20,11 @@ export type Deployment = import("./deployment").Deployment;
 export const Deployment: typeof import("./deployment").Deployment = null as any;
 utilities.lazyLoad(exports, ["Deployment"], () => require("./deployment"));
 
+export { GitHubAppArgs } from "./gitHubApp";
+export type GitHubApp = import("./gitHubApp").GitHubApp;
+export const GitHubApp: typeof import("./gitHubApp").GitHubApp = null as any;
+utilities.lazyLoad(exports, ["GitHubApp"], () => require("./gitHubApp"));
+
 export { PrivateKeyArgs } from "./privateKey";
 export type PrivateKey = import("./privateKey").PrivateKey;
 export const PrivateKey: typeof import("./privateKey").PrivateKey = null as any;
@@ -40,17 +45,27 @@ export type S3Storage = import("./s3storage").S3Storage;
 export const S3Storage: typeof import("./s3storage").S3Storage = null as any;
 utilities.lazyLoad(exports, ["S3Storage"], () => require("./s3storage"));
 
+export { ScheduledTaskArgs } from "./scheduledTask";
+export type ScheduledTask = import("./scheduledTask").ScheduledTask;
+export const ScheduledTask: typeof import("./scheduledTask").ScheduledTask = null as any;
+utilities.lazyLoad(exports, ["ScheduledTask"], () => require("./scheduledTask"));
+
 export { ServerArgs } from "./server";
 export type Server = import("./server").Server;
 export const Server: typeof import("./server").Server = null as any;
 utilities.lazyLoad(exports, ["Server"], () => require("./server"));
 
 
+// Export enums:
+export * from "./types/enums";
+
 // Export sub-modules:
 import * as config from "./config";
+import * as types from "./types";
 
 export {
     config,
+    types,
 };
 
 const _module = {
@@ -63,12 +78,16 @@ const _module = {
                 return new Database(name, <any>undefined, { urn })
             case "coolify:index:Deployment":
                 return new Deployment(name, <any>undefined, { urn })
+            case "coolify:index:GitHubApp":
+                return new GitHubApp(name, <any>undefined, { urn })
             case "coolify:index:PrivateKey":
                 return new PrivateKey(name, <any>undefined, { urn })
             case "coolify:index:Project":
                 return new Project(name, <any>undefined, { urn })
             case "coolify:index:S3Storage":
                 return new S3Storage(name, <any>undefined, { urn })
+            case "coolify:index:ScheduledTask":
+                return new ScheduledTask(name, <any>undefined, { urn })
             case "coolify:index:Server":
                 return new Server(name, <any>undefined, { urn })
             default:

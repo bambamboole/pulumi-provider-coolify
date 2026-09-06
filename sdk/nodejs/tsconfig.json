@@ -1,17 +1,18 @@
 {
     "compilerOptions": {
-        "outDir": ".",
+        // Output
+        "outDir": "bin",
         "declaration": true,
         "declarationMap": true,
         "sourceMap": true,
         "stripInternal": true,
+        // Environment
         "target": "ES2022",
         "module": "nodenext",
         "moduleResolution": "nodenext",
         "moduleDetection": "force",
-        "types": [
-            "node"
-        ],
+        "types": ["node"],
+        // Type Checking
         "strict": true,
         "noFallthroughCasesInSwitch": true,
         "noImplicitReturns": true,
@@ -23,12 +24,18 @@
         "config/vars.ts",
         "database.ts",
         "deployment.ts",
+        "gitHubApp.ts",
         "index.ts",
         "privateKey.ts",
         "project.ts",
         "provider.ts",
         "s3storage.ts",
+        "scheduledTask.ts",
         "server.ts",
+        "types/enums/index.ts",
+        "types/index.ts",
+        "types/input.ts",
+        "types/output.ts",
         "utilities.ts"
     ]
 }

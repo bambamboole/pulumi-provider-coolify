@@ -3,174 +3,131 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
-	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
+
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
-// PrivateKey manages a Coolify SSH private key. The key material is only sent
-// when the resource is created or the inputs change; adopted keys are never
-// patched, because the Coolify API requires resending the material.
+// PrivateKey manages a Coolify SSH private key. Coolify's API cannot update a
+// key after creation, so changes to the name or key material replace it and a
+// changed description is only applied when the key is (re)created.
 type PrivateKey struct{}
 
 type PrivateKeyArgs struct {
-	// Name of the private key.
+	// Name of the private key. An existing key with this name is adopted.
 	Name string `pulumi:"name"`
-	// Description of the private key.
+	// Description of the private key. Applied on create only.
 	Description string `pulumi:"description,optional"`
 	// PEM encoded private key material. Required to create a key that does not
-	// exist yet. Never stored in state; adopted keys stay read-only.
+	// exist yet; adopted keys can be managed without it.
 	PrivateKey string `pulumi:"privateKey,optional" provider:"secret"`
 }
 
 type PrivateKeyState struct {
+	PrivateKeyArgs
 	// UUID of the private key in Coolify.
 	UUID string `pulumi:"uuid"`
-	// Name of the private key.
-	Name string `pulumi:"name"`
-	// Description of the private key.
-	Description string `pulumi:"description"`
 	// Public key derived from the private key.
-	PublicKey *string `pulumi:"publicKey,optional"`
+	PublicKey string `pulumi:"publicKey"`
+	// Fingerprint of the key.
+	Fingerprint string `pulumi:"fingerprint"`
 }
 
 func (r *PrivateKey) Annotate(a infer.Annotator) {
 	a.SetToken("index", "PrivateKey")
-	a.Describe(&r, "A Coolify SSH private key.")
+	a.Describe(&r, "A Coolify SSH private key. An existing key with the same name is adopted on create. Coolify's API cannot update keys, so changing the name or key material replaces the key.")
 }
 
 func (args *PrivateKeyArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.PrivateKey, "PEM private key material. Required to create a missing key; never stored in state.")
+	a.Describe(&args.Name, "Name of the private key. An existing key with this name is adopted. Changing it replaces the key.")
+	a.Describe(&args.Description, "Description of the private key. Applied on create only, because Coolify's API cannot update keys.")
+	a.Describe(&args.PrivateKey, "PEM encoded private key material. Required to create a key that does not exist yet; adopted keys can be managed without it. Changing it replaces the key.")
 }
 
 func (state *PrivateKeyState) Annotate(a infer.Annotator) {
+	a.Describe(&state.UUID, "UUID of the private key in Coolify.")
 	a.Describe(&state.PublicKey, "Public key derived from the private key.")
+	a.Describe(&state.Fingerprint, "Fingerprint of the key.")
 }
 
 func (PrivateKey) Create(ctx context.Context, req infer.CreateRequest[PrivateKeyArgs]) (infer.CreateResponse[PrivateKeyState], error) {
 	if req.DryRun {
-		return infer.CreateResponse[PrivateKeyState]{ID: "pending", Output: privateKeyPlaceholder(req.Inputs)}, nil
+		return infer.CreateResponse[PrivateKeyState]{Output: PrivateKeyState{PrivateKeyArgs: req.Inputs}}, nil
 	}
-	c := client(ctx)
-	state, err := syncPrivateKey(ctx, c, req.Inputs)
+	key, err := createPrivateKey(ctx, client(ctx), req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[PrivateKeyState]{}, err
 	}
-	return infer.CreateResponse[PrivateKeyState]{ID: state.UUID, Output: state}, nil
+	return infer.CreateResponse[PrivateKeyState]{ID: coolify.Deref(key.Uuid), Output: privateKeyState(req.Inputs, key)}, nil
 }
 
 func (PrivateKey) Diff(ctx context.Context, req infer.DiffRequest[PrivateKeyArgs, PrivateKeyState]) (infer.DiffResponse, error) {
-	if req.Inputs.PrivateKey == "" {
-		// No key material, adopted key: keep it read-only.
-		return infer.DiffResponse{HasChanges: false}, nil
-	}
-	diff := map[string]p.PropertyDiff{}
-	if req.Inputs.Name != req.State.Name {
-		diff["name"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if req.Inputs.Description != req.State.Description {
-		diff["description"] = p.PropertyDiff{Kind: p.Update}
-	}
-	return infer.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
-}
-
-func (PrivateKey) Update(ctx context.Context, req infer.UpdateRequest[PrivateKeyArgs, PrivateKeyState]) (infer.UpdateResponse[PrivateKeyState], error) {
-	if req.DryRun {
-		return infer.UpdateResponse[PrivateKeyState]{Output: privateKeyStateFromInputs(req.State.UUID, req.Inputs)}, nil
-	}
-	c := client(ctx)
-	state, err := syncPrivateKey(ctx, c, req.Inputs)
-	if err != nil {
-		return infer.UpdateResponse[PrivateKeyState]{}, err
-	}
-	return infer.UpdateResponse[PrivateKeyState]{Output: state}, nil
+	diff := diffArgs(req.State.PrivateKeyArgs, req.Inputs, "name", "privateKey")
+	// Coolify cannot update keys; the description is only applied on create.
+	delete(diff, "description")
+	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
 }
 
 func (PrivateKey) Read(ctx context.Context, req infer.ReadRequest[PrivateKeyArgs, PrivateKeyState]) (infer.ReadResponse[PrivateKeyArgs, PrivateKeyState], error) {
-	c := client(ctx)
-	key, err := c.GetPrivateKey(ctx, req.ID)
+	key, err := client(ctx).GetPrivateKey(ctx, req.ID)
+	if coolify.IsNotFound(err) {
+		return infer.ReadResponse[PrivateKeyArgs, PrivateKeyState]{}, nil
+	}
 	if err != nil {
 		return infer.ReadResponse[PrivateKeyArgs, PrivateKeyState]{}, err
 	}
 	inputs := req.Inputs
-	if inputs.Name == "" {
-		inputs.Name = key.Name
-		inputs.Description = desc(key.Description)
-	}
+	inputs.Name = coolify.Deref(key.Name)
+	inputs.Description = coolify.Deref(key.Description)
 	return infer.ReadResponse[PrivateKeyArgs, PrivateKeyState]{
 		ID:     req.ID,
 		Inputs: inputs,
-		State:  privateKeyState(key),
+		State:  privateKeyState(inputs, key),
 	}, nil
 }
 
 func (PrivateKey) Delete(ctx context.Context, req infer.DeleteRequest[PrivateKeyState]) (infer.DeleteResponse, error) {
-	c := client(ctx)
-	if err := c.DeletePrivateKey(ctx, req.State.UUID); err != nil && !NotFound(err) {
+	if err := client(ctx).DeletePrivateKey(ctx, req.ID); err != nil && !coolify.IsNotFound(err) {
 		return infer.DeleteResponse{}, err
 	}
 	return infer.DeleteResponse{}, nil
 }
 
-func syncPrivateKey(ctx context.Context, c *Client, inputs PrivateKeyArgs) (PrivateKeyState, error) {
-
+// createPrivateKey adopts the key with the given name or creates it from the
+// provided material.
+func createPrivateKey(ctx context.Context, c *coolify.Client, inputs PrivateKeyArgs) (api.PrivateKey, error) {
 	keys, err := c.ListPrivateKeys(ctx)
 	if err != nil {
-		return PrivateKeyState{}, err
+		return api.PrivateKey{}, err
 	}
-	var existing *CoolifyPrivateKey
-	for i := range keys {
-		if keys[i].Name == inputs.Name {
-			existing = &keys[i]
-			break
+	for _, key := range keys {
+		if coolify.Deref(key.Name) != inputs.Name {
+			continue
 		}
+		if existing := strings.TrimSpace(coolify.Deref(key.PrivateKey)); existing != "" && inputs.PrivateKey != "" &&
+			existing != strings.TrimSpace(inputs.PrivateKey) {
+			return api.PrivateKey{}, fmt.Errorf("coolify private key %q already exists with different key material; choose another name to create a new key", inputs.Name)
+		}
+		return key, nil
 	}
-
-	if existing == nil {
-		if inputs.PrivateKey == "" {
-			return PrivateKeyState{}, fmt.Errorf(`coolify private key %q does not exist and no privateKey was provided to create it`, inputs.Name)
-		}
-		uuid, err := c.CreatePrivateKey(ctx, inputs.Name, inputs.Description, inputs.PrivateKey)
-		if err != nil {
-			return PrivateKeyState{}, err
-		}
-		key, err := c.GetPrivateKey(ctx, uuid)
-		if err != nil {
-			return PrivateKeyState{}, err
-		}
-		return privateKeyState(key), nil
+	if inputs.PrivateKey == "" {
+		return api.PrivateKey{}, fmt.Errorf("coolify private key %q does not exist and no privateKey was provided to create it", inputs.Name)
 	}
-
-	if inputs.PrivateKey != "" &&
-		(existing.Name != inputs.Name || desc(existing.Description) != inputs.Description) {
-		uuid, err := c.UpdatePrivateKey(ctx, inputs.Name, inputs.Description, inputs.PrivateKey)
-		if err != nil {
-			return PrivateKeyState{}, err
-		}
-		key, err := c.GetPrivateKey(ctx, uuid)
-		if err != nil {
-			return PrivateKeyState{}, err
-		}
-		return privateKeyState(key), nil
+	uuid, err := c.CreatePrivateKey(ctx, inputs.Name, inputs.Description, inputs.PrivateKey)
+	if err != nil {
+		return api.PrivateKey{}, err
 	}
-
-	return privateKeyState(*existing), nil
+	return c.GetPrivateKey(ctx, uuid)
 }
 
-func privateKeyState(key CoolifyPrivateKey) PrivateKeyState {
+func privateKeyState(inputs PrivateKeyArgs, key api.PrivateKey) PrivateKeyState {
 	return PrivateKeyState{
-		UUID:        key.UUID,
-		Name:        key.Name,
-		Description: desc(key.Description),
-		PublicKey:   key.PublicKey,
+		PrivateKeyArgs: inputs,
+		UUID:           coolify.Deref(key.Uuid),
+		PublicKey:      coolify.Deref(key.PublicKey),
+		Fingerprint:    coolify.Deref(key.Fingerprint),
 	}
-}
-
-func privateKeyStateFromInputs(uuid string, inputs PrivateKeyArgs) PrivateKeyState {
-	return PrivateKeyState{UUID: uuid, Name: inputs.Name, Description: inputs.Description}
-}
-
-func privateKeyPlaceholder(inputs PrivateKeyArgs) PrivateKeyState {
-	state := privateKeyStateFromInputs("pending", inputs)
-	return state
 }

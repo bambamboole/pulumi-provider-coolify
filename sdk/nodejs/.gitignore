@@ -1,6 +1,2 @@
 node_modules/
 bin/
-*.js
-*.js.map
-*.d.ts
-*.d.ts.map

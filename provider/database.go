@@ -6,403 +6,278 @@ import (
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
+
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
-// Database manages a standalone database (PostgreSQL, Redis, ...) inside a
-// Coolify project environment.
+// DatabaseType is the standalone database engine to run.
+type DatabaseType string
+
+const (
+	DatabaseTypePostgreSQL DatabaseType = DatabaseType(coolify.DatabaseTypePostgreSQL)
+	DatabaseTypeMySQL      DatabaseType = DatabaseType(coolify.DatabaseTypeMySQL)
+	DatabaseTypeMariaDB    DatabaseType = DatabaseType(coolify.DatabaseTypeMariaDB)
+	DatabaseTypeMongoDB    DatabaseType = DatabaseType(coolify.DatabaseTypeMongoDB)
+	DatabaseTypeRedis      DatabaseType = DatabaseType(coolify.DatabaseTypeRedis)
+	DatabaseTypeKeyDB      DatabaseType = DatabaseType(coolify.DatabaseTypeKeyDB)
+	DatabaseTypeDragonfly  DatabaseType = DatabaseType(coolify.DatabaseTypeDragonfly)
+	DatabaseTypeClickHouse DatabaseType = DatabaseType(coolify.DatabaseTypeClickHouse)
+)
+
+func (DatabaseType) Values() []infer.EnumValue[DatabaseType] {
+	return []infer.EnumValue[DatabaseType]{
+		{Name: "PostgreSQL", Value: DatabaseTypePostgreSQL, Description: "PostgreSQL"},
+		{Name: "MySQL", Value: DatabaseTypeMySQL, Description: "MySQL"},
+		{Name: "MariaDB", Value: DatabaseTypeMariaDB, Description: "MariaDB"},
+		{Name: "MongoDB", Value: DatabaseTypeMongoDB, Description: "MongoDB"},
+		{Name: "Redis", Value: DatabaseTypeRedis, Description: "Redis"},
+		{Name: "KeyDB", Value: DatabaseTypeKeyDB, Description: "KeyDB"},
+		{Name: "Dragonfly", Value: DatabaseTypeDragonfly, Description: "Dragonfly"},
+		{Name: "ClickHouse", Value: DatabaseTypeClickHouse, Description: "ClickHouse"},
+	}
+}
+
+// Database manages a standalone database inside a Coolify project environment.
 type Database struct{}
 
 type DatabaseArgs struct {
-	// Database type: "redis" or "postgresql".
-	Type string `pulumi:"type"`
-	// Name of the database.
+	// Database engine.
+	Type DatabaseType `pulumi:"type"`
+	// Name of the database. An existing database with this name in the same
+	// environment is adopted.
 	Name string `pulumi:"name"`
 	// Description of the database.
 	Description string `pulumi:"description,optional"`
-	// Container image, e.g. "postgres:18-alpine".
+	// Container image, e.g. "postgres:17-alpine". Leave unset to use Coolify's default.
 	Image string `pulumi:"image,optional"`
 	// Whether the database is exposed publicly.
 	IsPublic bool `pulumi:"isPublic,optional"`
 	// Public port to expose. Required when isPublic is true.
 	PublicPort *int `pulumi:"publicPort,optional"`
-	// Name of the Coolify project the database belongs to.
-	Project string `pulumi:"project"`
+	// Start the database right after creating it.
+	InstantDeploy bool `pulumi:"instantDeploy,optional"`
+	// UUID of the Coolify project the database belongs to.
+	ProjectUUID string `pulumi:"projectUuid"`
 	// Name of the environment inside the project.
-	Environment string `pulumi:"environment"`
+	EnvironmentName string `pulumi:"environmentName"`
 	// UUID of the server hosting the database.
 	ServerUUID string `pulumi:"serverUuid"`
 }
 
 type DatabaseState struct {
+	DatabaseArgs
 	// UUID of the database in Coolify.
 	UUID string `pulumi:"uuid"`
-	// Database type: "redis" or "postgresql".
-	Type string `pulumi:"type"`
-	// Name of the database.
-	Name string `pulumi:"name"`
-	// Description of the database.
-	Description string `pulumi:"description"`
-	// Container image.
-	Image string `pulumi:"image"`
-	// Whether the database is exposed publicly.
-	IsPublic bool `pulumi:"isPublic"`
-	// Public port, if exposed.
-	PublicPort *int `pulumi:"publicPort,optional"`
-	// Name of the Coolify project.
-	Project string `pulumi:"project"`
-	// Name of the environment.
-	Environment string `pulumi:"environment"`
-	// UUID of the server hosting the database.
-	ServerUUID string `pulumi:"serverUuid"`
 	// ID of the Coolify environment the database lives in.
 	EnvironmentID int `pulumi:"environmentId"`
-	// UUID of the owning project.
-	ProjectUUID string `pulumi:"projectUuid"`
-	// Internal connection URL (never compared or patched).
-	InternalURL *string `pulumi:"internalUrl,optional"`
-	// External connection URL (never compared or patched).
-	ExternalURL *string `pulumi:"externalUrl,optional"`
-	// PostgreSQL user (never compared or patched).
-	PostgresUser *string `pulumi:"postgresUser,optional"`
-	// PostgreSQL database name (never compared or patched).
-	PostgresDatabase *string `pulumi:"postgresDatabase,optional"`
-	// Database password (never compared or patched).
-	Password *string `pulumi:"password,optional" provider:"secret"`
+	// Status reported by Coolify.
+	Status string `pulumi:"status"`
+	// Connection URL for resources on the same Docker network.
+	InternalURL string `pulumi:"internalUrl" provider:"secret"`
+	// Public connection URL, when exposed.
+	ExternalURL string `pulumi:"externalUrl" provider:"secret"`
+	// Username of the primary database user.
+	Username string `pulumi:"username"`
+	// Password of the primary database user.
+	Password string `pulumi:"password" provider:"secret"`
+	// Name of the default database, for engines that have one.
+	DatabaseName string `pulumi:"databaseName"`
 }
 
 func (r *Database) Annotate(a infer.Annotator) {
 	a.SetToken("index", "Database")
-	a.Describe(&r, "A standalone Coolify database (Redis, PostgreSQL) inside a project environment.")
+	a.Describe(&r, "A standalone Coolify database (PostgreSQL, MySQL, MariaDB, MongoDB, Redis, KeyDB, Dragonfly, ClickHouse) inside a project environment. An existing database with the same name in the environment is adopted on create.")
 }
 
 func (args *DatabaseArgs) Annotate(a infer.Annotator) {
-	a.Describe(&args.Type, `Database type: "redis" or "postgresql".`)
+	a.Describe(&args.Type, "Database engine.")
+	a.Describe(&args.Name, "Name of the database. An existing database with this name in the same environment is adopted.")
+	a.Describe(&args.Description, "Description of the database.")
+	a.Describe(&args.Image, `Container image, e.g. "postgres:17-alpine". Leave unset to keep Coolify's default.`)
+	a.Describe(&args.IsPublic, "Whether the database is exposed publicly.")
 	a.Describe(&args.PublicPort, "Public port to expose. Required when isPublic is true.")
+	a.Describe(&args.InstantDeploy, "Start the database right after creating it.")
+	a.Describe(&args.ProjectUUID, "UUID of the Coolify project (the uuid output of a Project resource).")
+	a.Describe(&args.EnvironmentName, "Name of the environment inside the project.")
+	a.Describe(&args.ServerUUID, "UUID of the server hosting the database (the uuid output of a Server resource).")
 }
 
 func (state *DatabaseState) Annotate(a infer.Annotator) {
-	a.Describe(&state.Password, "Database password generated by Coolify. Never compared or patched.")
+	a.Describe(&state.UUID, "UUID of the database in Coolify.")
+	a.Describe(&state.EnvironmentID, "ID of the Coolify environment the database lives in.")
+	a.Describe(&state.Status, "Status reported by Coolify.")
+	a.Describe(&state.InternalURL, "Connection URL for resources on the same Docker network.")
+	a.Describe(&state.ExternalURL, "Public connection URL, when exposed.")
+	a.Describe(&state.Username, "Username of the primary database user.")
+	a.Describe(&state.Password, "Password of the primary database user.")
+	a.Describe(&state.DatabaseName, "Name of the default database, for engines that have one.")
+}
+
+func (Database) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[DatabaseArgs], error) {
+	args, failures, err := infer.DefaultCheck[DatabaseArgs](ctx, req.NewInputs)
+	if err != nil {
+		return infer.CheckResponse[DatabaseArgs]{}, err
+	}
+	if args.IsPublic && args.PublicPort == nil {
+		failures = append(failures, p.CheckFailure{Property: "publicPort", Reason: "publicPort is required when isPublic is true"})
+	}
+	return infer.CheckResponse[DatabaseArgs]{Inputs: args, Failures: failures}, nil
 }
 
 func (Database) Create(ctx context.Context, req infer.CreateRequest[DatabaseArgs]) (infer.CreateResponse[DatabaseState], error) {
-	if err := validatePublicPort(req.Inputs); err != nil {
-		return infer.CreateResponse[DatabaseState]{}, err
-	}
 	if req.DryRun {
-		return infer.CreateResponse[DatabaseState]{ID: "pending", Output: databasePlaceholder(req.Inputs)}, nil
+		return infer.CreateResponse[DatabaseState]{Output: DatabaseState{DatabaseArgs: req.Inputs}}, nil
 	}
-	c := client(ctx)
-	state, err := syncDatabase(ctx, c, req.Inputs)
+	database, err := createDatabase(ctx, client(ctx), req.Inputs)
 	if err != nil {
 		return infer.CreateResponse[DatabaseState]{}, err
 	}
-	return infer.CreateResponse[DatabaseState]{ID: state.UUID, Output: state}, nil
+	return infer.CreateResponse[DatabaseState]{ID: database.UUID, Output: databaseState(req.Inputs, database)}, nil
 }
 
 func (Database) Diff(ctx context.Context, req infer.DiffRequest[DatabaseArgs, DatabaseState]) (infer.DiffResponse, error) {
-	diff := map[string]p.PropertyDiff{}
-	if req.Inputs.Type != req.State.Type {
-		diff["type"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if req.Inputs.Project != req.State.Project {
-		diff["project"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if req.Inputs.Environment != req.State.Environment {
-		diff["environment"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if req.Inputs.ServerUUID != req.State.ServerUUID {
-		diff["serverUuid"] = p.PropertyDiff{Kind: p.UpdateReplace}
-	}
-	if req.Inputs.Name != req.State.Name {
-		diff["name"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if req.Inputs.Description != req.State.Description {
-		diff["description"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if req.Inputs.Image != req.State.Image {
-		diff["image"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if req.Inputs.IsPublic != req.State.IsPublic {
-		diff["isPublic"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if req.Inputs.PublicPort != nil && !intPtrEqual(req.State.PublicPort, req.Inputs.PublicPort) {
-		diff["publicPort"] = p.PropertyDiff{Kind: p.Update}
-	}
-	if req.Inputs.PublicPort == nil && req.State.PublicPort != nil {
-		diff["publicPort"] = p.PropertyDiff{Kind: p.Update}
-	}
-	return infer.DiffResponse{HasChanges: len(diff) > 0, DetailedDiff: diff}, nil
+	diff := diffArgs(req.State.DatabaseArgs, req.Inputs, "type", "projectUuid", "environmentName", "serverUuid")
+	// Only relevant on create.
+	delete(diff, "instantDeploy")
+	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
 }
 
 func (Database) Update(ctx context.Context, req infer.UpdateRequest[DatabaseArgs, DatabaseState]) (infer.UpdateResponse[DatabaseState], error) {
-	if err := validatePublicPort(req.Inputs); err != nil {
-		return infer.UpdateResponse[DatabaseState]{}, err
-	}
 	if req.DryRun {
-		return infer.UpdateResponse[DatabaseState]{
-			Output: databaseStateWithUUID(req.State.UUID, req.State, req.Inputs),
-		}, nil
+		state := req.State
+		state.DatabaseArgs = req.Inputs
+		return infer.UpdateResponse[DatabaseState]{Output: state}, nil
 	}
 	c := client(ctx)
-	state, err := syncDatabase(ctx, c, req.Inputs)
+	current, err := c.GetDatabase(ctx, req.ID)
 	if err != nil {
 		return infer.UpdateResponse[DatabaseState]{}, err
 	}
-	return infer.UpdateResponse[DatabaseState]{Output: state}, nil
+	database, err := applyDatabase(ctx, c, current, req.Inputs)
+	if err != nil {
+		return infer.UpdateResponse[DatabaseState]{}, err
+	}
+	return infer.UpdateResponse[DatabaseState]{Output: databaseState(req.Inputs, database)}, nil
 }
 
 func (Database) Read(ctx context.Context, req infer.ReadRequest[DatabaseArgs, DatabaseState]) (infer.ReadResponse[DatabaseArgs, DatabaseState], error) {
-	c := client(ctx)
-	database, err := c.GetDatabase(ctx, req.ID)
+	database, err := client(ctx).GetDatabase(ctx, req.ID)
+	if coolify.IsNotFound(err) {
+		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, nil
+	}
 	if err != nil {
 		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, err
 	}
-	state, err := normalizeDatabaseState(ctx, database, req.State)
-	if err != nil {
-		return infer.ReadResponse[DatabaseArgs, DatabaseState]{}, err
-	}
-	inputs := req.Inputs
-	if inputs.Name == "" {
-		inputs = databaseInputsFromState(state)
-	}
-	return infer.ReadResponse[DatabaseArgs, DatabaseState]{ID: req.ID, Inputs: inputs, State: state}, nil
+	inputs := databaseInputs(req.Inputs, database)
+	return infer.ReadResponse[DatabaseArgs, DatabaseState]{
+		ID:     req.ID,
+		Inputs: inputs,
+		State:  databaseState(inputs, database),
+	}, nil
 }
 
 func (Database) Delete(ctx context.Context, req infer.DeleteRequest[DatabaseState]) (infer.DeleteResponse, error) {
-	c := client(ctx)
-	if err := c.DeleteDatabase(ctx, req.State.UUID); err != nil && !NotFound(err) {
+	if err := client(ctx).DeleteDatabase(ctx, req.ID); err != nil && !coolify.IsNotFound(err) {
 		return infer.DeleteResponse{}, err
 	}
 	return infer.DeleteResponse{}, nil
 }
 
-func syncDatabase(ctx context.Context, c *Client, inputs DatabaseArgs) (DatabaseState, error) {
-	identity, err := resolveDatabaseIdentity(ctx, c, inputs)
-	if err != nil {
-		return DatabaseState{}, err
+// resolveEnvironment looks up the environment by name in the project.
+func resolveEnvironment(ctx context.Context, c *coolify.Client, projectUUID, name string) (coolify.Environment, error) {
+	environment, err := c.GetEnvironment(ctx, projectUUID, name)
+	if coolify.IsNotFound(err) {
+		return coolify.Environment{}, fmt.Errorf("coolify environment %q not found in project %q", name, projectUUID)
 	}
+	return environment, err
+}
 
+// createDatabase adopts the database with the same name in the environment or
+// creates it, and reconciles its settings with the inputs.
+func createDatabase(ctx context.Context, c *coolify.Client, inputs DatabaseArgs) (coolify.Database, error) {
+	environment, err := resolveEnvironment(ctx, c, inputs.ProjectUUID, inputs.EnvironmentName)
+	if err != nil {
+		return coolify.Database{}, err
+	}
 	databases, err := c.ListDatabases(ctx)
 	if err != nil {
-		return DatabaseState{}, err
+		return coolify.Database{}, err
 	}
-	var existing *CoolifyDatabase
-	for i := range databases {
-		candidate := &databases[i]
-		if candidate.Name == inputs.Name && candidate.EnvironmentID == identity.environmentID {
-			existing = candidate
-			break
+	for _, candidate := range databases {
+		if candidate.Name != inputs.Name || candidate.EnvironmentID != environment.ID {
+			continue
 		}
-	}
-
-	if existing == nil {
-		uuid, err := c.CreateDatabase(ctx, inputs.Type, CreateDatabaseInput{
-			ServerUUID:      inputs.ServerUUID,
-			ProjectUUID:     identity.projectUUID,
-			EnvironmentName: identity.environment,
-			Name:            inputs.Name,
-			Description:     inputs.Description,
-			Image:           inputs.Image,
-			IsPublic:        inputs.IsPublic,
-			PublicPort:      inputs.PublicPort,
-		})
-		if err != nil {
-			return DatabaseState{}, err
+		if candidate.Type() != coolify.DatabaseType(inputs.Type) {
+			return coolify.Database{}, fmt.Errorf("coolify database %q already exists in environment %q with type %q, expected %q",
+				inputs.Name, inputs.EnvironmentName, candidate.Type(), inputs.Type)
 		}
-		database, err := c.GetDatabase(ctx, uuid)
-		if err != nil {
-			return DatabaseState{}, err
-		}
-		return databaseState(database, identity, inputs), nil
+		return applyDatabase(ctx, c, candidate, inputs)
 	}
 
-	if err := assertCompatibleType(existing, inputs.Type); err != nil {
-		return DatabaseState{}, err
-	}
-	changes := databaseChanges(existing, inputs)
-	if len(changes) > 0 {
-		if err := c.UpdateDatabase(ctx, existing.UUID, changes); err != nil {
-			return DatabaseState{}, err
-		}
-		updated, err := c.GetDatabase(ctx, existing.UUID)
-		if err != nil {
-			return DatabaseState{}, err
-		}
-		return databaseState(updated, identity, inputs), nil
-	}
-
-	return databaseState(*existing, identity, inputs), nil
-}
-
-type databaseIdentity struct {
-	environmentID int
-	projectUUID   string
-	environment   string
-}
-
-func resolveDatabaseIdentity(ctx context.Context, c *Client, inputs DatabaseArgs) (databaseIdentity, error) {
-	projects, err := c.ListProjects(ctx)
+	uuid, err := c.CreateDatabase(ctx, coolify.DatabaseType(inputs.Type), coolify.CreateDatabaseInput{
+		ServerUUID:      inputs.ServerUUID,
+		ProjectUUID:     inputs.ProjectUUID,
+		EnvironmentName: environment.Name,
+		EnvironmentUUID: environment.UUID,
+		Name:            inputs.Name,
+		Description:     coolify.PtrIfNonZero(inputs.Description),
+		Image:           coolify.PtrIfNonZero(inputs.Image),
+		IsPublic:        inputs.IsPublic,
+		PublicPort:      inputs.PublicPort,
+		InstantDeploy:   inputs.InstantDeploy,
+	})
 	if err != nil {
-		return databaseIdentity{}, err
+		return coolify.Database{}, err
 	}
-	var project *CoolifyProject
-	for i := range projects {
-		if projects[i].Name == inputs.Project {
-			project = &projects[i]
-			break
-		}
-	}
-	if project == nil {
-		return databaseIdentity{}, fmt.Errorf(`coolify project %q not found for database %q`, inputs.Project, inputs.Name)
-	}
-
-	environments, err := c.ListEnvironments(ctx, project.UUID)
-	if err != nil {
-		return databaseIdentity{}, err
-	}
-	for i := range environments {
-		if environments[i].Name == inputs.Environment {
-			return databaseIdentity{
-				environmentID: environments[i].ID,
-				projectUUID:   project.UUID,
-				environment:   environments[i].Name,
-			}, nil
-		}
-	}
-	return databaseIdentity{}, fmt.Errorf(`coolify environment %q not found in project %q for database %q`, inputs.Environment, inputs.Project, inputs.Name)
+	return c.GetDatabase(ctx, uuid)
 }
 
-func assertCompatibleType(database *CoolifyDatabase, typ string) error {
-	expected := "standalone-redis"
-	if typ == "postgresql" {
-		expected = "standalone-postgresql"
+// applyDatabase patches the fields of current that differ from the inputs and
+// returns the refreshed database.
+func applyDatabase(ctx context.Context, c *coolify.Client, current coolify.Database, inputs DatabaseArgs) (coolify.Database, error) {
+	var body api.UpdateDatabaseByUuidJSONRequestBody
+	var patch patch
+	patch.str(&body.Name, inputs.Name, current.Name)
+	patch.text(&body.Description, inputs.Description, coolify.Deref(current.Description))
+	patch.str(&body.Image, inputs.Image, current.Image)
+	patch.boolean(&body.IsPublic, inputs.IsPublic, current.IsPublic)
+	patch.optionalInt(&body.PublicPort, inputs.PublicPort, current.PublicPort)
+	if !patch.changed {
+		return current, nil
 	}
-	if database.DatabaseType != expected {
-		return fmt.Errorf(`coolify database %q has type %q, expected %q`, database.Name, database.DatabaseType, expected)
+	if err := c.UpdateDatabase(ctx, current.UUID, body); err != nil {
+		return coolify.Database{}, err
 	}
-	return nil
+	return c.GetDatabase(ctx, current.UUID)
 }
 
-func databaseChanges(database *CoolifyDatabase, inputs DatabaseArgs) map[string]any {
-	changes := map[string]any{}
-	if database.Name != inputs.Name {
-		changes["name"] = inputs.Name
+// databaseInputs derives the inputs from the database Coolify reports, keeping
+// unmanaged optional inputs and the identity fields the API does not return.
+func databaseInputs(previous DatabaseArgs, database coolify.Database) DatabaseArgs {
+	inputs := previous
+	inputs.Type = DatabaseType(database.Type())
+	inputs.Name = database.Name
+	inputs.Description = coolify.Deref(database.Description)
+	inputs.Image = ifSet(previous.Image, database.Image)
+	inputs.IsPublic = database.IsPublic
+	if database.IsPublic || previous.PublicPort != nil {
+		inputs.PublicPort = database.PublicPort
 	}
-	if desc(database.Description) != inputs.Description {
-		changes["description"] = inputs.Description
-	}
-	if database.Image != inputs.Image {
-		changes["image"] = inputs.Image
-	}
-	if database.IsPublic != inputs.IsPublic {
-		changes["is_public"] = inputs.IsPublic
-	}
-	if inputs.PublicPort != nil && !intPtrEqual(database.PublicPort, inputs.PublicPort) {
-		changes["public_port"] = *inputs.PublicPort
-	} else if inputs.PublicPort == nil && database.PublicPort != nil {
-		changes["public_port"] = nil
-	}
-	return changes
+	return inputs
 }
 
-func validatePublicPort(inputs DatabaseArgs) error {
-	if inputs.IsPublic && inputs.PublicPort == nil {
-		return fmt.Errorf(`coolify database %q must declare a publicPort when isPublic is true`, inputs.Name)
-	}
-	return nil
-}
-
-func normalizeDatabaseState(ctx context.Context, database CoolifyDatabase, prev DatabaseState) (DatabaseState, error) {
+func databaseState(inputs DatabaseArgs, database coolify.Database) DatabaseState {
+	user, password, name := database.Credentials()
 	return DatabaseState{
-		UUID:             database.UUID,
-		Type:             prev.Type,
-		Name:             database.Name,
-		Description:      desc(database.Description),
-		Image:            database.Image,
-		IsPublic:         database.IsPublic,
-		PublicPort:       database.PublicPort,
-		Project:          prev.Project,
-		Environment:      prev.Environment,
-		ServerUUID:       prev.ServerUUID,
-		EnvironmentID:    database.EnvironmentID,
-		ProjectUUID:      prev.ProjectUUID,
-		InternalURL:      database.InternalDBURL,
-		ExternalURL:      database.ExternalDBURL,
-		PostgresUser:     database.PostgresUser,
-		PostgresDatabase: database.PostgresDB,
-		Password:         database.PostgresPass,
-	}, nil
-}
-
-func databaseState(database CoolifyDatabase, identity databaseIdentity, inputs DatabaseArgs) DatabaseState {
-	return DatabaseState{
-		UUID:             database.UUID,
-		Type:             inputs.Type,
-		Name:             database.Name,
-		Description:      desc(database.Description),
-		Image:            database.Image,
-		IsPublic:         database.IsPublic,
-		PublicPort:       database.PublicPort,
-		Project:          inputs.Project,
-		Environment:      identity.environment,
-		ServerUUID:       inputs.ServerUUID,
-		EnvironmentID:    identity.environmentID,
-		ProjectUUID:      identity.projectUUID,
-		InternalURL:      database.InternalDBURL,
-		ExternalURL:      database.ExternalDBURL,
-		PostgresUser:     database.PostgresUser,
-		PostgresDatabase: database.PostgresDB,
-		Password:         database.PostgresPass,
+		DatabaseArgs:  inputs,
+		UUID:          database.UUID,
+		EnvironmentID: database.EnvironmentID,
+		Status:        database.Status,
+		InternalURL:   coolify.Deref(database.InternalDBURL),
+		ExternalURL:   coolify.Deref(database.ExternalDBURL),
+		Username:      user,
+		Password:      password,
+		DatabaseName:  name,
 	}
-}
-
-func databasePlaceholder(inputs DatabaseArgs) DatabaseState {
-	return DatabaseState{
-		UUID:          "pending",
-		Type:          inputs.Type,
-		Name:          inputs.Name,
-		Description:   inputs.Description,
-		Image:         inputs.Image,
-		IsPublic:      inputs.IsPublic,
-		PublicPort:    inputs.PublicPort,
-		Project:       inputs.Project,
-		Environment:   inputs.Environment,
-		ServerUUID:    inputs.ServerUUID,
-		EnvironmentID: -1,
-		ProjectUUID:   "pending",
-	}
-}
-
-func databaseStateWithUUID(uuid string, prev DatabaseState, inputs DatabaseArgs) DatabaseState {
-	state := databasePlaceholder(inputs)
-	state.UUID = uuid
-	state.EnvironmentID = prev.EnvironmentID
-	state.ProjectUUID = prev.ProjectUUID
-	state.InternalURL = prev.InternalURL
-	state.ExternalURL = prev.ExternalURL
-	state.PostgresUser = prev.PostgresUser
-	state.PostgresDatabase = prev.PostgresDatabase
-	state.Password = prev.Password
-	return state
-}
-
-func databaseInputsFromState(state DatabaseState) DatabaseArgs {
-	return DatabaseArgs{
-		Type:        state.Type,
-		Name:        state.Name,
-		Description: state.Description,
-		Image:       state.Image,
-		IsPublic:    state.IsPublic,
-		PublicPort:  state.PublicPort,
-		Project:     state.Project,
-		Environment: state.Environment,
-		ServerUUID:  state.ServerUUID,
-	}
-}
-
-func intPtrEqual(a, b *int) bool {
-	if a == nil || b == nil {
-		return a == b
-	}
-	return *a == *b
 }
