@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -126,77 +127,80 @@ var notificationChannels = []struct{ token, channel, enabled string }{
 }
 
 func TestNotificationSingletonLifecycle(t *testing.T) {
-	for _, tt := range notificationChannels {
-		t.Run(tt.channel, func(t *testing.T) {
-			failureKey := "deployment_failure_" + tt.channel + "_notifications"
-			successKey := "deployment_success_" + tt.channel + "_notifications"
-			fake := newNotificationAPIFake(t, tt.channel, map[string]any{tt.enabled: true, failureKey: true, successKey: true})
-			server := notificationServer(t, fake)
-			urn := notificationURN(tt.token)
-			enabledInput := "enabled"
-			if tt.channel == "email" {
-				enabledInput = "smtpEnabled"
-			}
-			inputs := notificationCheck(t, server, urn, map[string]property.Value{
-				enabledInput: property.New(false),
-				"events":     property.New(property.NewMap(map[string]property.Value{"deploymentFailure": property.New(false)})),
+	for _, teamID := range []int{0, 42} {
+		for _, tt := range notificationChannels {
+			t.Run(fmt.Sprintf("%s/team-%d", tt.channel, teamID), func(t *testing.T) {
+				failureKey := "deployment_failure_" + tt.channel + "_notifications"
+				successKey := "deployment_success_" + tt.channel + "_notifications"
+				fake := newNotificationAPIFake(t, tt.channel, map[string]any{tt.enabled: true, failureKey: true, successKey: true})
+				fake.settings["team_id"] = teamID
+				server := notificationServer(t, fake)
+				urn := notificationURN(tt.token)
+				enabledInput := "enabled"
+				if tt.channel == "email" {
+					enabledInput = "smtpEnabled"
+				}
+				inputs := notificationCheck(t, server, urn, map[string]property.Value{
+					enabledInput: property.New(false),
+					"events":     property.New(property.NewMap(map[string]property.Value{"deploymentFailure": property.New(false)})),
+				})
+				created, err := server.Create(p.CreateRequest{Urn: urn, Properties: inputs})
+				if err != nil {
+					t.Fatal(err)
+				}
+				if created.ID != fmt.Sprintf("%d/%s", teamID, tt.channel) {
+					t.Fatalf("singleton ID = %q", created.ID)
+				}
+				if v := created.Properties.Get("teamId"); !v.IsNumber() || v.AsNumber() != float64(teamID) {
+					t.Fatalf("teamId = %v", v)
+				}
+				notificationAssertPatches(t, fake, map[string]any{tt.enabled: false, failureKey: false})
+				diff, err := server.Diff(p.DiffRequest{Urn: urn, ID: created.ID, State: created.Properties, OldInputs: inputs, Inputs: inputs})
+				if err != nil || diff.HasChanges {
+					t.Fatalf("unchanged inputs have diff: %+v %v", diff, err)
+				}
+				updated, err := server.Update(p.UpdateRequest{Urn: urn, ID: created.ID, State: created.Properties, OldInputs: inputs, Inputs: inputs})
+				if err != nil {
+					t.Fatal(err)
+				}
+				notificationAssertPatches(t, fake, map[string]any{tt.enabled: false, failureKey: false})
+				// A UI change to a declared flag is drift; the undeclared event remains unmanaged.
+				fake.mu.Lock()
+				fake.settings[failureKey] = true
+				fake.settings[successKey] = false
+				fake.mu.Unlock()
+				refreshed, err := server.Read(p.ReadRequest{Urn: urn, ID: created.ID, Properties: updated.Properties, Inputs: inputs})
+				if err != nil {
+					t.Fatal(err)
+				}
+				events := refreshed.Inputs.Get("events").AsMap()
+				if !events.Get("deploymentFailure").AsBool() || !events.Get("deploymentSuccess").IsNull() {
+					t.Fatalf("refresh must report only declared events: %v", events)
+				}
+				// Destroy disables the channel and preserves event configuration.
+				fake.mu.Lock()
+				fake.settings[tt.enabled] = true
+				if tt.channel == "email" {
+					fake.settings["resend_enabled"] = true
+					fake.settings["use_instance_email_settings"] = true
+				}
+				fake.mu.Unlock()
+				if err := server.Delete(p.DeleteRequest{Urn: urn, ID: created.ID, Properties: refreshed.Properties, OldInputs: refreshed.Inputs}); err != nil {
+					t.Fatal(err)
+				}
+				disable := map[string]any{tt.enabled: false}
+				if tt.channel == "email" {
+					disable["resend_enabled"] = false
+					disable["use_instance_email_settings"] = false
+				}
+				notificationAssertPatches(t, fake, map[string]any{tt.enabled: false, failureKey: false}, disable)
+				fake.mu.Lock()
+				defer fake.mu.Unlock()
+				if fake.settings[failureKey] != true || fake.settings[successKey] != false {
+					t.Fatal("destroy changed event settings")
+				}
 			})
-			created, err := server.Create(p.CreateRequest{Urn: urn, Properties: inputs})
-			if err != nil {
-				t.Fatal(err)
-			}
-			if created.ID != "42/"+tt.channel {
-				t.Fatalf("singleton ID = %q", created.ID)
-			}
-			if v := created.Properties.Get("teamId"); !v.IsNumber() || v.AsNumber() != 42 {
-				t.Fatalf("teamId = %v", v)
-			}
-			notificationAssertPatches(t, fake, map[string]any{tt.enabled: false, failureKey: false})
-			diff, err := server.Diff(p.DiffRequest{Urn: urn, ID: created.ID, State: created.Properties, OldInputs: inputs, Inputs: inputs})
-			if err != nil || diff.HasChanges {
-				t.Fatalf("unchanged inputs have diff: %+v %v", diff, err)
-			}
-			updated, err := server.Update(p.UpdateRequest{Urn: urn, ID: created.ID, State: created.Properties, OldInputs: inputs, Inputs: inputs})
-			if err != nil {
-				t.Fatal(err)
-			}
-			notificationAssertPatches(t, fake, map[string]any{tt.enabled: false, failureKey: false})
-			// A UI change to a declared flag is drift; the undeclared event remains unmanaged.
-			fake.mu.Lock()
-			fake.settings[failureKey] = true
-			fake.settings[successKey] = false
-			fake.mu.Unlock()
-			refreshed, err := server.Read(p.ReadRequest{Urn: urn, ID: created.ID, Properties: updated.Properties, Inputs: inputs})
-			if err != nil {
-				t.Fatal(err)
-			}
-			events := refreshed.Inputs.Get("events").AsMap()
-			if !events.Get("deploymentFailure").AsBool() || !events.Get("deploymentSuccess").IsNull() {
-				t.Fatalf("refresh must report only declared events: %v", events)
-			}
-			// Destroy disables the channel and preserves event configuration.
-			fake.mu.Lock()
-			fake.settings[tt.enabled] = true
-			if tt.channel == "email" {
-				fake.settings["resend_enabled"] = true
-				fake.settings["use_instance_email_settings"] = true
-			}
-			fake.mu.Unlock()
-			if err := server.Delete(p.DeleteRequest{Urn: urn, ID: created.ID, Properties: refreshed.Properties, OldInputs: refreshed.Inputs}); err != nil {
-				t.Fatal(err)
-			}
-			disable := map[string]any{tt.enabled: false}
-			if tt.channel == "email" {
-				disable["resend_enabled"] = false
-				disable["use_instance_email_settings"] = false
-			}
-			notificationAssertPatches(t, fake, map[string]any{tt.enabled: false, failureKey: false}, disable)
-			fake.mu.Lock()
-			defer fake.mu.Unlock()
-			if fake.settings[failureKey] != true || fake.settings[successKey] != false {
-				t.Fatal("destroy changed event settings")
-			}
-		})
+		}
 	}
 }
 
