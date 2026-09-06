@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.8.1...v0.9.0) (2026-09-06)
+
+
+### Features
+
+* manage shared variables across all scopes ([4bcb46e](https://github.com/bambamboole/pulumi-provider-coolify/commit/4bcb46e853cb54f58a006d0c123ea2c11c62664b))
+
 ## [0.8.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.8.0...v0.8.1) (2026-09-06)
 
 
