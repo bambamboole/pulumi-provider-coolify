@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.6.0...v0.7.0) (2026-09-06)
+
+
+### Features
+
+* add Storage and VolumeBackup resources and a getStorage function ([e84fe43](https://github.com/bambamboole/pulumi-provider-coolify/commit/e84fe435b189f926522dc7e7e183a87b8d01cb2e))
+* manage tags on applications, databases and services with provider default tags ([bec3af7](https://github.com/bambamboole/pulumi-provider-coolify/commit/bec3af74ba04d665fa70d45da6d081a2dcfd2fdc))
+
 ## [0.6.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.5.0...v0.6.0) (2026-09-06)
 
 
