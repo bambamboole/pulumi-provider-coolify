@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"sort"
 	"strings"
 	"sync"
@@ -1001,9 +1002,24 @@ func (f *fakeCoolify) applyServiceURLs(service, body map[string]any) {
 			app = map[string]any{"name": item["name"]}
 			applications = append(applications, app)
 		}
-		app["fqdn"] = item["url"]
+		// Coolify stores internal ports separately, strips them from fqdn,
+		// and reconstructs the public url attribute when serializing.
+		app["url"] = item["url"]
 		if item["url"] == "" {
-			app["fqdn"] = nil
+			app["fqdn"], app["url"] = nil, nil
+		} else {
+			domains := strings.Split(item["url"].(string), ",")
+			for i, domain := range domains {
+				parsed, err := url.Parse(domain)
+				if err != nil {
+					f.t.Fatalf("invalid test URL %q: %v", domain, err)
+				}
+				if port := parsed.Port(); port != "" {
+					parsed.Host = strings.TrimSuffix(parsed.Host, ":"+port)
+				}
+				domains[i] = parsed.String()
+			}
+			app["fqdn"] = strings.Join(domains, ",")
 		}
 	}
 	service["applications"] = applications
