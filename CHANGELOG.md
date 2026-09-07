@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.9.0...v0.10.0) (2026-09-07)
+
+
+### Features
+
+* add service deployment triggers and preserve domain ports ([#27](https://github.com/bambamboole/pulumi-provider-coolify/issues/27)) ([34e4d7a](https://github.com/bambamboole/pulumi-provider-coolify/commit/34e4d7a07ef3fd18266c9fd58361db33cbbfa4db))
+* manage service domains through native Coolify API ([#25](https://github.com/bambamboole/pulumi-provider-coolify/issues/25)) ([b7724c6](https://github.com/bambamboole/pulumi-provider-coolify/commit/b7724c6534ba20505620411a3b894796a65432a0))
+
 ## [0.9.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.8.1...v0.9.0) (2026-09-06)
 
 
