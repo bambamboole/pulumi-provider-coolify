@@ -4810,6 +4810,12 @@ type MoveServiceByUuidJSONBody struct {
 	EnvironmentUuid string `json:"environment_uuid"`
 }
 
+// RestartServiceByUuidParams defines parameters for RestartServiceByUuid.
+type RestartServiceByUuidParams struct {
+	// Latest Pull latest images.
+	Latest *bool `form:"latest,omitempty" json:"latest,omitempty"`
+}
+
 // CreateTagByServiceUuidJSONBody defines parameters for CreateTagByServiceUuid.
 type CreateTagByServiceUuidJSONBody struct {
 	// TagName The tag name (min 2 characters). Required if tag_names is not provided.
@@ -6555,6 +6561,13 @@ type ClientInterface interface {
 	//
 	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
 	MoveServiceByUuid(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// RestartServiceByUuid Restart
+	//
+	// Restart service.
+	//
+	// Corresponds with POST /services/{uuid}/restart (the `RestartServiceByUuid` operationId).
+	RestartServiceByUuid(ctx context.Context, uuid string, params *RestartServiceByUuidParams, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// ListStoragesByServiceUuid List Storages
 	//
@@ -9875,6 +9888,23 @@ func (c *Client) MoveServiceByUuidWithBody(ctx context.Context, uuid string, con
 // Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
 func (c *Client) MoveServiceByUuid(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewMoveServiceByUuidRequest(c.Server, uuid, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// RestartServiceByUuid Restart
+//
+// Restart service.
+//
+// Corresponds with POST /services/{uuid}/restart (the `RestartServiceByUuid` operationId).
+func (c *Client) RestartServiceByUuid(ctx context.Context, uuid string, params *RestartServiceByUuidParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewRestartServiceByUuidRequest(c.Server, uuid, params)
 	if err != nil {
 		return nil, err
 	}
@@ -15120,6 +15150,67 @@ func NewMoveServiceByUuidRequestWithBody(server string, uuid string, contentType
 	return req, nil
 }
 
+// NewRestartServiceByUuidRequest constructs an http.Request for the RestartServiceByUuid method
+func NewRestartServiceByUuidRequest(server string, uuid string, params *RestartServiceByUuidParams) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/restart", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if params != nil {
+		// queryValues collects non-styled parameters (passthrough, JSON)
+		// that are safe to round-trip through url.Values.Encode().
+		queryValues := queryURL.Query()
+		// rawQueryFragments collects pre-encoded query fragments from
+		// styled parameters, preserving literal commas as delimiters
+		// per the OpenAPI spec (e.g. "color=blue,black,brown").
+		var rawQueryFragments []string
+
+		if params.Latest != nil {
+
+			if queryFrag, err := runtime.StyleParamWithOptions("form", true, "latest", *params.Latest, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationQuery, Type: "boolean", Format: ""}); err != nil {
+				return nil, err
+			} else {
+				for _, qp := range strings.Split(queryFrag, "&") {
+					rawQueryFragments = append(rawQueryFragments, qp)
+				}
+			}
+
+		}
+
+		if encoded := queryValues.Encode(); encoded != "" {
+			rawQueryFragments = append(rawQueryFragments, encoded)
+		}
+		queryURL.RawQuery = strings.Join(rawQueryFragments, "&")
+	}
+
+	req, err := http.NewRequest(http.MethodPost, queryURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return req, nil
+}
+
 // NewListStoragesByServiceUuidRequest constructs an http.Request for the ListStoragesByServiceUuid method
 func NewListStoragesByServiceUuidRequest(server string, uuid string) (*http.Request, error) {
 	var err error
@@ -17178,6 +17269,15 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with POST /services/{uuid}/move (the `MoveServiceByUuid` operationId).
 	MoveServiceByUuidWithResponse(ctx context.Context, uuid string, body MoveServiceByUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*MoveServiceByUuidResponse, error)
+
+	// RestartServiceByUuidWithResponse Restart
+	//
+	// Restart service.
+	//
+	// Returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with POST /services/{uuid}/restart (the `RestartServiceByUuid` operationId).
+	RestartServiceByUuidWithResponse(ctx context.Context, uuid string, params *RestartServiceByUuidParams, reqEditors ...RequestEditorFn) (*RestartServiceByUuidResponse, error)
 
 	// ListStoragesByServiceUuidWithResponse List Storages
 	//
@@ -24737,6 +24837,72 @@ func (r MoveServiceByUuidResponse) ContentType() string {
 	return ""
 }
 
+type RestartServiceByUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON200 the response for an HTTP 200 `application/json` response
+	JSON200 *struct {
+		Message *string `json:"message,omitempty"`
+	}
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+}
+
+// GetJSON200 returns the response for an HTTP 200 `application/json` response
+func (r RestartServiceByUuidResponse) GetJSON200() *struct {
+	Message *string `json:"message,omitempty"`
+} {
+	return r.JSON200
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r RestartServiceByUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r RestartServiceByUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r RestartServiceByUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetBody returns the raw response body bytes
+func (r RestartServiceByUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r RestartServiceByUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r RestartServiceByUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r RestartServiceByUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type ListStoragesByServiceUuidResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -27978,6 +28144,21 @@ func (c *ClientWithResponses) MoveServiceByUuidWithResponse(ctx context.Context,
 		return nil, err
 	}
 	return ParseMoveServiceByUuidResponse(rsp)
+}
+
+// RestartServiceByUuidWithResponse Restart
+//
+// Restart service.
+//
+// Returns a wrapper object for the known response body format(s).
+//
+// Corresponds with POST /services/{uuid}/restart (the `RestartServiceByUuid` operationId).
+func (c *ClientWithResponses) RestartServiceByUuidWithResponse(ctx context.Context, uuid string, params *RestartServiceByUuidParams, reqEditors ...RequestEditorFn) (*RestartServiceByUuidResponse, error) {
+	rsp, err := c.RestartServiceByUuid(ctx, uuid, params, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseRestartServiceByUuidResponse(rsp)
 }
 
 // ListStoragesByServiceUuidWithResponse List Storages
@@ -33815,6 +33996,55 @@ func ParseMoveServiceByUuidResponse(rsp *http.Response) (*MoveServiceByUuidRespo
 			return nil, err
 		}
 		response.JSON422 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseRestartServiceByUuidResponse parses an HTTP response from a RestartServiceByUuidWithResponse call
+func ParseRestartServiceByUuidResponse(rsp *http.Response) (*RestartServiceByUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &RestartServiceByUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest struct {
+			Message *string `json:"message,omitempty"`
+		}
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
 
 	}
 

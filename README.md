@@ -22,7 +22,8 @@ A native [Pulumi](https://www.pulumi.com) provider for [Coolify](https://coolify
 | `coolify.Storage` | Persistent volume or directory mount of an application or database | mount path within the owner |
 | `coolify.VolumeBackup` | Backup schedule of a persistent volume or directory mount of an application, database or service, optionally uploaded to an S3 storage | the storage (one schedule per storage) |
 | `coolify.ScheduledTask` | Cron task on an application | task name within the application |
-| `coolify.Deployment` | Triggers a deployment and waits for it to finish | none (one deployment per input change) |
+| `coolify.Deployment` | Triggers an application deployment and waits for it to finish | none (one deployment per input change) |
+| `coolify.ServiceDeployment` | Queues recreation of a service's containers when declared triggers change | service UUID (request acknowledgment only) |
 | `coolify.NotificationEmail` | SMTP, Resend or instance email notifications | token team / `email` |
 | `coolify.NotificationDiscord` | Discord webhook notifications | token team / `discord` |
 | `coolify.NotificationSlack` | Slack-compatible webhook notifications, including Mattermost | token team / `slack` |
@@ -140,6 +141,23 @@ const work = new coolify.Service("work", {
 ```
 
 Create and adoption apply declared domains; updates reconcile them and refresh detects external changes. Omitted container keys are unmanaged, including keys removed from the map. Set a container's value to `""` to clear its domains. The provider leaves undeclared containers alone and lets Coolify validate domain conflicts and generate proxy labels. If the API omits the applications relationship, refresh preserves the previous domain values.
+
+## Service Deployments
+
+`ServiceDeployment` applies a service's saved configuration by requesting a native Coolify restart. Declare the service UUID and values that should cause another deployment when they change:
+
+```ts
+new coolify.ServiceDeployment("work", {
+    service: work.uuid,
+    triggers: ["image-v2", "config-v3"],
+}, { provider });
+```
+
+The `service` output reference orders the request after the service configuration. Add `dependsOn` for other prerequisites, such as standalone databases. Include the configuration values or digests you want to watch in `triggers`; changing a `Service` alone does not trigger this resource. Declare only one `ServiceDeployment` per service. Changing `service` replaces the request resource; its ID is the service UUID.
+
+**Completion means request acceptance.** The native restart endpoint recreates containers asynchronously and may briefly interrupt service. The output `status: "queued"` records the accepted request, not deployment completion or application health. Coolify supplies no deployment UUID for this action, so verify the service's health separately. Refresh checks only that the service exists; unhealthy status and transient API failures never queue another restart. Deleting this resource leaves the service running. Importing by service UUID reads its existence without deploying and leaves `status` empty because no request history is available.
+
+The implementation uses [`POST /services/{uuid}/restart`](https://github.com/coollabsio/coolify/blob/v4.3.17/app/Http/Controllers/Api/ServicesController.php#L2211), which accepts both running and stopped services. It uses the configured image tags without forcing a pull of mutable tags. Existing `Deployment` resources continue to manage applications and wait for their deployment results.
 
 ## Shared Variables
 

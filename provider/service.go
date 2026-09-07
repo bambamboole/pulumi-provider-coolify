@@ -382,7 +382,7 @@ func serviceDomains(service coolify.Service) map[string]string {
 	result := map[string]string{}
 	if service.Applications != nil {
 		for _, app := range *service.Applications {
-			result[app.Name] = coolify.Deref(app.FQDN)
+			result[app.Name] = app.DomainURLs()
 		}
 	}
 	return result

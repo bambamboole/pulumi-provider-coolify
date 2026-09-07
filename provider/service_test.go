@@ -161,6 +161,7 @@ func TestServiceDomainsCreateAdoptUpdateAndRefresh(t *testing.T) {
 	// are visible during refresh and repaired on adoption.
 	applications := fake.services[created.ID]["applications"].([]map[string]any)
 	applications[0]["fqdn"] = "https://drift.example.com"
+	applications[0]["url"] = "https://drift.example.com"
 	fake.services[created.ID]["applications"] = append(applications, map[string]any{"name": "admin", "fqdn": "https://admin.example.com"})
 	read, err := (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: created.Output})
 	if err != nil {
@@ -234,5 +235,74 @@ func TestServiceDomainsRefreshMissingDetails(t *testing.T) {
 	}
 	if got := serviceInputs(args, current).Domains; !reflect.DeepEqual(got, map[string]string{"web": ""}) {
 		t.Fatalf("removed application must be detected: %#v", got)
+	}
+}
+
+func TestServiceDomainsPreserveInternalPorts(t *testing.T) {
+	fake := newFakeCoolify(t)
+	ctx := withDefaultTags(withClient(context.Background(), fake.client()), "pulumi")
+	args := serviceArgs(fake.addProject("Main", "production"))
+	args.Domains = map[string]string{"web": "https://work.example.com:3010"}
+	created, err := (Service{}).Create(ctx, infer.CreateRequest[ServiceArgs]{Inputs: args})
+	if err != nil {
+		t.Fatal(err)
+	}
+	apps := fake.services[created.ID]["applications"].([]map[string]any)
+	if apps[0]["fqdn"] != "https://work.example.com" || apps[0]["url"] != args.Domains["web"] {
+		t.Fatalf("fixture must mirror Coolify's public URL: %#v", apps)
+	}
+	read, err := (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: created.Output})
+	if err != nil || !reflect.DeepEqual(read.Inputs.Domains, args.Domains) {
+		t.Fatalf("refresh lost internal port: %#v %v", read.Inputs.Domains, err)
+	}
+	diff, err := (Service{}).Diff(ctx, infer.DiffRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: read.State})
+	if err != nil || diff.HasChanges {
+		t.Fatalf("unchanged ports must not drift: %#v %v", diff, err)
+	}
+	if _, err := (Service{}).Create(ctx, infer.CreateRequest[ServiceArgs]{Inputs: args}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := (Service{}).Update(ctx, infer.UpdateRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: created.Output}); err != nil {
+		t.Fatal(err)
+	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != 0 {
+		t.Fatalf("create/adopt/update must preserve ports without patching: %v", fake.requests)
+	}
+	// A changed internal port must remain visible even though fqdn is unchanged.
+	apps[0]["url"] = "https://work.example.com:8080"
+	read, err = (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: created.Output})
+	if err != nil || read.Inputs.Domains["web"] != "https://work.example.com:8080" {
+		t.Fatalf("port drift missing: %#v %v", read.Inputs.Domains, err)
+	}
+	if _, err := (Service{}).Update(ctx, infer.UpdateRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: read.State}); err != nil {
+		t.Fatal(err)
+	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != 1 || apps[0]["url"] != args.Domains["web"] {
+		t.Fatalf("port-only drift must be repaired: %#v %v", apps, fake.requests)
+	}
+}
+
+func TestServiceDomainsPublicURLPresence(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		app  map[string]any
+		want string
+	}{
+		{"legacy fqdn fallback", map[string]any{"name": "web", "fqdn": "https://work.example.com:3010"}, "https://work.example.com:3010"},
+		{"explicit null clears", map[string]any{"name": "web", "fqdn": "https://stale.example.com", "url": nil}, ""},
+		{"explicit empty clears", map[string]any{"name": "web", "fqdn": "https://stale.example.com", "url": ""}, ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			fake := newFakeCoolify(t)
+			id := fake.addService(map[string]any{"applications": []map[string]any{tc.app}})
+			current, err := fake.client().GetService(context.Background(), id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got := serviceInputs(ServiceArgs{Domains: map[string]string{"web": "https://work.example.com:3010"}}, current).Domains["web"]
+			if got != tc.want {
+				t.Fatalf("got %q want %q", got, tc.want)
+			}
+		})
 	}
 }

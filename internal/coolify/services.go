@@ -2,6 +2,7 @@ package coolify
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
@@ -16,6 +17,35 @@ type Service struct {
 type ServiceApplication struct {
 	Name string  `json:"name"`
 	FQDN *string `json:"fqdn"`
+	// URL reconstructs the internal port overrides omitted from fqdn.
+	URL        *string `json:"url"`
+	URLPresent bool    `json:"-"`
+}
+
+// UnmarshalJSON distinguishes older responses that omit url from an explicit
+// null, which means the domains were cleared.
+func (app *ServiceApplication) UnmarshalJSON(data []byte) error {
+	type wire ServiceApplication
+	var decoded wire
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		return err
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(data, &fields); err != nil {
+		return err
+	}
+	_, decoded.URLPresent = fields["url"]
+	*app = ServiceApplication(decoded)
+	return nil
+}
+
+// DomainURLs prefers Coolify's public URL attribute, including internal ports.
+// Older Coolify responses without url retain the fqdn fallback.
+func (app ServiceApplication) DomainURLs() string {
+	if app.URLPresent {
+		return Deref(app.URL)
+	}
+	return Deref(app.FQDN)
 }
 
 func (c *Client) ListServices(ctx context.Context) ([]Service, error) {
@@ -53,4 +83,11 @@ func (c *Client) ListServiceEnvVars(ctx context.Context, serviceUUID string) ([]
 
 func (c *Client) CreateServiceEnvVar(ctx context.Context, serviceUUID string, body api.CreateEnvByServiceUuidJSONRequestBody) (string, error) {
 	return decodeUUID(c.api.CreateEnvByServiceUuid(ctx, serviceUUID, body))
+}
+
+// RestartService queues recreation of the service's configured containers.
+// Coolify accepts this action for running and stopped services, but returns no
+// deployment UUID or completion status. Success only acknowledges the request.
+func (c *Client) RestartService(ctx context.Context, uuid string) error {
+	return check(c.api.RestartServiceByUuid(ctx, uuid, nil))
 }
