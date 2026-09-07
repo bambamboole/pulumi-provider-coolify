@@ -2,7 +2,10 @@ package provider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"reflect"
+	"sort"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -87,6 +90,10 @@ type ApplicationArgs struct {
 	BaseDirectory string `pulumi:"baseDirectory,optional"`
 	// Directory with the build output for static sites.
 	PublishDirectory string `pulumi:"publishDirectory,optional"`
+	// Location of the compose file inside the repository for the dockercompose build pack.
+	DockerComposeLocation string `pulumi:"dockerComposeLocation,optional"`
+	// Domains per compose service for the dockercompose build pack.
+	DockerComposeDomains map[string]string `pulumi:"dockerComposeDomains,optional"`
 
 	// Deploy right after creating the application.
 	InstantDeploy bool `pulumi:"instantDeploy,optional"`
@@ -96,6 +103,10 @@ type ApplicationArgs struct {
 	ForceHTTPSEnabled bool `pulumi:"forceHttpsEnabled,optional"`
 	// Deploy previews for pull requests.
 	PreviewDeploymentsEnabled bool `pulumi:"previewDeploymentsEnabled,optional"`
+	// Connect the containers to the server's predefined Docker network.
+	ConnectToDockerNetwork bool `pulumi:"connectToDockerNetwork,optional"`
+	// Pass the deployed commit as SOURCE_COMMIT into the build.
+	IncludeSourceCommitInBuild bool `pulumi:"includeSourceCommitInBuild,optional"`
 
 	// Enable the container health check.
 	HealthCheckEnabled bool `pulumi:"healthCheckEnabled,optional"`
@@ -117,6 +128,8 @@ type ApplicationArgs struct {
 	// created as hidden values, existing keys are never patched and undeclared
 	// keys are left untouched.
 	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
+	// Also patch existing keys to their declared values.
+	OverwriteEnvironmentVariables bool `pulumi:"overwriteEnvironmentVariables,optional"`
 }
 
 type ApplicationState struct {
@@ -162,10 +175,14 @@ func (args *ApplicationArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.StartCommand, "Start command override.")
 	a.Describe(&args.BaseDirectory, "Directory inside the repository to build from.")
 	a.Describe(&args.PublishDirectory, "Directory with the build output for static sites.")
+	a.Describe(&args.DockerComposeLocation, "Location of the compose file inside the repository for the dockercompose build pack, e.g. \"/compose.yml\".")
+	a.Describe(&args.DockerComposeDomains, "Domains per compose service for the dockercompose build pack: service name to comma separated URLs, e.g. { web: \"https://app.example.com:8080\" }.")
 	a.Describe(&args.InstantDeploy, "Deploy right after creating the application. Only relevant on create.")
 	a.Describe(&args.AutoDeployEnabled, "Deploy automatically on git push.")
 	a.Describe(&args.ForceHTTPSEnabled, "Redirect HTTP to HTTPS.")
 	a.Describe(&args.PreviewDeploymentsEnabled, "Deploy previews for pull requests.")
+	a.Describe(&args.ConnectToDockerNetwork, "Connect the containers to the server's predefined Docker network.")
+	a.Describe(&args.IncludeSourceCommitInBuild, "Pass the deployed commit into the build as SOURCE_COMMIT.")
 	a.Describe(&args.HealthCheckEnabled, "Enable the container health check.")
 	a.Describe(&args.HealthCheckPath, "Health check path.")
 	a.Describe(&args.HealthCheckPort, "Health check port.")
@@ -173,7 +190,8 @@ func (args *ApplicationArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.LimitsMemory, `Memory limit, e.g. "512m".`)
 	a.Describe(&args.LimitsCPUs, `CPU limit, e.g. "0.5".`)
 	a.Describe(&args.Tags, "Tags attached to the application in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.")
-	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.")
+	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched unless overwriteEnvironmentVariables is set, and undeclared keys are left untouched.")
+	a.Describe(&args.OverwriteEnvironmentVariables, "Also patch existing keys to their declared values, so a changed declared value is applied to Coolify and shows up as an update. Undeclared keys are still left untouched.")
 }
 
 func (state *ApplicationState) Annotate(a infer.Annotator) {
@@ -252,10 +270,13 @@ func (Application) Diff(ctx context.Context, req infer.DiffRequest[ApplicationAr
 		diff["tags"] = p.PropertyDiff{Kind: p.Update}
 	}
 	// Environment variables are additive by key: only newly declared keys
-	// trigger an update, values are never compared.
-	delete(diff, "environmentVariables")
-	if environmentVariablesNeedUpdate(req.State.EnvironmentVariables, req.Inputs.EnvironmentVariables) {
-		diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+	// trigger an update and values are never compared, unless the declared
+	// values are managed too.
+	if !req.Inputs.OverwriteEnvironmentVariables {
+		delete(diff, "environmentVariables")
+		if environmentVariablesNeedUpdate(req.State.EnvironmentVariables, req.Inputs.EnvironmentVariables) {
+			diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+		}
 	}
 	return diffResponse(diff, req.State.Name == req.Inputs.Name), nil
 }
@@ -454,7 +475,7 @@ func applyApplication(ctx context.Context, c *coolify.Client, current api.Applic
 			return api.Application{}, err
 		}
 	}
-	if err := ensureEnvironmentVariables(ctx, applicationEnvVars(c, uuid), inputs.EnvironmentVariables); err != nil {
+	if err := ensureEnvironmentVariables(ctx, applicationEnvVars(c, uuid), inputs.EnvironmentVariables, inputs.OverwriteEnvironmentVariables); err != nil {
 		return api.Application{}, err
 	}
 	if !changed {
@@ -489,9 +510,16 @@ func applicationPatch(current api.Application, inputs ApplicationArgs) (api.Upda
 	patch.str(&body.StartCommand, inputs.StartCommand, coolify.Deref(current.StartCommand))
 	patch.str(&body.BaseDirectory, inputs.BaseDirectory, coolify.Deref(current.BaseDirectory))
 	patch.str(&body.PublishDirectory, inputs.PublishDirectory, coolify.Deref(current.PublishDirectory))
+	patch.str(&body.DockerComposeLocation, inputs.DockerComposeLocation, coolify.Deref(current.DockerComposeLocation))
+	if len(inputs.DockerComposeDomains) > 0 && !reflect.DeepEqual(inputs.DockerComposeDomains, parseComposeDomains(coolify.Deref(current.DockerComposeDomains))) {
+		body.DockerComposeDomains = composeDomainsBody(inputs.DockerComposeDomains)
+		patch.changed = true
+	}
 	patch.boolean(&body.IsAutoDeployEnabled, inputs.AutoDeployEnabled, coolify.Deref(settings.IsAutoDeployEnabled))
 	patch.boolean(&body.IsForceHttpsEnabled, inputs.ForceHTTPSEnabled, coolify.Deref(settings.IsForceHttpsEnabled))
 	patch.boolean(&body.IsPreviewDeploymentsEnabled, inputs.PreviewDeploymentsEnabled, coolify.Deref(settings.IsPreviewDeploymentsEnabled))
+	patch.boolean(&body.ConnectToDockerNetwork, inputs.ConnectToDockerNetwork, coolify.Deref(settings.ConnectToDockerNetwork))
+	patch.boolean(&body.IncludeSourceCommitInBuild, inputs.IncludeSourceCommitInBuild, coolify.Deref(settings.IncludeSourceCommitInBuild))
 	patch.boolean(&body.HealthCheckEnabled, inputs.HealthCheckEnabled, coolify.Deref(current.HealthCheckEnabled))
 	patch.str(&body.HealthCheckPath, inputs.HealthCheckPath, coolify.Deref(current.HealthCheckPath))
 	patch.str(&body.HealthCheckPort, inputs.HealthCheckPort, coolify.Deref(current.HealthCheckPort))
@@ -525,9 +553,15 @@ func applicationInputs(previous ApplicationArgs, app api.Application) Applicatio
 	inputs.StartCommand = ifSet(previous.StartCommand, coolify.Deref(app.StartCommand))
 	inputs.BaseDirectory = ifSet(previous.BaseDirectory, coolify.Deref(app.BaseDirectory))
 	inputs.PublishDirectory = ifSet(previous.PublishDirectory, coolify.Deref(app.PublishDirectory))
+	inputs.DockerComposeLocation = ifSet(previous.DockerComposeLocation, coolify.Deref(app.DockerComposeLocation))
+	if len(previous.DockerComposeDomains) > 0 {
+		inputs.DockerComposeDomains = parseComposeDomains(coolify.Deref(app.DockerComposeDomains))
+	}
 	inputs.AutoDeployEnabled = coolify.Deref(settings.IsAutoDeployEnabled)
 	inputs.ForceHTTPSEnabled = coolify.Deref(settings.IsForceHttpsEnabled)
 	inputs.PreviewDeploymentsEnabled = coolify.Deref(settings.IsPreviewDeploymentsEnabled)
+	inputs.ConnectToDockerNetwork = coolify.Deref(settings.ConnectToDockerNetwork)
+	inputs.IncludeSourceCommitInBuild = coolify.Deref(settings.IncludeSourceCommitInBuild)
 	inputs.HealthCheckEnabled = coolify.Deref(app.HealthCheckEnabled)
 	inputs.HealthCheckPath = ifSet(previous.HealthCheckPath, coolify.Deref(app.HealthCheckPath))
 	inputs.HealthCheckPort = ifSet(previous.HealthCheckPort, coolify.Deref(app.HealthCheckPort))
@@ -561,7 +595,64 @@ func applicationEnvVars(c *coolify.Client, uuid string) envVars {
 			})
 			return err
 		},
+		update: func(ctx context.Context, key, value string) error {
+			return c.UpdateApplicationEnvVar(ctx, uuid, api.UpdateEnvByApplicationUuidJSONRequestBody{
+				Key:         key,
+				Value:       value,
+				IsLiteral:   coolify.Ptr(true),
+				IsPreview:   coolify.Ptr(false),
+				IsShownOnce: coolify.Ptr(true),
+			})
+		},
 	}
+}
+
+// composeDomain is the element type of the update body's docker_compose_domains
+// array; the generated client declares it anonymously.
+type composeDomain = struct {
+	Domain   *string                                                          `json:"domain,omitempty"`
+	Name     *string                                                          `json:"name,omitempty"`
+	Redirect *api.UpdateApplicationByUuidJSONBodyDockerComposeDomainsRedirect `json:"redirect,omitempty"`
+}
+
+// composeDomainsBody converts the service to domains map into the array the
+// update endpoint expects, in service name order.
+func composeDomainsBody(domains map[string]string) *[]composeDomain {
+	names := make([]string, 0, len(domains))
+	for name := range domains {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	out := make([]composeDomain, 0, len(names))
+	for _, name := range names {
+		out = append(out, composeDomain{Domain: coolify.Ptr(domains[name]), Name: coolify.Ptr(name)})
+	}
+	return &out
+}
+
+// parseComposeDomains reads the service to domains map from the JSON object
+// Coolify reports, {"web":{"domain":"https://a,https://b"}}. Services without
+// a domain are dropped.
+func parseComposeDomains(raw string) map[string]string {
+	if raw == "" {
+		return nil
+	}
+	var parsed map[string]struct {
+		Domain string `json:"domain"`
+	}
+	if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
+		return nil
+	}
+	out := map[string]string{}
+	for name, entry := range parsed {
+		if entry.Domain != "" {
+			out[name] = entry.Domain
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 func applicationState(inputs ApplicationArgs, app api.Application) ApplicationState {

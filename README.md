@@ -97,6 +97,27 @@ new coolify.Deployment("api", {
     triggers: ["1.4.2"],
 }, { provider });
 
+// A compose application from a private repository, with one domain per
+// compose service and every environment value managed by Pulumi.
+const site = new coolify.Application("site", {
+    source: coolify.ApplicationSource.PrivateGitHubApp,
+    githubAppUuid: "<GITHUB_APP_UUID>",
+    gitRepository: "acme/site",
+    gitBranch: "main",
+    buildPack: "dockercompose",
+    dockerComposeLocation: "/compose-production.yml",
+    dockerComposeDomains: {
+        web: "https://example.com:8080,https://www.example.com:8080",
+        ws: "https://sockets.example.com:8080",
+    },
+    includeSourceCommitInBuild: true,
+    projectUuid: project.uuid,
+    environmentName: "production",
+    serverUuid: server.uuid,
+    environmentVariables: { DATABASE_URL: db.internalUrl, MAIL_MAILER: "smtp" },
+    overwriteEnvironmentVariables: true,
+}, { provider });
+
 // Nightly dump of the database to S3, and a volume backup of a compose service.
 const s3 = new coolify.S3Storage("backups", { /* ... */ }, { provider });
 
@@ -251,7 +272,8 @@ new coolify.NotificationSlack("mattermost", {
 - **Service compose files are write-only.** Coolify hides `dockerCompose` from the API, so it is sent on create and whenever the input changes, but drift on it is not detected.
 - **Private keys cannot be updated.** Coolify's `PATCH /security/keys` endpoint cannot address a key, so changing `name` or `privateKey` replaces the key and `description` is only applied on create.
 - **Tags are managed by declaration.** Applications, databases and services carry the provider's `defaultTags` plus their own `tags`. Declared tags are attached (Coolify creates unknown tags on the fly and lower-cases names), tags removed from the declaration are detached, and tags added in the Coolify UI are left alone. Coolify deletes a tag once no resource carries it, so there is no standalone tag resource.
-- **Application environment variables are managed by key.** Declared keys that are missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched. Coolify masks hidden values, so values are never compared.
+- **Application environment variables are managed by key.** Declared keys that are missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched. Coolify masks hidden values, so values are never compared. With `overwriteEnvironmentVariables: true` on a `coolify.Application`, declared keys are also patched to their declared value when Coolify reports a different one, and a changed declared value shows up as an update; undeclared keys are still left alone.
+- **Compose applications carry their domains per service.** For the `dockercompose` build pack, `dockerComposeLocation` names the compose file inside the repository and `dockerComposeDomains` maps each compose service to its comma separated URLs (`{ web: "https://app.example.com:8080" }`), which is what Coolify's plain `domains` cannot express. Both are read back from Coolify, so drift is detected.
 - **Deployments redeploy on any input change.** Use `triggers` to force a redeploy, e.g. with the image tag or a version. A deployment Coolify has pruned from its history keeps its recorded state.
 - **Refresh drops resources that were deleted in Coolify** so the next `pulumi up` recreates them.
 - **Rate limits and gateway errors are retried** with exponential backoff and `Retry-After` support.

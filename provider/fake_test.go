@@ -510,11 +510,23 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 				delete(body, "domains")
 			}
 			settings := app["settings"].(map[string]any)
-			for _, key := range []string{"is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled"} {
+			for _, key := range []string{"is_auto_deploy_enabled", "is_force_https_enabled", "is_preview_deployments_enabled", "connect_to_docker_network", "include_source_commit_in_build"} {
 				if value, ok := body[key]; ok {
 					settings[key] = value
 					delete(body, key)
 				}
+			}
+			// Coolify accepts an array of {name, domain} and reports the
+			// domains back as a JSON object keyed by service, with escaped
+			// slashes as PHP's json_encode produces them.
+			if domains, ok := body["docker_compose_domains"].([]any); ok {
+				byService := map[string]any{}
+				for _, entry := range domains {
+					entry := entry.(map[string]any)
+					byService[entry["name"].(string)] = map[string]any{"domain": entry["domain"]}
+				}
+				encoded, _ := json.Marshal(byService)
+				body["docker_compose_domains"] = strings.ReplaceAll(string(encoded), "/", `\/`)
 			}
 			merge(app, body)
 			writeJSON(w, http.StatusOK, map[string]any{"uuid": parts[0]})
@@ -542,6 +554,22 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 }
 
 func (f *fakeCoolify) handleEnvVars(w http.ResponseWriter, r *http.Request, ownerUUID string) {
+	if r.Method == http.MethodPatch {
+		body := readJSON(r)
+		if body["is_literal"] != true || body["is_shown_once"] != true {
+			writeError(w, http.StatusBadRequest, "expected is_literal and is_shown_once")
+			return
+		}
+		for _, env := range f.envVars[ownerUUID] {
+			if env["key"] == body["key"] && env["is_preview"] == body["is_preview"] {
+				env["value"] = body["value"]
+				writeJSON(w, http.StatusCreated, map[string]any{"uuid": env["uuid"]})
+				return
+			}
+		}
+		writeError(w, http.StatusNotFound, "Environment variable not found.")
+		return
+	}
 	if r.Method == http.MethodPost {
 		body := readJSON(r)
 		if body["is_literal"] != true || body["is_shown_once"] != true {

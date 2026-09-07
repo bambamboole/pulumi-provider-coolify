@@ -296,7 +296,7 @@ func applyService(ctx context.Context, c *coolify.Client, current coolify.Servic
 			return coolify.Service{}, err
 		}
 	}
-	if err := ensureEnvironmentVariables(ctx, serviceEnvVars(c, uuid), inputs.EnvironmentVariables); err != nil {
+	if err := ensureEnvironmentVariables(ctx, serviceEnvVars(c, uuid), inputs.EnvironmentVariables, false); err != nil {
 		return coolify.Service{}, err
 	}
 	if !patch.changed {
