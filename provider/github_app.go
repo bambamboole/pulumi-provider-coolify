@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 
@@ -31,8 +32,9 @@ type GitHubAppArgs struct {
 	InstallationID int `pulumi:"installationId"`
 	// OAuth client ID of the app.
 	ClientID string `pulumi:"clientId"`
-	// OAuth client secret of the app.
-	ClientSecret string `pulumi:"clientSecret" provider:"secret"`
+	// OAuth client secret of the app. Required to create an app that does not
+	// exist yet; adopted apps can be managed without it.
+	ClientSecret string `pulumi:"clientSecret,optional" provider:"secret"`
 	// Webhook secret of the app.
 	WebhookSecret string `pulumi:"webhookSecret,optional" provider:"secret"`
 	// UUID of the Coolify private key holding the app's private key.
@@ -64,9 +66,9 @@ func (args *GitHubAppArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.AppID, "Numeric GitHub App ID.")
 	a.Describe(&args.InstallationID, "Installation ID of the app in the organization or account.")
 	a.Describe(&args.ClientID, "OAuth client ID of the app.")
-	a.Describe(&args.ClientSecret, "OAuth client secret of the app.")
+	a.Describe(&args.ClientSecret, "OAuth client secret of the app. Required to create an app that does not exist yet; an adopted app can be managed without it, in which case the secret stored in Coolify is left untouched until a value is supplied.")
 	a.Describe(&args.WebhookSecret, "Webhook secret of the app.")
-	a.Describe(&args.PrivateKeyUUID, "UUID of the Coolify private key holding the app's private key (the uuid output of a PrivateKey resource).")
+	a.Describe(&args.PrivateKeyUUID, "UUID of the Coolify private key holding the app's private key (the uuid output of a PrivateKey resource). Resolved from Coolify on read, so an adopted app is not re-patched when the key is unchanged.")
 	a.Describe(&args.IsSystemWide, "Make the app available to all teams (self-hosted only).")
 	a.SetDefault(&args.HTMLURL, "https://github.com")
 	a.SetDefault(&args.CustomUser, "git")
@@ -110,14 +112,19 @@ func (GitHubApp) Update(ctx context.Context, req infer.UpdateRequest[GitHubAppAr
 }
 
 func (GitHubApp) Read(ctx context.Context, req infer.ReadRequest[GitHubAppArgs, GitHubAppState]) (infer.ReadResponse[GitHubAppArgs, GitHubAppState], error) {
-	app, err := client(ctx).GetGitHubApp(ctx, req.ID)
+	c := client(ctx)
+	app, err := c.GetGitHubApp(ctx, req.ID)
 	if coolify.IsNotFound(err) {
 		return infer.ReadResponse[GitHubAppArgs, GitHubAppState]{}, nil
 	}
 	if err != nil {
 		return infer.ReadResponse[GitHubAppArgs, GitHubAppState]{}, err
 	}
-	inputs := gitHubAppInputs(req.Inputs, app)
+	keyUUID, err := resolvePrivateKeyUUID(ctx, c, app.PrivateKeyID, req.Inputs.PrivateKeyUUID)
+	if err != nil {
+		return infer.ReadResponse[GitHubAppArgs, GitHubAppState]{}, err
+	}
+	inputs := gitHubAppInputs(req.Inputs, app, keyUUID)
 	return infer.ReadResponse[GitHubAppArgs, GitHubAppState]{
 		ID:     req.ID,
 		Inputs: inputs,
@@ -139,10 +146,19 @@ func createGitHubApp(ctx context.Context, c *coolify.Client, inputs GitHubAppArg
 		return coolify.GitHubApp{}, err
 	}
 	for _, app := range apps {
-		if app.Name == inputs.Name {
-			// Secrets and the private key are not readable, so they are always re-applied.
-			return applyGitHubApp(ctx, c, app, GitHubAppArgs{}, inputs)
+		if app.Name != inputs.Name {
+			continue
 		}
+		// Secrets are not readable, so they are re-applied when declared. The
+		// private key is resolved from its ID so an unchanged key is not patched.
+		keyUUID, err := resolvePrivateKeyUUID(ctx, c, app.PrivateKeyID, "")
+		if err != nil {
+			return coolify.GitHubApp{}, err
+		}
+		return applyGitHubApp(ctx, c, app, GitHubAppArgs{PrivateKeyUUID: keyUUID}, inputs)
+	}
+	if inputs.ClientSecret == "" {
+		return coolify.GitHubApp{}, fmt.Errorf("coolify GitHub App %q does not exist and no clientSecret was provided to create it", inputs.Name)
 	}
 	return c.CreateGitHubApp(ctx, api.CreateGithubAppJSONRequestBody{
 		Name:           inputs.Name,
@@ -162,8 +178,8 @@ func createGitHubApp(ctx context.Context, c *coolify.Client, inputs GitHubAppArg
 }
 
 // applyGitHubApp patches the fields of current that differ from the inputs.
-// Secrets and the private key are compared against the previous inputs because
-// the API does not return them.
+// Secrets are compared against the previous inputs because the API does not
+// return them; an empty secret leaves the stored one untouched.
 func applyGitHubApp(ctx context.Context, c *coolify.Client, current coolify.GitHubApp, previous, inputs GitHubAppArgs) (coolify.GitHubApp, error) {
 	var body api.UpdateGithubAppJSONRequestBody
 	var patch patch
@@ -190,9 +206,13 @@ func applyGitHubApp(ctx context.Context, c *coolify.Client, current coolify.GitH
 }
 
 // gitHubAppInputs derives the inputs from the app Coolify reports, keeping the
-// secrets and private key the API does not return.
-func gitHubAppInputs(previous GitHubAppArgs, app coolify.GitHubApp) GitHubAppArgs {
+// secrets the API does not return. privateKeyUUID is the key resolved from the
+// app's private key ID; when empty the previous input is kept.
+func gitHubAppInputs(previous GitHubAppArgs, app coolify.GitHubApp, privateKeyUUID string) GitHubAppArgs {
 	inputs := previous
+	if privateKeyUUID != "" {
+		inputs.PrivateKeyUUID = privateKeyUUID
+	}
 	inputs.Name = app.Name
 	inputs.Organization = coolify.Deref(app.Organization)
 	inputs.HTMLURL = app.HTMLURL

@@ -35,3 +35,22 @@ func (c *Client) UpdatePrivateKey(ctx context.Context, name, description, privat
 func (c *Client) DeletePrivateKey(ctx context.Context, uuid string) error {
 	return check(c.api.DeletePrivateKeyByUuid(ctx, uuid))
 }
+
+// PrivateKeyUUIDByID maps the numeric ID servers and GitHub Apps reference to
+// the key's UUID. It returns an empty string when the ID is zero or no key
+// carries it.
+func (c *Client) PrivateKeyUUIDByID(ctx context.Context, id int) (string, error) {
+	if id == 0 {
+		return "", nil
+	}
+	keys, err := c.ListPrivateKeys(ctx)
+	if err != nil {
+		return "", err
+	}
+	for _, key := range keys {
+		if key.Id != nil && *key.Id == id {
+			return Deref(key.Uuid), nil
+		}
+	}
+	return "", nil
+}

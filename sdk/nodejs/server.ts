@@ -51,7 +51,7 @@ export class Server extends pulumi.CustomResource {
      */
     declare public readonly port: pulumi.Output<number>;
     /**
-     * UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource).
+     * UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource). Resolved from Coolify on read, so an adopted server is not re-patched when the key is unchanged.
      */
     declare public readonly privateKeyUuid: pulumi.Output<string>;
     /**
@@ -125,7 +125,7 @@ export interface ServerArgs {
      */
     port?: pulumi.Input<number | undefined>;
     /**
-     * UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource).
+     * UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource). Resolved from Coolify on read, so an adopted server is not re-patched when the key is unchanged.
      */
     privateKeyUuid: pulumi.Input<string>;
     /**

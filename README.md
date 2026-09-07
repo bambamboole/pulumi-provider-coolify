@@ -180,6 +180,29 @@ The `service` output reference orders the request after the service configuratio
 
 The implementation uses [`POST /services/{uuid}/restart`](https://github.com/coollabsio/coolify/blob/v4.3.17/app/Http/Controllers/Api/ServicesController.php#L2211), which accepts both running and stopped services. It uses the configured image tags without forcing a pull of mutable tags. Existing `Deployment` resources continue to manage applications and wait for their deployment results.
 
+## Servers
+
+`coolify.Server` adopts an existing server by name. Coolify's single-server endpoint reports the numeric ID of the private key the server connects with, and the provider maps that ID back to the key's UUID through the key list. `privateKeyUuid` is therefore read back on `pulumi refresh` and `pulumi import`, and adopting a server whose key already matches sends no update, so an imported server needs no follow-up patch. The previously declared value is only kept when the response carries no key ID or no key in the team matches it, for example because the token cannot list keys.
+
+```sh
+pulumi import coolify:index:Server app-1 <SERVER_UUID>
+```
+
+## GitHub Apps
+
+`coolify.GitHubApp` adopts an existing app by name. `privateKeyUuid` is resolved from the app's private key ID the same way as for servers, so an adopted app with an unchanged key is not patched. `clientSecret` is optional: it is required to create an app that does not exist yet (the provider fails with a clear error otherwise), it is never sent when left empty on an adopted app, and it stays unmanaged until you supply a value. Coolify never returns the secret, so a declared value is compared against the previous input and drift on it is not detected; `webhookSecret` behaves the same way.
+
+```ts
+// Adopt an app created in the Coolify UI without knowing its client secret.
+const github = new coolify.GitHubApp("deploy-bot", {
+    name: "deploy-bot",
+    appId: 1234,
+    installationId: 5678,
+    clientId: "Iv1.abcdef",
+    privateKeyUuid: key.uuid,
+}, { provider });
+```
+
 ## Shared Variables
 
 Shared variable resources require **Coolify v4.3.0 or newer**. Each resource manages one key in one scope. Create adopts a matching key and reconciles the declared settings; updates address its numeric API ID, so renaming a key preserves its identity. Changing the owning project, environment or server replaces the variable. Destroy deletes it; use `retainOnDelete: true` to retain it in Coolify.

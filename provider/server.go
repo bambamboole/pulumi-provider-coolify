@@ -44,7 +44,7 @@ func (args *ServerArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.IP, "IP address or hostname of the server.")
 	a.Describe(&args.Port, "SSH port.")
 	a.Describe(&args.User, "SSH user.")
-	a.Describe(&args.PrivateKeyUUID, "UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource).")
+	a.Describe(&args.PrivateKeyUUID, "UUID of the Coolify private key used to connect (the uuid output of a PrivateKey resource). Resolved from Coolify on read, so an adopted server is not re-patched when the key is unchanged.")
 	a.SetDefault(&args.Port, 22)
 	a.SetDefault(&args.User, "root")
 }
@@ -85,20 +85,26 @@ func (Server) Update(ctx context.Context, req infer.UpdateRequest[ServerArgs, Se
 }
 
 func (Server) Read(ctx context.Context, req infer.ReadRequest[ServerArgs, ServerState]) (infer.ReadResponse[ServerArgs, ServerState], error) {
-	server, err := client(ctx).GetServer(ctx, req.ID)
+	c := client(ctx)
+	details, err := c.GetServerDetails(ctx, req.ID)
 	if coolify.IsNotFound(err) {
 		return infer.ReadResponse[ServerArgs, ServerState]{}, nil
 	}
 	if err != nil {
 		return infer.ReadResponse[ServerArgs, ServerState]{}, err
 	}
-	// The API does not return the private key, so that input is kept as is.
+	keyUUID, err := resolvePrivateKeyUUID(ctx, c, details.PrivateKeyID, req.Inputs.PrivateKeyUUID)
+	if err != nil {
+		return infer.ReadResponse[ServerArgs, ServerState]{}, err
+	}
+	server := details.Server
 	inputs := req.Inputs
 	inputs.Name = coolify.Deref(server.Name)
 	inputs.Description = coolify.Deref(server.Description)
 	inputs.IP = coolify.Deref(server.Ip)
 	inputs.Port = coolify.Deref(server.Port)
 	inputs.User = coolify.Deref(server.User)
+	inputs.PrivateKeyUUID = keyUUID
 	return infer.ReadResponse[ServerArgs, ServerState]{
 		ID:     req.ID,
 		Inputs: inputs,
@@ -120,10 +126,20 @@ func createServer(ctx context.Context, c *coolify.Client, inputs ServerArgs) (ap
 		return api.Server{}, err
 	}
 	for _, server := range servers {
-		if coolify.Deref(server.Name) == inputs.Name {
-			// The API does not expose the current key, so it is always re-applied.
-			return applyServer(ctx, c, server, "", inputs)
+		if coolify.Deref(server.Name) != inputs.Name {
+			continue
 		}
+		// The list omits the private key; the single-server endpoint reports
+		// its ID so an unchanged key is not re-applied.
+		details, err := c.GetServerDetails(ctx, coolify.Deref(server.Uuid))
+		if err != nil {
+			return api.Server{}, err
+		}
+		keyUUID, err := resolvePrivateKeyUUID(ctx, c, details.PrivateKeyID, "")
+		if err != nil {
+			return api.Server{}, err
+		}
+		return applyServer(ctx, c, details.Server, keyUUID, inputs)
 	}
 	uuid, err := c.CreateServer(ctx, api.CreateServerJSONRequestBody{
 		Name:            &inputs.Name,
@@ -141,7 +157,7 @@ func createServer(ctx context.Context, c *coolify.Client, inputs ServerArgs) (ap
 }
 
 // applyServer patches the fields of current that differ from the inputs. The
-// private key is compared against currentKeyUUID because the API omits it.
+// private key is compared against currentKeyUUID because api.Server omits it.
 func applyServer(ctx context.Context, c *coolify.Client, current api.Server, currentKeyUUID string, inputs ServerArgs) (api.Server, error) {
 	var body api.UpdateServerByUuidJSONRequestBody
 	var patch patch
@@ -159,6 +175,20 @@ func applyServer(ctx context.Context, c *coolify.Client, current api.Server, cur
 		return api.Server{}, err
 	}
 	return c.GetServer(ctx, uuid)
+}
+
+// resolvePrivateKeyUUID maps the private key ID Coolify reports to the key's
+// UUID. It falls back to previous when the ID is missing or no key matches,
+// e.g. because the token cannot list the key.
+func resolvePrivateKeyUUID(ctx context.Context, c *coolify.Client, keyID int, previous string) (string, error) {
+	uuid, err := c.PrivateKeyUUIDByID(ctx, keyID)
+	if err != nil {
+		return "", err
+	}
+	if uuid == "" {
+		return previous, nil
+	}
+	return uuid, nil
 }
 
 func serverState(inputs ServerArgs, server api.Server) ServerState {
