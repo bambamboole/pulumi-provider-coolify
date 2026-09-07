@@ -55,6 +55,10 @@ export class Service extends pulumi.CustomResource {
      */
     declare public readonly dockerCompose: pulumi.Output<string | undefined>;
     /**
+     * Domain URLs keyed by compose service name, applied through Coolify's native service URLs API. Values are comma-separated HTTP(S) URLs; a port selects the container port. Omitted keys are unmanaged; an empty string clears that container's domains. Requires Coolify v4.3.17 or newer.
+     */
+    declare public readonly domains: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
      * Name of the environment inside the project. Changing it moves the service in place; the environment must already exist.
      */
     declare public readonly environmentName: pulumi.Output<string>;
@@ -115,6 +119,7 @@ export class Service extends pulumi.CustomResource {
             resourceInputs["description"] = args?.description;
             resourceInputs["destinationUuid"] = args?.destinationUuid;
             resourceInputs["dockerCompose"] = args?.dockerCompose;
+            resourceInputs["domains"] = args?.domains;
             resourceInputs["environmentName"] = args?.environmentName;
             resourceInputs["environmentVariables"] = args?.environmentVariables;
             resourceInputs["instantDeploy"] = args?.instantDeploy;
@@ -131,6 +136,7 @@ export class Service extends pulumi.CustomResource {
             resourceInputs["description"] = undefined /*out*/;
             resourceInputs["destinationUuid"] = undefined /*out*/;
             resourceInputs["dockerCompose"] = undefined /*out*/;
+            resourceInputs["domains"] = undefined /*out*/;
             resourceInputs["environmentName"] = undefined /*out*/;
             resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["instantDeploy"] = undefined /*out*/;
@@ -166,6 +172,10 @@ export interface ServiceArgs {
      * Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify does not report the compose file back, so drift on this input is not detected.
      */
     dockerCompose?: pulumi.Input<string | undefined>;
+    /**
+     * Domain URLs keyed by compose service name, applied through Coolify's native service URLs API. Values are comma-separated HTTP(S) URLs; a port selects the container port. Omitted keys are unmanaged; an empty string clears that container's domains. Requires Coolify v4.3.17 or newer.
+     */
+    domains?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
      * Name of the environment inside the project. Changing it moves the service in place; the environment must already exist.
      */

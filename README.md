@@ -125,6 +125,22 @@ new coolify.VolumeBackup("gitea-data", {
 }, { provider, retainOnDelete: true });
 ```
 
+## Service Domains
+
+`Service.domains` assigns URLs to containers through Coolify's native service API (verified with Coolify v4.3.17). Each key is a service name from the Compose file; each value is a comma-separated list of HTTP(S) URLs. Include a port to select the container port:
+
+```ts
+const work = new coolify.Service("work", {
+    projectUuid: project.uuid,
+    environmentName: "production",
+    serverUuid: server.uuid,
+    dockerCompose: "services:\n  affine:\n    image: ghcr.io/toeverything/affine:0.27.4\n",
+    domains: { affine: "https://work.example.com:3010" },
+}, { provider });
+```
+
+Create and adoption apply declared domains; updates reconcile them and refresh detects external changes. Omitted container keys are unmanaged, including keys removed from the map. Set a container's value to `""` to clear its domains. The provider leaves undeclared containers alone and lets Coolify validate domain conflicts and generate proxy labels. If the API omits the applications relationship, refresh preserves the previous domain values.
+
 ## Shared Variables
 
 Shared variable resources require **Coolify v4.3.0 or newer**. Each resource manages one key in one scope. Create adopts a matching key and reconciles the declared settings; updates address its numeric API ID, so renaming a key preserves its identity. Changing the owning project, environment or server replaces the variable. Destroy deletes it; use `retainOnDelete: true` to retain it in Coolify.

@@ -6,12 +6,24 @@ import (
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
-func (c *Client) ListServices(ctx context.Context) ([]api.Service, error) {
-	return decode[[]api.Service](c.api.ListServices(ctx))
+// Service includes the child applications returned by GET /services/{uuid}.
+// The OpenAPI Service schema omits this relationship.
+type Service struct {
+	api.Service
+	Applications *[]ServiceApplication `json:"applications,omitempty"`
 }
 
-func (c *Client) GetService(ctx context.Context, uuid string) (api.Service, error) {
-	return decode[api.Service](c.api.GetServiceByUuid(ctx, uuid))
+type ServiceApplication struct {
+	Name string  `json:"name"`
+	FQDN *string `json:"fqdn"`
+}
+
+func (c *Client) ListServices(ctx context.Context) ([]Service, error) {
+	return decode[[]Service](c.api.ListServices(ctx))
+}
+
+func (c *Client) GetService(ctx context.Context, uuid string) (Service, error) {
+	return decode[Service](c.api.GetServiceByUuid(ctx, uuid))
 }
 
 // CreateService creates a one-click or docker-compose service and returns its UUID.

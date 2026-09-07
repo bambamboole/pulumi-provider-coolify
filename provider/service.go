@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"sort"
+	"strings"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -38,6 +40,8 @@ type ServiceArgs struct {
 	InstantDeploy bool `pulumi:"instantDeploy,optional"`
 	// Connect the service to Coolify's predefined Docker network.
 	ConnectToDockerNetwork bool `pulumi:"connectToDockerNetwork,optional"`
+	// Domain URLs by compose service name. Omitted keys are unmanaged; an empty value clears a container's domains.
+	Domains map[string]string `pulumi:"domains,optional"`
 	// Environment variables managed by key, see Application.
 	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
 	// Tags attached to the service in addition to the provider's default tags.
@@ -69,6 +73,7 @@ func (args *ServiceArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.DestinationUUID, "UUID of the destination when the server has several. Only relevant on create.")
 	a.Describe(&args.InstantDeploy, "Start the service right after creating it. Only relevant on create.")
 	a.Describe(&args.ConnectToDockerNetwork, "Connect the service to Coolify's predefined Docker network.")
+	a.Describe(&args.Domains, "Domain URLs keyed by compose service name, applied through Coolify's native service URLs API. Values are comma-separated HTTP(S) URLs; a port selects the container port. Omitted keys are unmanaged; an empty string clears that container's domains. Requires Coolify v4.3.17 or newer.")
 	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.")
 	a.Describe(&args.Tags, "Tags attached to the service in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.")
 }
@@ -88,6 +93,11 @@ func (Service) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckRe
 	}
 	if (args.Type == "") == (args.DockerCompose == "") {
 		failures = append(failures, p.CheckFailure{Property: "type", Reason: "exactly one of type and dockerCompose must be set"})
+	}
+	for name := range args.Domains {
+		if strings.TrimSpace(name) == "" {
+			failures = append(failures, p.CheckFailure{Property: "domains", Reason: "compose service names must not be blank"})
+		}
 	}
 	failures = append(failures, checkTags("tags", args.Tags)...)
 	args.Tags = normalizeTags(args.Tags)
@@ -203,22 +213,30 @@ func servicePlacement(args ServiceArgs) placement {
 
 // createService adopts the service with the same name in the environment or
 // creates it, then reconciles its settings with the inputs.
-func createService(ctx context.Context, c *coolify.Client, inputs ServiceArgs) (api.Service, error) {
+func createService(ctx context.Context, c *coolify.Client, inputs ServiceArgs) (coolify.Service, error) {
 	environment, err := resolveEnvironment(ctx, c, inputs.ProjectUUID, inputs.EnvironmentName)
 	if err != nil {
-		return api.Service{}, err
+		return coolify.Service{}, err
 	}
 	services, err := c.ListServices(ctx)
 	if err != nil {
-		return api.Service{}, err
+		return coolify.Service{}, err
 	}
 	for _, candidate := range services {
 		if coolify.Deref(candidate.Name) != inputs.Name || coolify.Deref(candidate.EnvironmentId) != environment.ID {
 			continue
 		}
 		if inputs.Type != "" && coolify.Deref(candidate.ServiceType) != inputs.Type {
-			return api.Service{}, fmt.Errorf("coolify service %q already exists in environment %q with type %q, expected %q",
+			return coolify.Service{}, fmt.Errorf("coolify service %q already exists in environment %q with type %q, expected %q",
 				inputs.Name, inputs.EnvironmentName, coolify.Deref(candidate.ServiceType), inputs.Type)
+		}
+		// List responses may omit child applications; read details before
+		// reconciling domains on adoption.
+		if len(inputs.Domains) > 0 {
+			candidate, err = c.GetService(ctx, coolify.Deref(candidate.Uuid))
+			if err != nil {
+				return coolify.Service{}, err
+			}
 		}
 		// The compose file is unknown on adoption, so it is always applied.
 		return applyService(ctx, c, candidate, inputs, nil)
@@ -234,13 +252,14 @@ func createService(ctx context.Context, c *coolify.Client, inputs ServiceArgs) (
 		DockerComposeRaw: coolify.PtrIfNonZero(encodeCompose(inputs.DockerCompose)),
 		DestinationUuid:  coolify.PtrIfNonZero(inputs.DestinationUUID),
 		InstantDeploy:    coolify.PtrIfNonZero(inputs.InstantDeploy),
+		Urls:             serviceURLs(inputs.Domains),
 	})
 	if err != nil {
-		return api.Service{}, err
+		return coolify.Service{}, err
 	}
 	created, err := c.GetService(ctx, uuid)
 	if err != nil {
-		return api.Service{}, err
+		return coolify.Service{}, err
 	}
 	// The compose file went into the create request; only the remaining
 	// settings and the environment variables are applied afterwards.
@@ -251,7 +270,7 @@ func createService(ctx context.Context, c *coolify.Client, inputs ServiceArgs) (
 // ensures the declared environment variables. Coolify hides the compose file,
 // so it is sent whenever it is unknown (previousCompose is nil) or differs
 // from the previous inputs.
-func applyService(ctx context.Context, c *coolify.Client, current api.Service, inputs ServiceArgs, previousCompose *string) (api.Service, error) {
+func applyService(ctx context.Context, c *coolify.Client, current coolify.Service, inputs ServiceArgs, previousCompose *string) (coolify.Service, error) {
 	uuid := coolify.Deref(current.Uuid)
 	var body api.UpdateServiceByUuidJSONRequestBody
 	var patch patch
@@ -262,13 +281,23 @@ func applyService(ctx context.Context, c *coolify.Client, current api.Service, i
 		body.DockerComposeRaw = coolify.Ptr(encodeCompose(inputs.DockerCompose))
 		patch.changed = true
 	}
+	domains := changedServiceDomains(inputs.Domains, current)
+	// Parsing a replacement compose file can regenerate container domains.
+	// Reapply all declared URLs after Coolify parses it in the same request.
+	if body.DockerComposeRaw != nil {
+		domains = inputs.Domains
+	}
+	if len(domains) > 0 {
+		body.Urls = serviceURLs(domains)
+		patch.changed = true
+	}
 	if patch.changed {
 		if err := c.UpdateService(ctx, uuid, body); err != nil {
-			return api.Service{}, err
+			return coolify.Service{}, err
 		}
 	}
 	if err := ensureEnvironmentVariables(ctx, serviceEnvVars(c, uuid), inputs.EnvironmentVariables); err != nil {
-		return api.Service{}, err
+		return coolify.Service{}, err
 	}
 	if !patch.changed {
 		return current, nil
@@ -306,15 +335,67 @@ func encodeCompose(compose string) string {
 
 // serviceInputs derives the inputs from the service Coolify reports, keeping
 // the identity, the compose file and unmanaged optional inputs.
-func serviceInputs(previous ServiceArgs, service api.Service) ServiceArgs {
+func serviceInputs(previous ServiceArgs, service coolify.Service) ServiceArgs {
 	inputs := previous
 	inputs.Name = coolify.Deref(service.Name)
 	inputs.Description = coolify.Deref(service.Description)
 	inputs.Type = ifSet(previous.Type, coolify.Deref(service.ServiceType))
 	inputs.ConnectToDockerNetwork = coolify.Deref(service.ConnectToDockerNetwork)
+	if previous.Domains != nil && service.Applications != nil {
+		inputs.Domains = make(map[string]string, len(previous.Domains))
+		actual := serviceDomains(service)
+		for name := range previous.Domains {
+			inputs.Domains[name] = actual[name]
+		}
+	}
 	return inputs
 }
 
-func serviceState(inputs ServiceArgs, service api.Service) ServiceState {
+func serviceState(inputs ServiceArgs, service coolify.Service) ServiceState {
 	return ServiceState{ServiceArgs: inputs, UUID: coolify.Deref(service.Uuid)}
+}
+
+// These fields match the generated POST/PATCH urls item types. Keep the API
+// client generated, including its anonymous request-body item types.
+type serviceURL = struct {
+	Name *string `json:"name,omitempty"`
+	Url  *string `json:"url,omitempty"`
+}
+
+func serviceURLs(domains map[string]string) *[]serviceURL {
+	if len(domains) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(domains))
+	for name := range domains {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	urls := make([]serviceURL, 0, len(names))
+	for _, name := range names {
+		urls = append(urls, serviceURL{Name: coolify.Ptr(name), Url: coolify.Ptr(domains[name])})
+	}
+	return &urls
+}
+
+func serviceDomains(service coolify.Service) map[string]string {
+	result := map[string]string{}
+	if service.Applications != nil {
+		for _, app := range *service.Applications {
+			result[app.Name] = coolify.Deref(app.FQDN)
+		}
+	}
+	return result
+}
+
+func changedServiceDomains(desired map[string]string, service coolify.Service) map[string]string {
+	actual := serviceDomains(service)
+	changes := map[string]string{}
+	for name, urls := range desired {
+		current, exists := actual[name]
+		if !exists || current != urls {
+			changes[name] = urls
+		}
+	}
+	return changes
 }
