@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.11.0...v0.12.0) (2026-09-07)
+
+
+### Features
+
+* compare private keys, GitHub Apps and compose files against Coolify instead of state ([#32](https://github.com/bambamboole/pulumi-provider-coolify/issues/32)) ([b2f8d33](https://github.com/bambamboole/pulumi-provider-coolify/commit/b2f8d336a9c61503f18f38f7ef1eb18512ba0380))
+* resolve private key on read and make GitHub App clientSecret optional ([#30](https://github.com/bambamboole/pulumi-provider-coolify/issues/30)) ([ab12a9e](https://github.com/bambamboole/pulumi-provider-coolify/commit/ab12a9e801c8c016f701e9b82efa7f71e46526cb))
+
 ## [0.11.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.10.0...v0.11.0) (2026-09-07)
 
 
