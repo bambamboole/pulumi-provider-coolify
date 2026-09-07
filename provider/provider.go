@@ -29,6 +29,7 @@ func New() (p.Provider, error) {
 			infer.Resource(ScheduledTask{}),
 			infer.Resource(GitHubApp{}),
 			infer.Resource(Service{}),
+			infer.Resource(ServiceDeployment{}),
 			infer.Resource(DatabaseBackup{}),
 			infer.Resource(Storage{}),
 			infer.Resource(VolumeBackup{}),

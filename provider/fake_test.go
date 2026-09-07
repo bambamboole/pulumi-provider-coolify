@@ -602,6 +602,12 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 			delete(f.services, parts[0])
 			writeJSON(w, http.StatusOK, map[string]any{"message": "deleted"})
 		}
+	case len(parts) == 2 && parts[1] == "restart" && r.Method == http.MethodPost:
+		if _, ok := f.services[parts[0]]; !ok {
+			writeError(w, http.StatusNotFound, "Service not found.")
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"message": "Service restarting request queued."})
 	case len(parts) == 2 && parts[1] == "move":
 		f.handleMove(w, r, f.services, parts[0], "Service")
 	case len(parts) >= 2 && parts[1] == "storages":

@@ -54,3 +54,10 @@ func (c *Client) ListServiceEnvVars(ctx context.Context, serviceUUID string) ([]
 func (c *Client) CreateServiceEnvVar(ctx context.Context, serviceUUID string, body api.CreateEnvByServiceUuidJSONRequestBody) (string, error) {
 	return decodeUUID(c.api.CreateEnvByServiceUuid(ctx, serviceUUID, body))
 }
+
+// RestartService queues recreation of the service's configured containers.
+// Coolify accepts this action for running and stopped services, but returns no
+// deployment UUID or completion status. Success only acknowledges the request.
+func (c *Client) RestartService(ctx context.Context, uuid string) error {
+	return check(c.api.RestartServiceByUuid(ctx, uuid, nil))
+}

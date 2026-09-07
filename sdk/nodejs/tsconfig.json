@@ -44,6 +44,7 @@
         "server.ts",
         "serverSharedVariable.ts",
         "service.ts",
+        "serviceDeployment.ts",
         "storage.ts",
         "teamSharedVariable.ts",
         "types/enums/index.ts",

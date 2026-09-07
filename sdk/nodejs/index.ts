@@ -115,6 +115,11 @@ export type Service = import("./service").Service;
 export const Service: typeof import("./service").Service = null as any;
 utilities.lazyLoad(exports, ["Service"], () => require("./service"));
 
+export { ServiceDeploymentArgs } from "./serviceDeployment";
+export type ServiceDeployment = import("./serviceDeployment").ServiceDeployment;
+export const ServiceDeployment: typeof import("./serviceDeployment").ServiceDeployment = null as any;
+utilities.lazyLoad(exports, ["ServiceDeployment"], () => require("./serviceDeployment"));
+
 export { StorageArgs } from "./storage";
 export type Storage = import("./storage").Storage;
 export const Storage: typeof import("./storage").Storage = null as any;
@@ -187,6 +192,8 @@ const _module = {
                 return new ServerSharedVariable(name, <any>undefined, { urn })
             case "coolify:index:Service":
                 return new Service(name, <any>undefined, { urn })
+            case "coolify:index:ServiceDeployment":
+                return new ServiceDeployment(name, <any>undefined, { urn })
             case "coolify:index:Storage":
                 return new Storage(name, <any>undefined, { urn })
             case "coolify:index:TeamSharedVariable":
