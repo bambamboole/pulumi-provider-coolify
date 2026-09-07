@@ -58,9 +58,21 @@ export class Application extends pulumi.CustomResource {
      */
     declare public readonly buildPack: pulumi.Output<string | undefined>;
     /**
+     * Connect the containers to the server's predefined Docker network.
+     */
+    declare public readonly connectToDockerNetwork: pulumi.Output<boolean | undefined>;
+    /**
      * Description of the application.
      */
     declare public readonly description: pulumi.Output<string | undefined>;
+    /**
+     * Domains per compose service for the dockercompose build pack: service name to comma separated URLs, e.g. { web: "https://app.example.com:8080" }.
+     */
+    declare public readonly dockerComposeDomains: pulumi.Output<{[key: string]: string} | undefined>;
+    /**
+     * Location of the compose file inside the repository for the dockercompose build pack, e.g. "/compose.yml".
+     */
+    declare public readonly dockerComposeLocation: pulumi.Output<string | undefined>;
     /**
      * Image name for docker-image sources.
      */
@@ -86,7 +98,7 @@ export class Application extends pulumi.CustomResource {
      */
     declare public readonly environmentName: pulumi.Output<string>;
     /**
-     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched unless overwriteEnvironmentVariables is set, and undeclared keys are left untouched.
      */
     declare public readonly environmentVariables: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -130,6 +142,10 @@ export class Application extends pulumi.CustomResource {
      */
     declare public readonly healthCheckPort: pulumi.Output<string | undefined>;
     /**
+     * Pass the deployed commit into the build as SOURCE_COMMIT.
+     */
+    declare public readonly includeSourceCommitInBuild: pulumi.Output<boolean | undefined>;
+    /**
      * Install command override.
      */
     declare public readonly installCommand: pulumi.Output<string | undefined>;
@@ -149,6 +165,10 @@ export class Application extends pulumi.CustomResource {
      * Application name. Defaults to the Pulumi resource name. An existing application with this name in the environment is adopted.
      */
     declare public readonly name: pulumi.Output<string | undefined>;
+    /**
+     * Also patch existing keys to their declared values, so a changed declared value is applied to Coolify and shows up as an update. Undeclared keys are still left untouched.
+     */
+    declare public readonly overwriteEnvironmentVariables: pulumi.Output<boolean | undefined>;
     /**
      * Port the container exposes.
      */
@@ -225,7 +245,10 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["baseDirectory"] = args?.baseDirectory;
             resourceInputs["buildCommand"] = args?.buildCommand;
             resourceInputs["buildPack"] = args?.buildPack;
+            resourceInputs["connectToDockerNetwork"] = args?.connectToDockerNetwork;
             resourceInputs["description"] = args?.description;
+            resourceInputs["dockerComposeDomains"] = args?.dockerComposeDomains;
+            resourceInputs["dockerComposeLocation"] = args?.dockerComposeLocation;
             resourceInputs["dockerRegistryImageName"] = args?.dockerRegistryImageName;
             resourceInputs["dockerRegistryImageTag"] = args?.dockerRegistryImageTag;
             resourceInputs["dockerfile"] = args?.dockerfile;
@@ -242,11 +265,13 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["healthCheckMethod"] = args?.healthCheckMethod;
             resourceInputs["healthCheckPath"] = args?.healthCheckPath;
             resourceInputs["healthCheckPort"] = args?.healthCheckPort;
+            resourceInputs["includeSourceCommitInBuild"] = args?.includeSourceCommitInBuild;
             resourceInputs["installCommand"] = args?.installCommand;
             resourceInputs["instantDeploy"] = args?.instantDeploy;
             resourceInputs["limitsCPUs"] = args?.limitsCPUs;
             resourceInputs["limitsMemory"] = args?.limitsMemory;
             resourceInputs["name"] = args?.name;
+            resourceInputs["overwriteEnvironmentVariables"] = args?.overwriteEnvironmentVariables;
             resourceInputs["portsExposes"] = args?.portsExposes;
             resourceInputs["portsMappings"] = args?.portsMappings;
             resourceInputs["previewDeploymentsEnabled"] = args?.previewDeploymentsEnabled;
@@ -267,7 +292,10 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["baseDirectory"] = undefined /*out*/;
             resourceInputs["buildCommand"] = undefined /*out*/;
             resourceInputs["buildPack"] = undefined /*out*/;
+            resourceInputs["connectToDockerNetwork"] = undefined /*out*/;
             resourceInputs["description"] = undefined /*out*/;
+            resourceInputs["dockerComposeDomains"] = undefined /*out*/;
+            resourceInputs["dockerComposeLocation"] = undefined /*out*/;
             resourceInputs["dockerRegistryImageName"] = undefined /*out*/;
             resourceInputs["dockerRegistryImageTag"] = undefined /*out*/;
             resourceInputs["dockerfile"] = undefined /*out*/;
@@ -285,11 +313,13 @@ export class Application extends pulumi.CustomResource {
             resourceInputs["healthCheckMethod"] = undefined /*out*/;
             resourceInputs["healthCheckPath"] = undefined /*out*/;
             resourceInputs["healthCheckPort"] = undefined /*out*/;
+            resourceInputs["includeSourceCommitInBuild"] = undefined /*out*/;
             resourceInputs["installCommand"] = undefined /*out*/;
             resourceInputs["instantDeploy"] = undefined /*out*/;
             resourceInputs["limitsCPUs"] = undefined /*out*/;
             resourceInputs["limitsMemory"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
+            resourceInputs["overwriteEnvironmentVariables"] = undefined /*out*/;
             resourceInputs["portsExposes"] = undefined /*out*/;
             resourceInputs["portsMappings"] = undefined /*out*/;
             resourceInputs["previewDeploymentsEnabled"] = undefined /*out*/;
@@ -329,9 +359,21 @@ export interface ApplicationArgs {
      */
     buildPack?: pulumi.Input<string | undefined>;
     /**
+     * Connect the containers to the server's predefined Docker network.
+     */
+    connectToDockerNetwork?: pulumi.Input<boolean | undefined>;
+    /**
      * Description of the application.
      */
     description?: pulumi.Input<string | undefined>;
+    /**
+     * Domains per compose service for the dockercompose build pack: service name to comma separated URLs, e.g. { web: "https://app.example.com:8080" }.
+     */
+    dockerComposeDomains?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
+    /**
+     * Location of the compose file inside the repository for the dockercompose build pack, e.g. "/compose.yml".
+     */
+    dockerComposeLocation?: pulumi.Input<string | undefined>;
     /**
      * Image name for docker-image sources.
      */
@@ -357,7 +399,7 @@ export interface ApplicationArgs {
      */
     environmentName: pulumi.Input<string>;
     /**
-     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched unless overwriteEnvironmentVariables is set, and undeclared keys are left untouched.
      */
     environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
@@ -397,6 +439,10 @@ export interface ApplicationArgs {
      */
     healthCheckPort?: pulumi.Input<string | undefined>;
     /**
+     * Pass the deployed commit into the build as SOURCE_COMMIT.
+     */
+    includeSourceCommitInBuild?: pulumi.Input<boolean | undefined>;
+    /**
      * Install command override.
      */
     installCommand?: pulumi.Input<string | undefined>;
@@ -416,6 +462,10 @@ export interface ApplicationArgs {
      * Application name. Defaults to the Pulumi resource name. An existing application with this name in the environment is adopted.
      */
     name?: pulumi.Input<string | undefined>;
+    /**
+     * Also patch existing keys to their declared values, so a changed declared value is applied to Coolify and shows up as an update. Undeclared keys are still left untouched.
+     */
+    overwriteEnvironmentVariables?: pulumi.Input<boolean | undefined>;
     /**
      * Port the container exposes.
      */

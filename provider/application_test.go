@@ -7,6 +7,8 @@ import (
 
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
+
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
 func applicationArgs(projectUUID string, envVars map[string]string) ApplicationArgs {
@@ -175,5 +177,149 @@ func TestApplicationCheckDefaultsNameAndValidatesSource(t *testing.T) {
 	}
 	if !strings.Contains(resp.Failures[0].Reason, "private-deploy-key") {
 		t.Fatalf("failure should name the source: %q", resp.Failures[0].Reason)
+	}
+}
+
+func TestApplicationComposeSettingsArePatchedAndReadBack(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := context.Background()
+	projectUUID := fake.addProject("Main", "production")
+	args := ApplicationArgs{
+		ProjectUUID: projectUUID, EnvironmentName: "production", ServerUUID: "u-server",
+		Source: ApplicationSourcePrivateGitHubApp, Name: "artisan-os", GitHubAppUUID: "u-github-app",
+		GitRepository: "artisan-os/artisan-os", GitBranch: "main", BuildPack: "dockercompose",
+		DockerComposeLocation: "/compose-production.yml",
+		DockerComposeDomains: map[string]string{
+			"web":    "https://artisan-os.de:8080,https://www.artisan-os.de:8080",
+			"reverb": "https://sockets.artisan-os.de:8080",
+		},
+		ConnectToDockerNetwork: true, IncludeSourceCommitInBuild: true,
+	}
+	app, err := createApplication(ctx, c, args)
+	if err != nil {
+		t.Fatalf("createApplication: %v", err)
+	}
+	if got := *app.DockerComposeLocation; got != "/compose-production.yml" {
+		t.Fatalf("compose location = %q", got)
+	}
+	if !*app.Settings.ConnectToDockerNetwork || !*app.Settings.IncludeSourceCommitInBuild {
+		t.Fatalf("settings were not applied: %+v", *app.Settings)
+	}
+	if !strings.Contains(*app.DockerComposeDomains, `"reverb":{"domain":"https:\/\/sockets.artisan-os.de:8080"}`) {
+		t.Fatalf("compose domains were not sent as an array: %s", *app.DockerComposeDomains)
+	}
+	if body, changed := applicationPatch(app, args); changed {
+		t.Fatalf("reconciled application must not need a patch: %+v", body)
+	}
+	inputs := applicationInputs(args, app)
+	if inputs.DockerComposeDomains["web"] != args.DockerComposeDomains["web"] || inputs.DockerComposeLocation != args.DockerComposeLocation {
+		t.Fatalf("compose settings not read back: %+v", inputs)
+	}
+	if !inputs.ConnectToDockerNetwork || !inputs.IncludeSourceCommitInBuild {
+		t.Fatalf("settings not read back: %+v", inputs)
+	}
+	// Unmanaged compose inputs stay unmanaged on read.
+	unmanaged := applicationInputs(ApplicationArgs{}, app)
+	if unmanaged.DockerComposeDomains != nil || unmanaged.DockerComposeLocation != "" {
+		t.Fatalf("unmanaged compose inputs were adopted: %+v", unmanaged)
+	}
+	args.DockerComposeDomains["web"] = "https://app.artisan-os.de:8080"
+	body, changed := applicationPatch(app, args)
+	if !changed || body.DockerComposeDomains == nil || len(*body.DockerComposeDomains) != 2 || *(*body.DockerComposeDomains)[1].Name != "web" {
+		t.Fatalf("changed domains must be sent in service order: %+v", body.DockerComposeDomains)
+	}
+}
+
+func TestParseComposeDomains(t *testing.T) {
+	got := parseComposeDomains(`{"web":{"domain":"https:\/\/artisan-os.de:8080,https:\/\/www.artisan-os.de:8080"},"ssr":{"domain":""}}`)
+	want := map[string]string{"web": "https://artisan-os.de:8080,https://www.artisan-os.de:8080"}
+	if len(got) != 1 || got["web"] != want["web"] {
+		t.Fatalf("got %+v, want %+v", got, want)
+	}
+	if parseComposeDomains("") != nil || parseComposeDomains("not json") != nil || parseComposeDomains(`{"ssr":{"domain":""}}`) != nil {
+		t.Fatal("empty, invalid and domain-less input must yield nil")
+	}
+}
+
+func TestOverwriteEnvironmentVariablesPatchesExistingKeys(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := context.Background()
+	projectUUID := fake.addProject("Main", "production")
+	existing := fake.addApplication(map[string]any{
+		"name": "Mattermost", "environment_id": fake.environmentID(projectUUID, "production"), "settings": map[string]any{},
+	})
+	fake.addEnvVar(existing, "MAIL_MAILER", "resend", false)
+	fake.addEnvVar(existing, "MAIL_PORT", "465", false)
+	fake.addEnvVar(existing, "MAIL_MAILER", "log", true)
+	fake.addEnvVar(existing, "RESEND_KEY", "keep", false)
+
+	args := applicationArgs(projectUUID, map[string]string{
+		"MAIL_MAILER": "smtp", // existing key with another value: patched
+		"MAIL_PORT":   "465",  // existing key with the same value: untouched
+		"MAIL_HOST":   "smtp.mx.cloudflare.net",
+	})
+	args.OverwriteEnvironmentVariables = true
+	if _, err := createApplication(ctx, c, args); err != nil {
+		t.Fatalf("createApplication: %v", err)
+	}
+	vars, _ := c.ListApplicationEnvVars(ctx, existing)
+	got := map[string]string{}
+	for _, env := range vars {
+		if *env.IsPreview {
+			if *env.Value != "log" {
+				t.Fatalf("preview variable must not be touched: %+v", env)
+			}
+			continue
+		}
+		got[*env.Key] = *env.Value
+	}
+	want := map[string]string{"MAIL_MAILER": "smtp", "MAIL_PORT": "465", "MAIL_HOST": "smtp.mx.cloudflare.net", "RESEND_KEY": "keep"}
+	if len(got) != len(want) {
+		t.Fatalf("unexpected env vars: %+v", got)
+	}
+	for key, value := range want {
+		if got[key] != value {
+			t.Fatalf("env var %s = %q, want %q", key, got[key], value)
+		}
+	}
+	if n := fake.countRequests("PATCH", "/api/v1/applications/"+existing+"/envs"); n != 1 {
+		t.Fatalf("expected exactly one env var patch, got %d", n)
+	}
+	if n := fake.countRequests("POST", "/api/v1/applications/"+existing+"/envs"); n != 1 {
+		t.Fatalf("expected exactly one env var creation, got %d", n)
+	}
+}
+
+func TestEnsureEnvironmentVariablesRejectsOverwriteWithoutUpdate(t *testing.T) {
+	vars := envVars{list: func(context.Context) ([]api.EnvironmentVariable, error) { return nil, nil }}
+	if err := ensureEnvironmentVariables(context.Background(), vars, map[string]string{"A": "1"}, true); err == nil {
+		t.Fatal("expected an error for a resource without update support")
+	}
+}
+
+func TestApplicationDiffComparesEnvironmentValuesOnlyWhenOverwriting(t *testing.T) {
+	// Diff consults the provider's default tags.
+	ctx := withDefaultTags(context.Background())
+	olds := applicationArgs("u-project", map[string]string{"MAIL_MAILER": "resend"})
+	news := applicationArgs("u-project", map[string]string{"MAIL_MAILER": "smtp"})
+	state := ApplicationState{ApplicationArgs: olds, UUID: "u-app"}
+	diff, err := Application{}.Diff(ctx, infer.DiffRequest[ApplicationArgs, ApplicationState]{ID: "u-app", State: state, Inputs: news})
+	if err != nil {
+		t.Fatalf("Diff: %v", err)
+	}
+	if diff.HasChanges {
+		t.Fatalf("a changed value must not diff without overwrite: %+v", diff.DetailedDiff)
+	}
+	news.OverwriteEnvironmentVariables = true
+	olds.OverwriteEnvironmentVariables = true
+	state.ApplicationArgs = olds
+	diff, err = Application{}.Diff(ctx, infer.DiffRequest[ApplicationArgs, ApplicationState]{ID: "u-app", State: state, Inputs: news})
+	if err != nil {
+		t.Fatalf("Diff: %v", err)
+	}
+	if _, ok := diff.DetailedDiff["environmentVariables"]; !ok || !diff.HasChanges {
+		t.Fatalf("a changed value must diff with overwrite: %+v", diff.DetailedDiff)
 	}
 }

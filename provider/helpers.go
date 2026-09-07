@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 
 	p "github.com/pulumi/pulumi-go-provider"
@@ -215,31 +216,50 @@ func ensurePlacement(ctx context.Context, c *coolify.Client, previous, desired p
 type envVars struct {
 	list   func(context.Context) ([]api.EnvironmentVariable, error)
 	create func(context.Context, string, string) error
+	// update patches an existing key; nil when the resource cannot overwrite.
+	update func(context.Context, string, string) error
 }
 
 // ensureEnvironmentVariables creates the declared variables that do not exist
-// on the resource yet. Existing keys are never patched and undeclared keys are
-// left untouched.
-func ensureEnvironmentVariables(ctx context.Context, vars envVars, desired map[string]string) error {
+// on the resource yet. Existing keys are only patched with overwrite set, and
+// only when the value Coolify reports differs; undeclared keys are left
+// untouched. Keys are visited in sorted order so requests are deterministic.
+func ensureEnvironmentVariables(ctx context.Context, vars envVars, desired map[string]string, overwrite bool) error {
 	if len(desired) == 0 {
 		return nil
+	}
+	if overwrite && vars.update == nil {
+		return fmt.Errorf("overwriting environment variables is not supported for this resource")
 	}
 	existing, err := vars.list(ctx)
 	if err != nil {
 		return err
 	}
+	current := map[string]string{}
 	present := map[string]bool{}
 	for _, env := range existing {
 		if !coolify.Deref(env.IsPreview) {
-			present[coolify.Deref(env.Key)] = true
+			key := coolify.Deref(env.Key)
+			present[key] = true
+			current[key] = coolify.Deref(env.Value)
 		}
 	}
-	for key, value := range desired {
-		if present[key] {
-			continue
-		}
-		if err := vars.create(ctx, key, value); err != nil {
-			return err
+	keys := make([]string, 0, len(desired))
+	for key := range desired {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		value := desired[key]
+		switch {
+		case !present[key]:
+			if err := vars.create(ctx, key, value); err != nil {
+				return err
+			}
+		case overwrite && current[key] != value:
+			if err := vars.update(ctx, key, value); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
