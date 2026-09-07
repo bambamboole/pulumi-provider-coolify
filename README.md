@@ -182,7 +182,7 @@ The implementation uses [`POST /services/{uuid}/restart`](https://github.com/coo
 
 ## Servers
 
-`coolify.Server` adopts an existing server by name. Coolify's single-server endpoint reports the numeric ID of the private key the server connects with, and the provider maps that ID back to the key's UUID through the key list. `privateKeyUuid` is therefore read back on `pulumi refresh` and `pulumi import`, and adopting a server whose key already matches sends no update, so an imported server needs no follow-up patch. The previously declared value is only kept when the response carries no key ID or no key in the team matches it, for example because the token cannot list keys.
+`coolify.Server` adopts an existing server by name. Coolify's single-server endpoint reports the numeric ID of the private key the server connects with, and the provider maps that ID back to the key's UUID through the key list. `privateKeyUuid` is therefore read back on `pulumi refresh` and `pulumi import`, and adopting a server whose key already matches sends no update, so an imported server needs no follow-up patch. Updates compare the declared key against Coolify as well, so a key switched in the Coolify UI is restored by the next `pulumi up` that touches the server, even without a refresh. The previously declared value is only kept when the response carries no key ID or no key in the team matches it, for example because the token cannot list keys.
 
 ```sh
 pulumi import coolify:index:Server app-1 <SERVER_UUID>
@@ -190,7 +190,7 @@ pulumi import coolify:index:Server app-1 <SERVER_UUID>
 
 ## GitHub Apps
 
-`coolify.GitHubApp` adopts an existing app by name. `privateKeyUuid` is resolved from the app's private key ID the same way as for servers, so an adopted app with an unchanged key is not patched. `clientSecret` is optional: it is required to create an app that does not exist yet (the provider fails with a clear error otherwise), it is never sent when left empty on an adopted app, and it stays unmanaged until you supply a value. Coolify never returns the secret, so a declared value is compared against the previous input and drift on it is not detected; `webhookSecret` behaves the same way.
+`coolify.GitHubApp` adopts an existing app by name. `privateKeyUuid` is resolved from the app's private key ID the same way as for servers, so an adopted app with an unchanged key is not patched and a key switched in the UI is restored on the next update. `clientSecret` is optional: it is required to create an app that does not exist yet (the provider fails with a clear error otherwise), it is never sent when left empty on an adopted app, and it stays unmanaged until you supply a value. Coolify never returns the secret, so a declared value is compared against the previous input and drift on it is not detected; `webhookSecret` behaves the same way.
 
 ```ts
 // Adopt an app created in the Coolify UI without knowing its client secret.
