@@ -47,9 +47,9 @@ export class GitHubApp extends pulumi.CustomResource {
      */
     declare public readonly clientId: pulumi.Output<string>;
     /**
-     * OAuth client secret of the app.
+     * OAuth client secret of the app. Required to create an app that does not exist yet; an adopted app can be managed without it, in which case the secret stored in Coolify is left untouched until a value is supplied.
      */
-    declare public readonly clientSecret: pulumi.Output<string>;
+    declare public readonly clientSecret: pulumi.Output<string | undefined>;
     /**
      * SSH port for git operations.
      */
@@ -83,7 +83,7 @@ export class GitHubApp extends pulumi.CustomResource {
      */
     declare public readonly organization: pulumi.Output<string | undefined>;
     /**
-     * UUID of the Coolify private key holding the app's private key (the uuid output of a PrivateKey resource).
+     * UUID of the Coolify private key holding the app's private key (the uuid output of a PrivateKey resource). Resolved from Coolify on read, so an adopted app is not re-patched when the key is unchanged.
      */
     declare public readonly privateKeyUuid: pulumi.Output<string>;
     /**
@@ -111,9 +111,6 @@ export class GitHubApp extends pulumi.CustomResource {
             }
             if (args?.clientId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'clientId'");
-            }
-            if (args?.clientSecret === undefined && !opts.urn) {
-                throw new Error("Missing required property 'clientSecret'");
             }
             if (args?.installationId === undefined && !opts.urn) {
                 throw new Error("Missing required property 'installationId'");
@@ -180,9 +177,9 @@ export interface GitHubAppArgs {
      */
     clientId: pulumi.Input<string>;
     /**
-     * OAuth client secret of the app.
+     * OAuth client secret of the app. Required to create an app that does not exist yet; an adopted app can be managed without it, in which case the secret stored in Coolify is left untouched until a value is supplied.
      */
-    clientSecret: pulumi.Input<string>;
+    clientSecret?: pulumi.Input<string | undefined>;
     /**
      * SSH port for git operations.
      */
@@ -212,7 +209,7 @@ export interface GitHubAppArgs {
      */
     organization?: pulumi.Input<string | undefined>;
     /**
-     * UUID of the Coolify private key holding the app's private key (the uuid output of a PrivateKey resource).
+     * UUID of the Coolify private key holding the app's private key (the uuid output of a PrivateKey resource). Resolved from Coolify on read, so an adopted app is not re-patched when the key is unchanged.
      */
     privateKeyUuid: pulumi.Input<string>;
     /**

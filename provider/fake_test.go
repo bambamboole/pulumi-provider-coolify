@@ -30,6 +30,8 @@ type fakeCoolify struct {
 	tasks        map[string][]map[string]any
 	githubApps   map[string]map[string]any
 	services     map[string]map[string]any
+	servers      map[string]map[string]any
+	privateKeys  map[string]map[string]any
 	backups      map[string][]map[string]any
 	// storages are keyed by owner UUID; "_persistent" marks volumes, the rest
 	// are file/directory mounts.
@@ -56,6 +58,8 @@ func newFakeCoolify(t *testing.T) *fakeCoolify {
 		tasks:         map[string][]map[string]any{},
 		githubApps:    map[string]map[string]any{},
 		services:      map[string]map[string]any{},
+		servers:       map[string]map[string]any{},
+		privateKeys:   map[string]map[string]any{},
 		backups:       map[string][]map[string]any{},
 		storages:      map[string][]map[string]any{},
 		volumeBackups: map[string]map[string]any{},
@@ -196,6 +200,28 @@ func (f *fakeCoolify) addStorage(ownerUUID string, persistent bool, record map[s
 	return uuid
 }
 
+// addPrivateKey registers a private key and returns its UUID.
+func (f *fakeCoolify) addPrivateKey(name string) string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	uuid := fmt.Sprintf("u-key-%d", f.id())
+	f.privateKeys[uuid] = map[string]any{"id": f.nextID, "uuid": uuid, "name": name, "description": ""}
+	return uuid
+}
+
+// resolvePrivateKey replaces private_key_uuid in a request body with the
+// private_key_id Coolify stores, like the real API does.
+func (f *fakeCoolify) resolvePrivateKey(body map[string]any) {
+	uuid, ok := body["private_key_uuid"].(string)
+	if !ok {
+		return
+	}
+	delete(body, "private_key_uuid")
+	if key, ok := f.privateKeys[uuid]; ok {
+		body["private_key_id"] = key["id"]
+	}
+}
+
 func (f *fakeCoolify) addEnvVar(appUUID, key, value string, preview bool) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -246,6 +272,10 @@ func (f *fakeCoolify) handle(w http.ResponseWriter, r *http.Request) {
 		f.handleGitHubApps(w, r, parts[1:])
 	case "services":
 		f.handleServices(w, r, parts[1:])
+	case "servers":
+		f.handleServers(w, r, parts[1:])
+	case "security":
+		f.handlePrivateKeys(w, r, parts[1:])
 	case "deployments":
 		if d, ok := f.deployments[parts[1]]; ok {
 			writeJSON(w, http.StatusOK, d)
@@ -931,6 +961,7 @@ func (f *fakeCoolify) handleGitHubApps(w http.ResponseWriter, r *http.Request, p
 		writeJSON(w, http.StatusOK, out)
 	case len(parts) == 0 && r.Method == http.MethodPost:
 		body := readJSON(r)
+		f.resolvePrivateKey(body)
 		uuid := fmt.Sprintf("u-gh-%d", f.id())
 		body["id"], body["uuid"] = f.nextID, uuid
 		if body["api_url"] == nil {
@@ -945,7 +976,9 @@ func (f *fakeCoolify) handleGitHubApps(w http.ResponseWriter, r *http.Request, p
 			}
 			switch r.Method {
 			case http.MethodPatch:
-				merge(app, readJSON(r))
+				body := readJSON(r)
+				f.resolvePrivateKey(body)
+				merge(app, body)
 				writeJSON(w, http.StatusOK, hidden(app))
 			case http.MethodDelete:
 				delete(f.githubApps, uuid)
@@ -954,6 +987,76 @@ func (f *fakeCoolify) handleGitHubApps(w http.ResponseWriter, r *http.Request, p
 			return
 		}
 		writeError(w, http.StatusNotFound, "GitHub app not found")
+	default:
+		writeError(w, http.StatusNotFound, "No route.")
+	}
+}
+
+// handleServers serves /servers. Like Coolify, the list omits private_key_id
+// while GET by UUID reports it.
+func (f *fakeCoolify) handleServers(w http.ResponseWriter, r *http.Request, parts []string) {
+	listed := func(server map[string]any) map[string]any {
+		out := map[string]any{}
+		for key, value := range server {
+			if key != "private_key_id" {
+				out[key] = value
+			}
+		}
+		return out
+	}
+	switch {
+	case len(parts) == 0 && r.Method == http.MethodGet:
+		out := []map[string]any{}
+		for _, server := range f.servers {
+			out = append(out, listed(server))
+		}
+		writeJSON(w, http.StatusOK, out)
+	case len(parts) == 0 && r.Method == http.MethodPost:
+		body := readJSON(r)
+		f.resolvePrivateKey(body)
+		delete(body, "instant_validate")
+		uuid := fmt.Sprintf("u-server-%d", f.id())
+		body["id"], body["uuid"] = f.nextID, uuid
+		f.servers[uuid] = body
+		writeJSON(w, http.StatusCreated, map[string]any{"uuid": uuid})
+	case len(parts) == 1:
+		server, ok := f.servers[parts[0]]
+		if !ok {
+			writeError(w, http.StatusNotFound, "Server not found.")
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			writeJSON(w, http.StatusOK, server)
+		case http.MethodPatch:
+			body := readJSON(r)
+			f.resolvePrivateKey(body)
+			merge(server, body)
+			writeJSON(w, http.StatusOK, server)
+		case http.MethodDelete:
+			delete(f.servers, parts[0])
+			writeJSON(w, http.StatusOK, map[string]any{"message": "deleted"})
+		}
+	default:
+		writeError(w, http.StatusNotFound, "No route.")
+	}
+}
+
+// handlePrivateKeys serves the read side of /security/keys.
+func (f *fakeCoolify) handlePrivateKeys(w http.ResponseWriter, r *http.Request, parts []string) {
+	switch {
+	case len(parts) == 1 && parts[0] == "keys" && r.Method == http.MethodGet:
+		out := []map[string]any{}
+		for _, key := range f.privateKeys {
+			out = append(out, key)
+		}
+		writeJSON(w, http.StatusOK, out)
+	case len(parts) == 2 && parts[0] == "keys" && r.Method == http.MethodGet:
+		if key, ok := f.privateKeys[parts[1]]; ok {
+			writeJSON(w, http.StatusOK, key)
+			return
+		}
+		writeError(w, http.StatusNotFound, "Private key not found.")
 	default:
 		writeError(w, http.StatusNotFound, "No route.")
 	}
