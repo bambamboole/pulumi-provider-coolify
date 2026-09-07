@@ -108,12 +108,94 @@ func TestServiceComposeIsSentEncodedAndOnlyWhenChanged(t *testing.T) {
 	if fake.countRequests("PATCH", "/api/v1/services/") != 1 || fake.services[*service.Uuid]["_compose"] == encoded {
 		t.Fatalf("changed compose must patch: %v", fake.requests)
 	}
-	// Adoption (unknown previous compose) always sends it.
+	// Adoption compares against the compose file Coolify reports, so an
+	// unchanged file is not re-sent.
+	service, _ = c.GetService(ctx, *service.Uuid)
 	if _, err := applyService(ctx, c, service, args, nil); err != nil {
 		t.Fatalf("applyService on adoption: %v", err)
 	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != 1 {
+		t.Fatalf("adoption with the reported compose must not patch: %v", fake.requests)
+	}
+	// Without read:sensitive the file is unknown and adoption sends it.
+	fake.hideSensitive = true
+	service, _ = c.GetService(ctx, *service.Uuid)
+	if service.DockerComposeRaw != nil {
+		t.Fatalf("compose must be hidden without read:sensitive: %+v", service.DockerComposeRaw)
+	}
+	if _, err := applyService(ctx, c, service, args, nil); err != nil {
+		t.Fatalf("applyService on adoption without compose: %v", err)
+	}
 	if fake.countRequests("PATCH", "/api/v1/services/") != 2 {
-		t.Fatalf("adoption must send the compose file: %v", fake.requests)
+		t.Fatalf("adoption with a hidden compose must send it: %v", fake.requests)
+	}
+}
+
+func TestServiceComposeIsComparedAsYAML(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := withDefaultTags(withClient(context.Background(), c), "pulumi")
+	projectUUID := fake.addProject("Main", "production")
+
+	args := serviceArgs(projectUUID)
+	args.Type = ""
+	args.DockerCompose = testCompose
+	created, err := (Service{}).Create(ctx, infer.CreateRequest[ServiceArgs]{Inputs: args})
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+	uuid := created.ID
+
+	// Coolify re-dumps the file it stores; formatting differences are not drift.
+	reformatted := "services:\n    web:\n        image: 'nginx'\n"
+	fake.mu.Lock()
+	fake.services[uuid]["_compose"] = base64.StdEncoding.EncodeToString([]byte(reformatted))
+	fake.mu.Unlock()
+	read, err := (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: uuid, Inputs: args, State: created.Output})
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+	if read.Inputs.DockerCompose != testCompose {
+		t.Fatalf("equivalent compose must keep the declared formatting, got %q", read.Inputs.DockerCompose)
+	}
+	patches := fake.countRequests("PATCH", "/api/v1/services/")
+	if _, err := (Service{}).Update(ctx, infer.UpdateRequest[ServiceArgs, ServiceState]{ID: uuid, State: created.Output, Inputs: args}); err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != patches {
+		t.Fatalf("equivalent compose must not patch: %v", fake.requests)
+	}
+
+	// A file changed in the UI shows up on refresh and is restored on update.
+	changed := testCompose + "    restart: always\n"
+	fake.mu.Lock()
+	fake.services[uuid]["_compose"] = base64.StdEncoding.EncodeToString([]byte(changed))
+	fake.mu.Unlock()
+	read, err = (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: uuid, Inputs: args, State: created.Output})
+	if err != nil {
+		t.Fatalf("Read after drift: %v", err)
+	}
+	if read.Inputs.DockerCompose != changed {
+		t.Fatalf("Read must report the changed compose, got %q", read.Inputs.DockerCompose)
+	}
+	if _, err := (Service{}).Update(ctx, infer.UpdateRequest[ServiceArgs, ServiceState]{ID: uuid, State: created.Output, Inputs: args}); err != nil {
+		t.Fatalf("Update after drift: %v", err)
+	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != patches+1 {
+		t.Fatalf("drifted compose must be restored: %v", fake.requests)
+	}
+	if fake.services[uuid]["_compose"] != base64.StdEncoding.EncodeToString([]byte(testCompose)) {
+		t.Fatalf("declared compose must be restored, got %v", fake.services[uuid]["_compose"])
+	}
+
+	// Unmanaged compose (one-click service) is never read back.
+	service, err := c.GetService(ctx, uuid)
+	if err != nil {
+		t.Fatalf("GetService: %v", err)
+	}
+	inputs := serviceInputs(serviceArgs(projectUUID), service)
+	if inputs.DockerCompose != "" {
+		t.Fatalf("unmanaged compose must stay empty, got %q", inputs.DockerCompose)
 	}
 }
 

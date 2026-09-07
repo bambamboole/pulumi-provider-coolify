@@ -73,11 +73,17 @@ func (Server) Update(ctx context.Context, req infer.UpdateRequest[ServerArgs, Se
 		return infer.UpdateResponse[ServerState]{Output: ServerState{ServerArgs: req.Inputs, UUID: req.ID}}, nil
 	}
 	c := client(ctx)
-	current, err := c.GetServer(ctx, req.ID)
+	current, err := c.GetServerDetails(ctx, req.ID)
 	if err != nil {
 		return infer.UpdateResponse[ServerState]{}, err
 	}
-	server, err := applyServer(ctx, c, current, req.State.PrivateKeyUUID, req.Inputs)
+	// Compare the key against Coolify, not only the recorded state, so a key
+	// changed outside Pulumi is restored on the next update.
+	keyUUID, err := resolvePrivateKeyUUID(ctx, c, current.PrivateKeyID, req.State.PrivateKeyUUID)
+	if err != nil {
+		return infer.UpdateResponse[ServerState]{}, err
+	}
+	server, err := applyServer(ctx, c, current.Server, keyUUID, req.Inputs)
 	if err != nil {
 		return infer.UpdateResponse[ServerState]{}, err
 	}

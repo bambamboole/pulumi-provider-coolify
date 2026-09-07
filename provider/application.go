@@ -161,8 +161,8 @@ func (args *ApplicationArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.GitBranch, "Git branch to deploy for git sources.")
 	a.Describe(&args.GitCommitSHA, "Git commit SHA to deploy. Defaults to the branch head.")
 	a.Describe(&args.BuildPack, "Build pack for git sources: nixpacks, railpack, static, dockerfile or dockercompose.")
-	a.Describe(&args.PrivateKeyUUID, "UUID of the Coolify private key for private-deploy-key sources. Changing it replaces the application.")
-	a.Describe(&args.GitHubAppUUID, "UUID of the Coolify GitHub App for private-github-app sources. Changing it replaces the application.")
+	a.Describe(&args.PrivateKeyUUID, "UUID of the Coolify private key for private-deploy-key sources. Resolved from Coolify on read; adopting an application that uses another key fails because Coolify's API cannot change it. Changing it replaces the application.")
+	a.Describe(&args.GitHubAppUUID, "UUID of the Coolify GitHub App for private-github-app sources. Resolved from Coolify on read and re-applied when an adopted application uses another app. Changing it replaces the application.")
 	a.Describe(&args.DockerRegistryImageName, "Image name for docker-image sources.")
 	a.Describe(&args.DockerRegistryImageTag, "Image tag for docker-image sources. Defaults to latest.")
 	a.Describe(&args.Dockerfile, "Dockerfile content for dockerfile sources.")
@@ -325,6 +325,12 @@ func (Application) Read(ctx context.Context, req infer.ReadRequest[ApplicationAr
 		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
 	}
 	inputs := applicationInputs(req.Inputs, app)
+	refs, err := resolveApplicationSourceRefs(ctx, c, app, inputs.Source)
+	if err != nil {
+		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
+	}
+	inputs.PrivateKeyUUID = firstNonEmpty(refs.PrivateKeyUUID, inputs.PrivateKeyUUID)
+	inputs.GitHubAppUUID = firstNonEmpty(refs.GitHubAppUUID, inputs.GitHubAppUUID)
 	if len(req.Inputs.EnvironmentVariables) > 0 {
 		existing, err := c.ListApplicationEnvVars(ctx, req.ID)
 		if err != nil {
@@ -361,9 +367,22 @@ func createApplication(ctx context.Context, c *coolify.Client, inputs Applicatio
 		return api.Application{}, err
 	}
 	for _, candidate := range apps {
-		if coolify.Deref(candidate.Name) == inputs.Name && coolify.Deref(candidate.EnvironmentId) == environment.ID {
-			return applyApplication(ctx, c, candidate, inputs, false)
+		if coolify.Deref(candidate.Name) != inputs.Name || coolify.Deref(candidate.EnvironmentId) != environment.ID {
+			continue
 		}
+		// The API cannot change the private key of an existing application,
+		// so a different key is an error rather than silently kept.
+		if inputs.Source == ApplicationSourcePrivateDeployKey {
+			keyUUID, err := c.PrivateKeyUUIDByID(ctx, coolify.Deref(candidate.PrivateKeyId))
+			if err != nil {
+				return api.Application{}, err
+			}
+			if keyUUID != "" && keyUUID != inputs.PrivateKeyUUID {
+				return api.Application{}, fmt.Errorf("coolify application %q already exists in environment %q with private key %q, expected %q; Coolify's API cannot change the key of an existing application",
+					inputs.Name, inputs.EnvironmentName, keyUUID, inputs.PrivateKeyUUID)
+			}
+		}
+		return applyApplication(ctx, c, candidate, inputs, false)
 	}
 
 	uuid, err := createApplicationBySource(ctx, c, environment, inputs)
@@ -466,6 +485,18 @@ func createApplicationBySource(ctx context.Context, c *coolify.Client, environme
 func applyApplication(ctx context.Context, c *coolify.Client, current api.Application, inputs ApplicationArgs, deploy bool) (api.Application, error) {
 	uuid := coolify.Deref(current.Uuid)
 	body, changed := applicationPatch(current, inputs)
+	// The GitHub App is compared against the one Coolify reports so an adopted
+	// application or one changed in the UI is moved to the declared app.
+	if inputs.Source == ApplicationSourcePrivateGitHubApp && inputs.GitHubAppUUID != "" {
+		appUUID, err := c.GitHubAppUUIDByID(ctx, coolify.Deref(current.SourceId))
+		if err != nil {
+			return api.Application{}, err
+		}
+		if appUUID != "" && appUUID != inputs.GitHubAppUUID {
+			body.GithubAppUuid = &inputs.GitHubAppUUID
+			changed = true
+		}
+	}
 	if deploy {
 		body.InstantDeploy = coolify.Ptr(true)
 		changed = true
@@ -527,6 +558,27 @@ func applicationPatch(current api.Application, inputs ApplicationArgs) (api.Upda
 	patch.str(&body.LimitsMemory, inputs.LimitsMemory, coolify.Deref(current.LimitsMemory))
 	patch.str(&body.LimitsCpus, inputs.LimitsCPUs, coolify.Deref(current.LimitsCpus))
 	return body, patch.changed
+}
+
+// applicationSourceRefs are the private key and GitHub App an application
+// uses, resolved from the numeric IDs Coolify reports. Only the reference the
+// source needs is resolved; an empty value means Coolify did not report the
+// ID or no key or app matched it.
+type applicationSourceRefs struct {
+	PrivateKeyUUID string
+	GitHubAppUUID  string
+}
+
+func resolveApplicationSourceRefs(ctx context.Context, c *coolify.Client, app api.Application, source ApplicationSource) (applicationSourceRefs, error) {
+	var refs applicationSourceRefs
+	var err error
+	switch source {
+	case ApplicationSourcePrivateDeployKey:
+		refs.PrivateKeyUUID, err = c.PrivateKeyUUIDByID(ctx, coolify.Deref(app.PrivateKeyId))
+	case ApplicationSourcePrivateGitHubApp:
+		refs.GitHubAppUUID, err = c.GitHubAppUUIDByID(ctx, coolify.Deref(app.SourceId))
+	}
+	return refs, err
 }
 
 // applicationInputs derives the inputs from the application Coolify reports,

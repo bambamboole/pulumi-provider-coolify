@@ -104,7 +104,14 @@ func (GitHubApp) Update(ctx context.Context, req infer.UpdateRequest[GitHubAppAr
 	if err != nil {
 		return infer.UpdateResponse[GitHubAppState]{}, err
 	}
-	app, err := applyGitHubApp(ctx, c, current, req.State.GitHubAppArgs, req.Inputs)
+	// Secrets are compared against the recorded state because Coolify hides
+	// them; the key is resolved from Coolify so outside changes are restored.
+	previous := req.State.GitHubAppArgs
+	previous.PrivateKeyUUID, err = resolvePrivateKeyUUID(ctx, c, current.PrivateKeyID, previous.PrivateKeyUUID)
+	if err != nil {
+		return infer.UpdateResponse[GitHubAppState]{}, err
+	}
+	app, err := applyGitHubApp(ctx, c, current, previous, req.Inputs)
 	if err != nil {
 		return infer.UpdateResponse[GitHubAppState]{}, err
 	}

@@ -122,7 +122,7 @@ export class Application extends pulumi.CustomResource {
      */
     declare public readonly gitRepository: pulumi.Output<string | undefined>;
     /**
-     * UUID of the Coolify GitHub App for private-github-app sources. Changing it replaces the application.
+     * UUID of the Coolify GitHub App for private-github-app sources. Resolved from Coolify on read and re-applied when an adopted application uses another app. Changing it replaces the application.
      */
     declare public readonly githubAppUuid: pulumi.Output<string | undefined>;
     /**
@@ -182,7 +182,7 @@ export class Application extends pulumi.CustomResource {
      */
     declare public readonly previewDeploymentsEnabled: pulumi.Output<boolean | undefined>;
     /**
-     * UUID of the Coolify private key for private-deploy-key sources. Changing it replaces the application.
+     * UUID of the Coolify private key for private-deploy-key sources. Resolved from Coolify on read; adopting an application that uses another key fails because Coolify's API cannot change it. Changing it replaces the application.
      */
     declare public readonly privateKeyUuid: pulumi.Output<string | undefined>;
     /**
@@ -419,7 +419,7 @@ export interface ApplicationArgs {
      */
     gitRepository?: pulumi.Input<string | undefined>;
     /**
-     * UUID of the Coolify GitHub App for private-github-app sources. Changing it replaces the application.
+     * UUID of the Coolify GitHub App for private-github-app sources. Resolved from Coolify on read and re-applied when an adopted application uses another app. Changing it replaces the application.
      */
     githubAppUuid?: pulumi.Input<string | undefined>;
     /**
@@ -479,7 +479,7 @@ export interface ApplicationArgs {
      */
     previewDeploymentsEnabled?: pulumi.Input<boolean | undefined>;
     /**
-     * UUID of the Coolify private key for private-deploy-key sources. Changing it replaces the application.
+     * UUID of the Coolify private key for private-deploy-key sources. Resolved from Coolify on read; adopting an application that uses another key fails because Coolify's API cannot change it. Changing it replaces the application.
      */
     privateKeyUuid?: pulumi.Input<string | undefined>;
     /**

@@ -164,3 +164,41 @@ func TestCreateGitHubAppRequiresClientSecret(t *testing.T) {
 		t.Fatalf("no app must be created: %v", fake.requests)
 	}
 }
+
+func TestGitHubAppUpdateRestoresKeyChangedOutsidePulumi(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := withClient(context.Background(), c)
+	keyUUID := fake.addPrivateKey("deploy")
+	otherKeyUUID := fake.addPrivateKey("other")
+
+	args := gitHubAppArgs(keyUUID)
+	app, err := createGitHubApp(ctx, c, args)
+	if err != nil {
+		t.Fatalf("createGitHubApp: %v", err)
+	}
+	state := gitHubAppState(args, app)
+	path := "/api/v1/github-apps/" + coolify.GitHubAppID(app.ID)
+
+	// The key is switched in the UI while state still records the declared one.
+	fake.mu.Lock()
+	fake.githubApps[app.UUID]["private_key_id"] = fake.privateKeys[otherKeyUUID]["id"]
+	fake.mu.Unlock()
+	next := args
+	next.InstallationID = 9999
+	if _, err := (GitHubApp{}).Update(ctx, infer.UpdateRequest[GitHubAppArgs, GitHubAppState]{ID: app.UUID, State: state, Inputs: next}); err != nil {
+		t.Fatalf("Update after drift: %v", err)
+	}
+	if fake.countRequests("PATCH", path) != 1 {
+		t.Fatalf("expected one patch, got %v", fake.requests)
+	}
+	fake.mu.Lock()
+	keyID, secret := fake.githubApps[app.UUID]["private_key_id"], fake.githubApps[app.UUID]["client_secret"]
+	fake.mu.Unlock()
+	if fmt.Sprint(keyID) != fmt.Sprint(fake.privateKeys[keyUUID]["id"]) {
+		t.Fatalf("update must restore the declared key, got %v", keyID)
+	}
+	if secret != "secret" {
+		t.Fatalf("unchanged secret must not be touched, got %v", secret)
+	}
+}

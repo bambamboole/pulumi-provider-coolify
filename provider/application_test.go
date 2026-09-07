@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -321,5 +322,87 @@ func TestApplicationDiffComparesEnvironmentValuesOnlyWhenOverwriting(t *testing.
 	}
 	if _, ok := diff.DetailedDiff["environmentVariables"]; !ok || !diff.HasChanges {
 		t.Fatalf("a changed value must diff with overwrite: %+v", diff.DetailedDiff)
+	}
+}
+
+func TestApplicationSourcesAreResolvedOnReadAndAdopt(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := withClient(context.Background(), c)
+	projectUUID := fake.addProject("Main", "production")
+	keyUUID := fake.addPrivateKey("deploy")
+	otherKeyUUID := fake.addPrivateKey("other")
+	appUUID := fake.addGitHubApp("deploy-bot")
+	otherAppUUID := fake.addGitHubApp("other-bot")
+
+	// A deploy-key application: the key is read back and guarded on adoption.
+	keyArgs := applicationArgs(projectUUID, nil)
+	keyArgs.Name, keyArgs.Source, keyArgs.PrivateKeyUUID = "api", ApplicationSourcePrivateDeployKey, keyUUID
+	keyArgs.GitRepository, keyArgs.GitBranch = "git@github.com:acme/api.git", "main"
+	keyArgs.DockerRegistryImageName = ""
+	keyApp, err := createApplication(ctx, c, keyArgs)
+	if err != nil {
+		t.Fatalf("createApplication: %v", err)
+	}
+	stale := keyArgs
+	stale.PrivateKeyUUID = "stale"
+	read, err := (Application{}).Read(ctx, infer.ReadRequest[ApplicationArgs, ApplicationState]{ID: *keyApp.Uuid, Inputs: stale})
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+	if read.Inputs.PrivateKeyUUID != keyUUID {
+		t.Fatalf("Read must resolve the private key, got %q", read.Inputs.PrivateKeyUUID)
+	}
+	patches := fake.countRequests("PATCH", "/api/v1/applications/"+*keyApp.Uuid)
+	if _, err := createApplication(ctx, c, keyArgs); err != nil {
+		t.Fatalf("adopt with the same key: %v", err)
+	}
+	if fake.countRequests("PATCH", "/api/v1/applications/"+*keyApp.Uuid) != patches {
+		t.Fatalf("adopt with the same key must not patch: %v", fake.requests)
+	}
+	keyArgs.PrivateKeyUUID = otherKeyUUID
+	_, err = createApplication(ctx, c, keyArgs)
+	if err == nil || !strings.Contains(err.Error(), "cannot change the key") {
+		t.Fatalf("adopt with another key must fail clearly, got %v", err)
+	}
+
+	// A GitHub App application: the app is read back and re-applied on adoption.
+	ghArgs := applicationArgs(projectUUID, nil)
+	ghArgs.Name, ghArgs.Source, ghArgs.GitHubAppUUID = "site", ApplicationSourcePrivateGitHubApp, appUUID
+	ghArgs.GitRepository, ghArgs.GitBranch = "acme/site", "main"
+	ghArgs.DockerRegistryImageName = ""
+	ghApp, err := createApplication(ctx, c, ghArgs)
+	if err != nil {
+		t.Fatalf("createApplication with GitHub App: %v", err)
+	}
+	path := "/api/v1/applications/" + *ghApp.Uuid
+	stale = ghArgs
+	stale.GitHubAppUUID = "stale"
+	read, err = (Application{}).Read(ctx, infer.ReadRequest[ApplicationArgs, ApplicationState]{ID: *ghApp.Uuid, Inputs: stale})
+	if err != nil {
+		t.Fatalf("Read GitHub App application: %v", err)
+	}
+	if read.Inputs.GitHubAppUUID != appUUID || read.Inputs.PrivateKeyUUID != "" {
+		t.Fatalf("Read must resolve the GitHub App only, got %+v", read.Inputs)
+	}
+	patches = fake.countRequests("PATCH", path)
+	if _, err := createApplication(ctx, c, ghArgs); err != nil {
+		t.Fatalf("adopt with the same app: %v", err)
+	}
+	if fake.countRequests("PATCH", path) != patches {
+		t.Fatalf("adopt with the same app must not patch: %v", fake.requests)
+	}
+	ghArgs.GitHubAppUUID = otherAppUUID
+	if _, err := createApplication(ctx, c, ghArgs); err != nil {
+		t.Fatalf("adopt with another app: %v", err)
+	}
+	if fake.countRequests("PATCH", path) != patches+1 {
+		t.Fatalf("adopt with another app must patch once: %v", fake.requests)
+	}
+	fake.mu.Lock()
+	sourceID := fake.applications[*ghApp.Uuid]["source_id"]
+	fake.mu.Unlock()
+	if fmt.Sprint(sourceID) != fmt.Sprint(fake.githubApps[otherAppUUID]["id"]) {
+		t.Fatalf("patch must switch the GitHub App, got %v", sourceID)
 	}
 }

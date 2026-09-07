@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -32,7 +33,10 @@ type fakeCoolify struct {
 	services     map[string]map[string]any
 	servers      map[string]map[string]any
 	privateKeys  map[string]map[string]any
-	backups      map[string][]map[string]any
+	// hideSensitive mimics a token without read:sensitive, which hides the
+	// service compose file.
+	hideSensitive bool
+	backups       map[string][]map[string]any
 	// storages are keyed by owner UUID; "_persistent" marks volumes, the rest
 	// are file/directory mounts.
 	storages map[string][]map[string]any
@@ -207,6 +211,28 @@ func (f *fakeCoolify) addPrivateKey(name string) string {
 	uuid := fmt.Sprintf("u-key-%d", f.id())
 	f.privateKeys[uuid] = map[string]any{"id": f.nextID, "uuid": uuid, "name": name, "description": ""}
 	return uuid
+}
+
+// addGitHubApp registers a GitHub App and returns its UUID.
+func (f *fakeCoolify) addGitHubApp(name string) string {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	uuid := fmt.Sprintf("u-gh-%d", f.id())
+	f.githubApps[uuid] = map[string]any{"id": f.nextID, "uuid": uuid, "name": name, "api_url": "https://api.github.com", "html_url": "https://github.com"}
+	return uuid
+}
+
+// resolveGitHubApp replaces github_app_uuid in a request body with the
+// source_id Coolify stores on applications.
+func (f *fakeCoolify) resolveGitHubApp(body map[string]any) {
+	uuid, ok := body["github_app_uuid"].(string)
+	if !ok {
+		return
+	}
+	delete(body, "github_app_uuid")
+	if app, ok := f.githubApps[uuid]; ok {
+		body["source_id"] = app["id"]
+	}
 }
 
 // resolvePrivateKey replaces private_key_uuid in a request body with the
@@ -510,12 +536,15 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 		writeJSON(w, http.StatusOK, values(f.applications))
 	case len(parts) == 1 && r.Method == http.MethodPost:
 		body := readJSON(r)
+		f.resolvePrivateKey(body)
+		f.resolveGitHubApp(body)
 		uuid := fmt.Sprintf("u-app-%d", f.id())
 		record := map[string]any{
 			"id": f.nextID, "uuid": uuid, "name": body["name"], "description": body["description"], "status": "exited",
 			"git_repository": body["git_repository"], "git_branch": body["git_branch"], "build_pack": body["build_pack"],
 			"docker_registry_image_name": body["docker_registry_image_name"], "ports_exposes": body["ports_exposes"],
 			"fqdn": body["domains"], "settings": map[string]any{"is_auto_deploy_enabled": false},
+			"private_key_id": body["private_key_id"], "source_id": body["source_id"],
 		}
 		for _, environment := range f.environments[body["project_uuid"].(string)] {
 			if environment["name"] == body["environment_name"] {
@@ -535,6 +564,7 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 			writeJSON(w, http.StatusOK, app)
 		case http.MethodPatch:
 			body := readJSON(r)
+			f.resolveGitHubApp(body)
 			if domains, ok := body["domains"]; ok {
 				body["fqdn"] = domains
 				delete(body, "domains")
@@ -616,10 +646,30 @@ func (f *fakeCoolify) handleEnvVars(w http.ResponseWriter, r *http.Request, owne
 	writeJSON(w, http.StatusOK, nonNil(f.envVars[ownerUUID]))
 }
 
+// serviceView renders a service the way Coolify does: the stored compose file
+// is reported as docker_compose_raw only to tokens that may read sensitive data.
+func (f *fakeCoolify) serviceView(service map[string]any) map[string]any {
+	out := map[string]any{}
+	for key, value := range service {
+		if key != "_compose" {
+			out[key] = value
+		}
+	}
+	if compose, ok := service["_compose"].(string); ok && !f.hideSensitive {
+		decoded, _ := base64.StdEncoding.DecodeString(compose)
+		out["docker_compose_raw"] = string(decoded)
+	}
+	return out
+}
+
 func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, parts []string) {
 	switch {
 	case len(parts) == 0 && r.Method == http.MethodGet:
-		writeJSON(w, http.StatusOK, values(f.services))
+		out := []map[string]any{}
+		for _, service := range f.services {
+			out = append(out, f.serviceView(service))
+		}
+		writeJSON(w, http.StatusOK, out)
 	case len(parts) == 0 && r.Method == http.MethodPost:
 		body := readJSON(r)
 		uuid := fmt.Sprintf("u-svc-%d", f.id())
@@ -627,7 +677,7 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 			"id": f.nextID, "uuid": uuid, "name": body["name"], "description": body["description"],
 			"service_type": body["type"], "connect_to_docker_network": false,
 		}
-		// Coolify hides docker_compose_raw from the API; keep it aside for assertions.
+		// Keep the encoded compose aside; serviceView reports it like Coolify.
 		if body["docker_compose_raw"] != nil {
 			record["_compose"] = body["docker_compose_raw"]
 		}
@@ -647,7 +697,7 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 		}
 		switch r.Method {
 		case http.MethodGet:
-			writeJSON(w, http.StatusOK, service)
+			writeJSON(w, http.StatusOK, f.serviceView(service))
 		case http.MethodPatch:
 			body := readJSON(r)
 			if compose, ok := body["docker_compose_raw"]; ok {

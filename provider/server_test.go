@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -108,5 +109,53 @@ func TestCreateServerAdoptsWithoutRepatchingUnchangedKey(t *testing.T) {
 	}
 	if fake.countRequests("POST", "/api/v1/servers") != 1 {
 		t.Fatalf("server was recreated: %v", fake.requests)
+	}
+}
+
+func TestServerUpdateRestoresKeyChangedOutsidePulumi(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := withClient(context.Background(), c)
+	keyUUID := fake.addPrivateKey("deploy")
+	otherKeyUUID := fake.addPrivateKey("other")
+
+	args := serverArgs(keyUUID)
+	server, err := createServer(ctx, c, args)
+	if err != nil {
+		t.Fatalf("createServer: %v", err)
+	}
+	uuid := coolify.Deref(server.Uuid)
+	state := serverState(args, server)
+
+	// An update that only touches the port must not re-send an unchanged key.
+	next := args
+	next.Port = 2222
+	if _, err := (Server{}).Update(ctx, infer.UpdateRequest[ServerArgs, ServerState]{ID: uuid, State: state, Inputs: next}); err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	fake.mu.Lock()
+	port, keyID := fake.servers[uuid]["port"], fake.servers[uuid]["private_key_id"]
+	fake.mu.Unlock()
+	if fmt.Sprint(port) != "2222" {
+		t.Fatalf("port must be patched, got %v", port)
+	}
+	if fmt.Sprint(keyID) != fmt.Sprint(fake.privateKeys[keyUUID]["id"]) {
+		t.Fatalf("unchanged key must stay, got %v", keyID)
+	}
+
+	// The key is switched in the UI while state still records the declared one.
+	fake.mu.Lock()
+	fake.servers[uuid]["private_key_id"] = fake.privateKeys[otherKeyUUID]["id"]
+	fake.mu.Unlock()
+	state.Port = 2222
+	next.User = "deploy"
+	if _, err := (Server{}).Update(ctx, infer.UpdateRequest[ServerArgs, ServerState]{ID: uuid, State: state, Inputs: next}); err != nil {
+		t.Fatalf("Update after drift: %v", err)
+	}
+	fake.mu.Lock()
+	keyID = fake.servers[uuid]["private_key_id"]
+	fake.mu.Unlock()
+	if fmt.Sprint(keyID) != fmt.Sprint(fake.privateKeys[keyUUID]["id"]) {
+		t.Fatalf("update must restore the declared key, got %v", keyID)
 	}
 }

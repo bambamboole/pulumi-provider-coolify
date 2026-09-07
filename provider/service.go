@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"reflect"
 	"sort"
 	"strings"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
+	"gopkg.in/yaml.v3"
 
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
@@ -69,7 +71,7 @@ func (args *ServiceArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.Name, "Service name. Defaults to the Pulumi resource name. An existing service with this name in the environment is adopted.")
 	a.Describe(&args.Description, "Description of the service.")
 	a.Describe(&args.Type, `One-click service type, e.g. "plausible" or "gitea-with-mysql". Exactly one of type and dockerCompose must be set. Changing it replaces the service.`)
-	a.Describe(&args.DockerCompose, "Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify does not report the compose file back, so drift on this input is not detected.")
+	a.Describe(&args.DockerCompose, "Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify reports the compose file only to tokens with read:sensitive permission; with such a token it is compared as parsed YAML, so drift is detected and a file changed in the Coolify UI is restored on the next update. Otherwise the previous input is used.")
 	a.Describe(&args.DestinationUUID, "UUID of the destination when the server has several. Only relevant on create.")
 	a.Describe(&args.InstantDeploy, "Start the service right after creating it. Only relevant on create.")
 	a.Describe(&args.ConnectToDockerNetwork, "Connect the service to Coolify's predefined Docker network.")
@@ -267,9 +269,10 @@ func createService(ctx context.Context, c *coolify.Client, inputs ServiceArgs) (
 }
 
 // applyService patches the fields of current that differ from the inputs and
-// ensures the declared environment variables. Coolify hides the compose file,
-// so it is sent whenever it is unknown (previousCompose is nil) or differs
-// from the previous inputs.
+// ensures the declared environment variables. The compose file is compared
+// against the one Coolify reports when the token may read it, otherwise
+// against the previous inputs, and sent whenever it is unknown (previousCompose
+// is nil) or differs.
 func applyService(ctx context.Context, c *coolify.Client, current coolify.Service, inputs ServiceArgs, previousCompose *string) (coolify.Service, error) {
 	uuid := coolify.Deref(current.Uuid)
 	var body api.UpdateServiceByUuidJSONRequestBody
@@ -277,9 +280,11 @@ func applyService(ctx context.Context, c *coolify.Client, current coolify.Servic
 	patch.str(&body.Name, inputs.Name, coolify.Deref(current.Name))
 	patch.text(&body.Description, inputs.Description, coolify.Deref(current.Description))
 	patch.boolean(&body.ConnectToDockerNetwork, inputs.ConnectToDockerNetwork, coolify.Deref(current.ConnectToDockerNetwork))
-	if inputs.DockerCompose != "" && (previousCompose == nil || *previousCompose != inputs.DockerCompose) {
-		body.DockerComposeRaw = coolify.Ptr(encodeCompose(inputs.DockerCompose))
-		patch.changed = true
+	if inputs.DockerCompose != "" {
+		if known := currentServiceCompose(current, previousCompose); known == nil || !composeEqual(*known, inputs.DockerCompose) {
+			body.DockerComposeRaw = coolify.Ptr(encodeCompose(inputs.DockerCompose))
+			patch.changed = true
+		}
 	}
 	domains := changedServiceDomains(inputs.Domains, current)
 	// Parsing a replacement compose file can regenerate container domains.
@@ -333,10 +338,41 @@ func encodeCompose(compose string) string {
 	return base64.StdEncoding.EncodeToString([]byte(compose))
 }
 
+// currentServiceCompose returns the compose file Coolify reports when the
+// token may read sensitive data, otherwise the previous input; nil means it
+// is unknown.
+func currentServiceCompose(current coolify.Service, previous *string) *string {
+	if raw := coolify.Deref(current.DockerComposeRaw); raw != "" {
+		return &raw
+	}
+	return previous
+}
+
+// composeEqual reports whether two compose files describe the same document.
+// Coolify re-dumps the file it stores, so formatting differences must not
+// count as changes; files that do not parse are compared verbatim.
+func composeEqual(a, b string) bool {
+	if strings.TrimSpace(a) == strings.TrimSpace(b) {
+		return true
+	}
+	var x, y any
+	if yaml.Unmarshal([]byte(a), &x) != nil || yaml.Unmarshal([]byte(b), &y) != nil {
+		return false
+	}
+	return reflect.DeepEqual(x, y)
+}
+
 // serviceInputs derives the inputs from the service Coolify reports, keeping
-// the identity, the compose file and unmanaged optional inputs.
+// the identity and unmanaged optional inputs. A managed compose file follows
+// Coolify when the token may read it and the document differs; otherwise the
+// declared formatting is kept.
 func serviceInputs(previous ServiceArgs, service coolify.Service) ServiceArgs {
 	inputs := previous
+	if previous.DockerCompose != "" {
+		if raw := currentServiceCompose(service, nil); raw != nil && !composeEqual(previous.DockerCompose, *raw) {
+			inputs.DockerCompose = *raw
+		}
+	}
 	inputs.Name = coolify.Deref(service.Name)
 	inputs.Description = coolify.Deref(service.Description)
 	inputs.Type = ifSet(previous.Type, coolify.Deref(service.ServiceType))
