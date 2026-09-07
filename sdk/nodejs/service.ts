@@ -51,7 +51,7 @@ export class Service extends pulumi.CustomResource {
      */
     declare public readonly destinationUuid: pulumi.Output<string | undefined>;
     /**
-     * Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify does not report the compose file back, so drift on this input is not detected.
+     * Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify reports the compose file only to tokens with read:sensitive permission; with such a token it is compared as parsed YAML, so drift is detected and a file changed in the Coolify UI is restored on the next update. Otherwise the previous input is used.
      */
     declare public readonly dockerCompose: pulumi.Output<string | undefined>;
     /**
@@ -169,7 +169,7 @@ export interface ServiceArgs {
      */
     destinationUuid?: pulumi.Input<string | undefined>;
     /**
-     * Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify does not report the compose file back, so drift on this input is not detected.
+     * Docker compose file content for custom services. Exactly one of type and dockerCompose must be set. Coolify reports the compose file only to tokens with read:sensitive permission; with such a token it is compared as parsed YAML, so drift is detected and a file changed in the Coolify UI is restored on the next update. Otherwise the previous input is used.
      */
     dockerCompose?: pulumi.Input<string | undefined>;
     /**
