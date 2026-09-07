@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.10.0...v0.11.0) (2026-09-07)
+
+
+### Features
+
+* **application:** compose location and domains, build settings, environment value overwrite ([#28](https://github.com/bambamboole/pulumi-provider-coolify/issues/28)) ([6af39cf](https://github.com/bambamboole/pulumi-provider-coolify/commit/6af39cf96500c202bff2927d98517d3c0f36a0ba))
+
 ## [0.10.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.9.0...v0.10.0) (2026-09-07)
 
 
