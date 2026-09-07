@@ -3,8 +3,12 @@ package provider
 import (
 	"context"
 	"encoding/base64"
+	"reflect"
 	"strings"
+
 	"testing"
+
+	"github.com/pulumi/pulumi-go-provider/infer"
 )
 
 const testCompose = "services:\n  web:\n    image: nginx\n"
@@ -135,5 +139,100 @@ func TestServiceInputsKeepIdentityAndCompose(t *testing.T) {
 	}
 	if inputs.ProjectUUID != projectUUID || inputs.EnvironmentName != "production" || inputs.ServerUUID != "u-server" {
 		t.Fatalf("identity must be preserved: %+v", inputs)
+	}
+}
+
+func TestServiceDomainsCreateAdoptUpdateAndRefresh(t *testing.T) {
+	fake := newFakeCoolify(t)
+	ctx := withDefaultTags(withClient(context.Background(), fake.client()), "pulumi")
+	args := serviceArgs(fake.addProject("Main", "production"))
+	args.Domains = map[string]string{"web": "https://work.example.com:3010"}
+	created, err := (Service{}).Create(ctx, infer.CreateRequest[ServiceArgs]{Inputs: args})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(created.Output.Domains, args.Domains) {
+		t.Fatalf("create: %#v", created.Output.Domains)
+	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != 0 {
+		t.Fatalf("domains should be sent on create: %v", fake.requests)
+	}
+	// An unrelated container stays unmanaged, and UI changes to a managed one
+	// are visible during refresh and repaired on adoption.
+	applications := fake.services[created.ID]["applications"].([]map[string]any)
+	applications[0]["fqdn"] = "https://drift.example.com"
+	fake.services[created.ID]["applications"] = append(applications, map[string]any{"name": "admin", "fqdn": "https://admin.example.com"})
+	read, err := (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: created.Output})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(read.Inputs.Domains, map[string]string{"web": "https://drift.example.com"}) {
+		t.Fatalf("refresh: %#v", read.Inputs.Domains)
+	}
+	diff, err := (Service{}).Diff(ctx, infer.DiffRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: args, State: read.State})
+	if err != nil || !diff.HasChanges {
+		t.Fatalf("expected drift: %#v %v", diff, err)
+	}
+	adopted, err := (Service{}).Create(ctx, infer.CreateRequest[ServiceArgs]{Inputs: args})
+	if err != nil || adopted.ID != created.ID {
+		t.Fatalf("adoption: %#v %v", adopted, err)
+	}
+	if fake.countRequests("PATCH", "/api/v1/services/") != 1 {
+		t.Fatalf("adoption must reconcile domains: %v", fake.requests)
+	}
+	next := args
+	next.Domains = map[string]string{"web": ""}
+	updated, err := (Service{}).Update(ctx, infer.UpdateRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: next, State: adopted.Output})
+	if err != nil {
+		t.Fatal(err)
+	}
+	applications = fake.services[created.ID]["applications"].([]map[string]any)
+	if applications[0]["fqdn"] != nil || applications[1]["fqdn"] != "https://admin.example.com" {
+		t.Fatalf("clear must affect only web: %#v", applications)
+	}
+	read, err = (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: next, State: updated.Output})
+	if err != nil || read.Inputs.Domains["web"] != "" {
+		t.Fatalf("null should refresh as empty: %#v %v", read.Inputs.Domains, err)
+	}
+	diff, err = (Service{}).Diff(ctx, infer.DiffRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: next, State: read.State})
+	if err != nil || diff.HasChanges {
+		t.Fatalf("clear must converge: %#v %v", diff, err)
+	}
+	next.Domains = nil
+	read, err = (Service{}).Read(ctx, infer.ReadRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: next, State: updated.Output})
+	if err != nil || read.Inputs.Domains != nil {
+		t.Fatalf("omitted domains must stay unmanaged: %#v %v", read.Inputs.Domains, err)
+	}
+	before := len(fake.requests)
+	if _, err := (Service{}).Update(ctx, infer.UpdateRequest[ServiceArgs, ServiceState]{ID: created.ID, Inputs: next, State: updated.Output}); err != nil {
+		t.Fatal(err)
+	}
+	for _, request := range fake.requests[before:] {
+		if strings.HasPrefix(request, "PATCH ") {
+			t.Fatalf("unmanaged domains must not patch: %v", request)
+		}
+	}
+}
+
+func TestServiceDomainsRefreshMissingDetails(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	args := serviceArgs(fake.addProject("Main", "production"))
+	args.Domains = map[string]string{"web": "https://work.example.com"}
+	id := fake.addService(map[string]any{"name": args.Name})
+	current, err := c.GetService(context.Background(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := serviceInputs(args, current).Domains; !reflect.DeepEqual(got, args.Domains) {
+		t.Fatalf("omitted relationship must preserve managed domains: %#v", got)
+	}
+	fake.services[id]["applications"] = []map[string]any{}
+	current, err = c.GetService(context.Background(), id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := serviceInputs(args, current).Domains; !reflect.DeepEqual(got, map[string]string{"web": ""}) {
+		t.Fatalf("removed application must be detected: %#v", got)
 	}
 }

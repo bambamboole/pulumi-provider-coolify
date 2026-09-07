@@ -577,6 +577,7 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 				record["environment_id"] = environment["id"]
 			}
 		}
+		f.applyServiceURLs(record, body)
 		f.services[uuid] = record
 		writeJSON(w, http.StatusCreated, map[string]any{"uuid": uuid, "domains": []string{}})
 	case len(parts) == 1:
@@ -594,6 +595,7 @@ func (f *fakeCoolify) handleServices(w http.ResponseWriter, r *http.Request, par
 				service["_compose"] = compose
 				delete(body, "docker_compose_raw")
 			}
+			f.applyServiceURLs(service, body)
 			merge(service, body)
 			writeJSON(w, http.StatusOK, map[string]any{"uuid": parts[0]})
 		case http.MethodDelete:
@@ -970,4 +972,34 @@ func writeJSON(w http.ResponseWriter, status int, body any) {
 
 func writeError(w http.ResponseWriter, status int, message string) {
 	writeJSON(w, status, map[string]any{"message": message})
+}
+
+// Coolify applies urls to child applications; they are returned by GET service,
+// not as a top-level urls property.
+func (f *fakeCoolify) applyServiceURLs(service, body map[string]any) {
+	urls, ok := body["urls"].([]any)
+	if !ok {
+		return
+	}
+	applications, _ := service["applications"].([]map[string]any)
+	for _, raw := range urls {
+		item := raw.(map[string]any)
+		var app map[string]any
+		for _, candidate := range applications {
+			if candidate["name"] == item["name"] {
+				app = candidate
+				break
+			}
+		}
+		if app == nil {
+			app = map[string]any{"name": item["name"]}
+			applications = append(applications, app)
+		}
+		app["fqdn"] = item["url"]
+		if item["url"] == "" {
+			app["fqdn"] = nil
+		}
+	}
+	service["applications"] = applications
+	delete(body, "urls")
 }
