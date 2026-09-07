@@ -69,3 +69,22 @@ func (c *Client) DeleteGitHubApp(ctx context.Context, id int) error {
 
 // GitHubAppID formats the numeric ID the way the API path expects it.
 func GitHubAppID(id int) string { return strconv.Itoa(id) }
+
+// GitHubAppUUIDByID maps the numeric source ID applications reference to the
+// app's UUID. It returns an empty string when the ID is zero or no app
+// carries it.
+func (c *Client) GitHubAppUUIDByID(ctx context.Context, id int) (string, error) {
+	if id == 0 {
+		return "", nil
+	}
+	apps, err := c.ListGitHubApps(ctx)
+	if err != nil {
+		return "", err
+	}
+	for _, app := range apps {
+		if app.ID == id {
+			return app.UUID, nil
+		}
+	}
+	return "", nil
+}
