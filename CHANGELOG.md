@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.0...v0.12.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* keep resource UUIDs known in update previews and accept unknown owners in Check ([#33](https://github.com/bambamboole/pulumi-provider-coolify/issues/33)) ([07326c3](https://github.com/bambamboole/pulumi-provider-coolify/commit/07326c39a9c2d47430be25cf6316b195ca50ed9f))
+
 ## [0.12.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.11.0...v0.12.0) (2026-09-07)
 
 
