@@ -150,3 +150,96 @@ func TestPreviewReadsStateBeforeTagsWereSupported(t *testing.T) {
 		})
 	}
 }
+
+func TestStoragePreviewAcceptsUnknownOwner(t *testing.T) {
+	checked, err := previewProvider(t).Check(p.CheckRequest{
+		Urn: resource.URN("urn:pulumi:test::preview::coolify:index:Storage::data"),
+		Inputs: property.NewMap(map[string]property.Value{
+			"applicationUuid": property.New(property.Computed),
+			"type":            property.New("persistent"),
+			"mountPath":       property.New("/data"),
+			"name":            property.New("data"),
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(checked.Failures) != 0 {
+		t.Fatalf("an unknown owner must pass Check in a preview: %v", checked.Failures)
+	}
+	checked, err = previewProvider(t).Check(p.CheckRequest{
+		Urn: resource.URN("urn:pulumi:test::preview::coolify:index:Storage::data"),
+		Inputs: property.NewMap(map[string]property.Value{
+			"type": property.New("persistent"), "mountPath": property.New("/data"), "name": property.New("data"),
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(checked.Failures) != 1 || checked.Failures[0].Property != "applicationUuid" {
+		t.Fatalf("a missing owner must still be rejected: %v", checked.Failures)
+	}
+}
+
+func TestVolumeBackupPreviewAcceptsUnknownOwnerAndStorage(t *testing.T) {
+	checked, err := previewProvider(t).Check(p.CheckRequest{
+		Urn: resource.URN("urn:pulumi:test::preview::coolify:index:VolumeBackup::data"),
+		Inputs: property.NewMap(map[string]property.Value{
+			"applicationUuid": property.New(property.Computed),
+			"storageUuid":     property.New(property.Computed),
+			"frequency":       property.New("daily"),
+			"saveS3":          property.New(true),
+			"s3StorageUuid":   property.New(property.Computed),
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(checked.Failures) != 0 {
+		t.Fatalf("unknown UUIDs must pass Check in a preview: %v", checked.Failures)
+	}
+}
+
+// An update of an application (here: a new environment value) must keep its
+// uuid known in the preview, otherwise every dependent turns unknown.
+func TestApplicationUpdatePreviewKeepsUUIDKnown(t *testing.T) {
+	inputs := map[string]property.Value{
+		"source":                  property.New("docker-image"),
+		"dockerRegistryImageName": property.New("ghcr.io/acme/api"),
+		"dockerRegistryImageTag":  property.New("1.0.0"),
+		"projectUuid":             property.New("u-project"),
+		"environmentName":         property.New("production"),
+		"serverUuid":              property.New("u-server"),
+		"name":                    property.New("api"),
+		"environmentVariables":    property.New(map[string]property.Value{"A": property.New("1")}),
+	}
+	state := map[string]property.Value{}
+	for k, v := range inputs {
+		state[k] = v
+	}
+	state["uuid"] = property.New("app-uuid")
+	state["fqdn"] = property.New("https://api.example.com")
+	state["status"] = property.New("running")
+	next := map[string]property.Value{}
+	for k, v := range inputs {
+		next[k] = v
+	}
+	next["environmentVariables"] = property.New(map[string]property.Value{"A": property.New("1"), "B": property.New(property.Computed)})
+
+	resp, err := previewProvider(t).Update(p.UpdateRequest{
+		Urn:    resource.URN("urn:pulumi:test::preview::coolify:index:Application::api"),
+		ID:     "app-uuid",
+		State:  property.NewMap(state),
+		Inputs: property.NewMap(next),
+		DryRun: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := resp.Properties.Get("uuid"); got.IsComputed() || got.AsString() != "app-uuid" {
+		t.Fatalf("uuid in an update preview: %v", got)
+	}
+	if !resp.Properties.Get("fqdn").IsComputed() {
+		t.Fatal("fqdn must still follow the inputs")
+	}
+}

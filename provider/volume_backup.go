@@ -111,13 +111,18 @@ func (VolumeBackup) Check(ctx context.Context, req infer.CheckRequest) (infer.Ch
 	if err != nil {
 		return infer.CheckResponse[VolumeBackupArgs]{}, err
 	}
-	if _, err := storageOwner(args.ApplicationUUID, args.DatabaseUUID, args.ServiceUUID); err != nil {
-		failures = append(failures, p.CheckFailure{Property: "applicationUuid", Reason: err.Error()})
+	// UUIDs that are still unknown in a preview count as set; the real
+	// values are validated again on create and update.
+	computed := func(name string) bool { return req.NewInputs.Get(name).IsComputed() }
+	if !computed("applicationUuid") && !computed("databaseUuid") && !computed("serviceUuid") {
+		if _, err := storageOwner(args.ApplicationUUID, args.DatabaseUUID, args.ServiceUUID); err != nil {
+			failures = append(failures, p.CheckFailure{Property: "applicationUuid", Reason: err.Error()})
+		}
 	}
-	if (args.StorageUUID == "") == (args.MountPath == "") {
+	if !computed("storageUuid") && (args.StorageUUID == "") == (args.MountPath == "") {
 		failures = append(failures, p.CheckFailure{Property: "storageUuid", Reason: "exactly one of storageUuid and mountPath must be set"})
 	}
-	if args.SaveS3 && args.S3StorageUUID == "" {
+	if args.SaveS3 && args.S3StorageUUID == "" && !computed("s3StorageUuid") {
 		failures = append(failures, p.CheckFailure{Property: "s3StorageUuid", Reason: "s3StorageUuid is required when saveS3 is true"})
 	}
 	if args.DisableLocalBackup && !args.SaveS3 {
