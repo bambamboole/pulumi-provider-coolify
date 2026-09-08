@@ -121,6 +121,22 @@ func (state *DatabaseState) Annotate(a infer.Annotator) {
 	a.Describe(&state.DatabaseName, "Name of the default database, for engines that have one.")
 }
 
+// WireDependencies keeps uuid known while a database is updated in a
+// preview; it only changes with the inputs that replace the database.
+func (Database) WireDependencies(f infer.FieldSelector, args *DatabaseArgs, state *DatabaseState) {
+	all := f.InputField(args).Computed()
+	f.OutputField(&state.DatabaseArgs).DependsOn(all)
+	f.OutputField(&state.AppliedTags).DependsOn(all)
+	f.OutputField(&state.EnvironmentID).DependsOn(all)
+	f.OutputField(&state.Status).DependsOn(all)
+	f.OutputField(&state.InternalURL).DependsOn(all)
+	f.OutputField(&state.ExternalURL).DependsOn(all)
+	f.OutputField(&state.Username).DependsOn(all)
+	f.OutputField(&state.Password).DependsOn(all)
+	f.OutputField(&state.DatabaseName).DependsOn(all)
+	f.OutputField(&state.UUID).DependsOn(f.InputField(&args.Type), f.InputField(&args.ServerUUID), f.InputField(&args.Name))
+}
+
 func (Database) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[DatabaseArgs], error) {
 	args, failures, err := infer.DefaultCheck[DatabaseArgs](ctx, req.NewInputs)
 	if err != nil {

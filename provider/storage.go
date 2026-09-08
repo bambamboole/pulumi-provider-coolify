@@ -77,12 +77,26 @@ func (state *StorageState) Annotate(a infer.Annotator) {
 	a.Describe(&state.VolumeName, "Full volume name as reported by Coolify, including the owner prefix.")
 }
 
+// WireDependencies keeps uuid and volumeName known while a storage is
+// updated in a preview; both only change with the inputs that replace it.
+func (Storage) WireDependencies(f infer.FieldSelector, args *StorageArgs, state *StorageState) {
+	replacing := []infer.InputField{
+		f.InputField(&args.ApplicationUUID), f.InputField(&args.DatabaseUUID),
+		f.InputField(&args.Type), f.InputField(&args.FsPath), f.InputField(&args.MountPath),
+	}
+	f.OutputField(&state.StorageArgs).DependsOn(f.InputField(args).Computed())
+	f.OutputField(&state.UUID).DependsOn(replacing...)
+	f.OutputField(&state.VolumeName).DependsOn(replacing...)
+}
+
 func (Storage) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[StorageArgs], error) {
 	args, failures, err := infer.DefaultCheck[StorageArgs](ctx, req.NewInputs)
 	if err != nil {
 		return infer.CheckResponse[StorageArgs]{}, err
 	}
-	if (args.ApplicationUUID == "") == (args.DatabaseUUID == "") {
+	// An owner UUID that is still unknown in a preview counts as set.
+	ownerKnown := !req.NewInputs.Get("applicationUuid").IsComputed() && !req.NewInputs.Get("databaseUuid").IsComputed()
+	if ownerKnown && (args.ApplicationUUID == "") == (args.DatabaseUUID == "") {
 		failures = append(failures, p.CheckFailure{Property: "applicationUuid", Reason: "exactly one of applicationUuid and databaseUuid must be set"})
 	}
 	switch args.Type {

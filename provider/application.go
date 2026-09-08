@@ -201,6 +201,22 @@ func (state *ApplicationState) Annotate(a infer.Annotator) {
 	a.Describe(&state.Status, "Status reported by Coolify.")
 }
 
+// WireDependencies keeps uuid known while an application is updated in a
+// preview: it only changes with the inputs whose change replaces the
+// application. Without it every update turns dependents such as a Storage
+// or a Deployment unknown, and resources registered inside an apply on the
+// UUID vanish from the preview. Every other output follows every input.
+func (Application) WireDependencies(f infer.FieldSelector, args *ApplicationArgs, state *ApplicationState) {
+	all := f.InputField(args).Computed()
+	f.OutputField(&state.ApplicationArgs).DependsOn(all)
+	f.OutputField(&state.AppliedTags).DependsOn(all)
+	f.OutputField(&state.FQDN).DependsOn(all)
+	f.OutputField(&state.Status).DependsOn(all)
+	f.OutputField(&state.UUID).DependsOn(
+		f.InputField(&args.ServerUUID), f.InputField(&args.Source), f.InputField(&args.PrivateKeyUUID),
+		f.InputField(&args.GitHubAppUUID), f.InputField(&args.Name))
+}
+
 func (Application) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[ApplicationArgs], error) {
 	args, failures, err := infer.DefaultCheck[ApplicationArgs](ctx, req.NewInputs)
 	if err != nil {

@@ -85,6 +85,15 @@ func (state *ServiceState) Annotate(a infer.Annotator) {
 	a.Describe(&state.UUID, "UUID of the service in Coolify.")
 }
 
+// WireDependencies keeps uuid known while a service is updated in a
+// preview; it only changes with the inputs that replace the service.
+func (Service) WireDependencies(f infer.FieldSelector, args *ServiceArgs, state *ServiceState) {
+	all := f.InputField(args).Computed()
+	f.OutputField(&state.ServiceArgs).DependsOn(all)
+	f.OutputField(&state.AppliedTags).DependsOn(all)
+	f.OutputField(&state.UUID).DependsOn(f.InputField(&args.ServerUUID), f.InputField(&args.Type), f.InputField(&args.Name))
+}
+
 func (Service) Check(ctx context.Context, req infer.CheckRequest) (infer.CheckResponse[ServiceArgs], error) {
 	args, failures, err := infer.DefaultCheck[ServiceArgs](ctx, req.NewInputs)
 	if err != nil {
