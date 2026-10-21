@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
 )
@@ -48,6 +49,16 @@ type fakeCoolify struct {
 	tags      map[string]map[string]any
 	taggables map[string][]string
 	requests  []string
+	// repoComposeLocation is the only compose file the fake repository
+	// contains; empty means any location exists. Like Coolify, the fake loads
+	// the compose file of a new dockercompose application asynchronously:
+	// composeLoadGets reads of the application later.
+	repoComposeLocation string
+	composeLoadGets     int
+	composeLoads        map[string]int
+	// stripComposeDomainPorts mimics Coolify 4.4, which stores compose domains
+	// without their ports.
+	stripComposeDomainPorts bool
 }
 
 func newFakeCoolify(t *testing.T) *fakeCoolify {
@@ -70,7 +81,11 @@ func newFakeCoolify(t *testing.T) *fakeCoolify {
 		volumeRuns:    map[string]int{},
 		tags:          map[string]map[string]any{},
 		taggables:     map[string][]string{},
+		composeLoads:  map[string]int{},
+		// One read after the create, the first poll finds the file.
+		composeLoadGets: 1,
 	}
+	composeFileTimeout, composeFilePollInterval = 200*time.Millisecond, time.Millisecond
 	f.server = httptest.NewServer(http.HandlerFunc(f.handle))
 	t.Cleanup(f.server.Close)
 	return f
@@ -551,6 +566,16 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 				record["environment_id"] = environment["id"]
 			}
 		}
+		if body["build_pack"] == "dockercompose" {
+			location, _ := body["docker_compose_location"].(string)
+			if location == "" {
+				location = "/docker-compose.yaml"
+			}
+			record["docker_compose_location"] = location
+			if f.repoComposeLocation == "" || f.repoComposeLocation == location {
+				f.composeLoads[uuid] = f.composeLoadGets
+			}
+		}
 		f.applications[uuid] = record
 		writeJSON(w, http.StatusCreated, map[string]any{"uuid": uuid})
 	case len(parts) == 1:
@@ -561,9 +586,24 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 		}
 		switch r.Method {
 		case http.MethodGet:
+			if remaining, ok := f.composeLoads[parts[0]]; ok {
+				if remaining <= 1 {
+					app["docker_compose_raw"] = "services:\n  web:\n    image: nginx\n"
+					delete(f.composeLoads, parts[0])
+				} else {
+					f.composeLoads[parts[0]] = remaining - 1
+				}
+			}
 			writeJSON(w, http.StatusOK, app)
 		case http.MethodPatch:
 			body := readJSON(r)
+			if _, ok := body["docker_compose_domains"]; ok && app["docker_compose_raw"] == nil {
+				writeJSON(w, http.StatusUnprocessableEntity, map[string]any{
+					"message": "Validation failed.",
+					"errors":  map[string]any{"docker_compose_domains": "Cannot set docker_compose_domains without docker_compose_raw. Reload the compose file from the git repository first."},
+				})
+				return
+			}
 			f.resolveGitHubApp(body)
 			if domains, ok := body["domains"]; ok {
 				body["fqdn"] = domains
@@ -583,7 +623,11 @@ func (f *fakeCoolify) handleApplications(w http.ResponseWriter, r *http.Request,
 				byService := map[string]any{}
 				for _, entry := range domains {
 					entry := entry.(map[string]any)
-					byService[entry["name"].(string)] = map[string]any{"domain": entry["domain"]}
+					domain := entry["domain"].(string)
+					if f.stripComposeDomainPorts {
+						domain = withoutPorts(domain)
+					}
+					byService[entry["name"].(string)] = map[string]any{"domain": domain}
 				}
 				encoded, _ := json.Marshal(byService)
 				body["docker_compose_domains"] = strings.ReplaceAll(string(encoded), "/", `\/`)

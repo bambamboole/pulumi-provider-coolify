@@ -9,6 +9,7 @@ import (
 	"github.com/pulumi/pulumi-go-provider/infer"
 	"github.com/pulumi/pulumi/sdk/v3/go/property"
 
+	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify"
 	"github.com/bambamboole/pulumi-provider-coolify/internal/coolify/api"
 )
 
@@ -107,11 +108,11 @@ func TestApplicationPatchIsIdempotent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("createApplication: %v", err)
 	}
-	if body, changed := applicationPatch(app, args); changed {
+	if body, changed := applicationPatch(app, args, nil); changed {
 		t.Fatalf("freshly reconciled application must not need a patch: %+v", body)
 	}
 	args.Description = ""
-	body, changed := applicationPatch(app, args)
+	body, changed := applicationPatch(app, args, nil)
 	if !changed || body.Description == nil || *body.Description != "" {
 		t.Fatalf("clearing the description must be sent: %+v", body)
 	}
@@ -210,7 +211,7 @@ func TestApplicationComposeSettingsArePatchedAndReadBack(t *testing.T) {
 	if !strings.Contains(*app.DockerComposeDomains, `"reverb":{"domain":"https:\/\/sockets.artisan-os.de:8080"}`) {
 		t.Fatalf("compose domains were not sent as an array: %s", *app.DockerComposeDomains)
 	}
-	if body, changed := applicationPatch(app, args); changed {
+	if body, changed := applicationPatch(app, args, nil); changed {
 		t.Fatalf("reconciled application must not need a patch: %+v", body)
 	}
 	inputs := applicationInputs(args, app)
@@ -226,7 +227,7 @@ func TestApplicationComposeSettingsArePatchedAndReadBack(t *testing.T) {
 		t.Fatalf("unmanaged compose inputs were adopted: %+v", unmanaged)
 	}
 	args.DockerComposeDomains["web"] = "https://app.artisan-os.de:8080"
-	body, changed := applicationPatch(app, args)
+	body, changed := applicationPatch(app, args, nil)
 	if !changed || body.DockerComposeDomains == nil || len(*body.DockerComposeDomains) != 2 || *(*body.DockerComposeDomains)[1].Name != "web" {
 		t.Fatalf("changed domains must be sent in service order: %+v", body.DockerComposeDomains)
 	}
@@ -404,5 +405,84 @@ func TestApplicationSourcesAreResolvedOnReadAndAdopt(t *testing.T) {
 	fake.mu.Unlock()
 	if fmt.Sprint(sourceID) != fmt.Sprint(fake.githubApps[otherAppUUID]["id"]) {
 		t.Fatalf("patch must switch the GitHub App, got %v", sourceID)
+	}
+}
+
+func composeApplicationArgs(projectUUID string) ApplicationArgs {
+	return ApplicationArgs{
+		ProjectUUID: projectUUID, EnvironmentName: "production", ServerUUID: "u-server",
+		Source: ApplicationSourcePrivateGitHubApp, Name: "escaperoom", GitHubAppUUID: "u-github-app",
+		GitRepository: "bambamboole/escaperoom", GitBranch: "main", BuildPack: "dockercompose",
+		DockerComposeLocation: "/compose-production.yml",
+		DockerComposeDomains: map[string]string{
+			"web": "https://www.escaperoom-dillingen.de:8080,https://escaperoom-dillingen.de:8080",
+		},
+	}
+}
+
+func TestCreateComposeApplicationWaitsForTheComposeFile(t *testing.T) {
+	fake := newFakeCoolify(t)
+	fake.repoComposeLocation = "/compose-production.yml"
+	fake.composeLoadGets = 3
+	fake.stripComposeDomainPorts = true
+	args := composeApplicationArgs(fake.addProject("Escaperoom", "production"))
+
+	app, err := createApplication(context.Background(), fake.client(), args)
+	if err != nil {
+		t.Fatalf("createApplication: %v", err)
+	}
+	if got := coolify.Deref(app.DockerComposeDomains); !strings.Contains(got, `https:\/\/www.escaperoom-dillingen.de,https:\/\/escaperoom-dillingen.de`) {
+		t.Fatalf("compose domains were not applied: %s", got)
+	}
+	if body, changed := applicationPatch(app, args, nil); changed {
+		t.Fatalf("domains Coolify stores without ports must not need a patch: %+v", body)
+	}
+	if inputs := applicationInputs(args, app); inputs.DockerComposeDomains["web"] != args.DockerComposeDomains["web"] {
+		t.Fatalf("declared domains with ports must be kept on read: %+v", inputs.DockerComposeDomains)
+	}
+}
+
+func TestCreateComposeApplicationFailsClearlyWithoutTheComposeFile(t *testing.T) {
+	fake := newFakeCoolify(t)
+	fake.repoComposeLocation = "/docker-compose.yml"
+	args := composeApplicationArgs(fake.addProject("Escaperoom", "production"))
+
+	_, err := createApplication(context.Background(), fake.client(), args)
+	if err == nil || !strings.Contains(err.Error(), `has not loaded the compose file "/compose-production.yml"`) {
+		t.Fatalf("expected a compose file error, got %v", err)
+	}
+}
+
+func TestComposeDomainPortChangesArePatched(t *testing.T) {
+	fake := newFakeCoolify(t)
+	fake.stripComposeDomainPorts = true
+	args := composeApplicationArgs(fake.addProject("Escaperoom", "production"))
+	app, err := createApplication(context.Background(), fake.client(), args)
+	if err != nil {
+		t.Fatalf("createApplication: %v", err)
+	}
+	previous := args.DockerComposeDomains
+
+	if _, changed := applicationPatch(app, args, previous); changed {
+		t.Fatal("unchanged domains must not be patched")
+	}
+	changedPort := args
+	changedPort.DockerComposeDomains = map[string]string{
+		"web": "https://www.escaperoom-dillingen.de:3000,https://escaperoom-dillingen.de:3000",
+	}
+	if body, changed := applicationPatch(app, changedPort, previous); !changed || body.DockerComposeDomains == nil {
+		t.Fatal("a changed port must be patched")
+	}
+	// A domain changed in Coolify is drift even though ports are hidden.
+	app.DockerComposeDomains = coolify.Ptr(`{"web":{"domain":"https:\/\/other.example"}}`)
+	if inputs := applicationInputs(args, app); inputs.DockerComposeDomains["web"] != "https://other.example" {
+		t.Fatalf("changed domains must be read back: %+v", inputs.DockerComposeDomains)
+	}
+}
+
+func TestWithoutPorts(t *testing.T) {
+	got := withoutPorts("https://a.example:8080, https://b.example,http://c.example:80/path")
+	if want := "https://a.example,https://b.example,http://c.example/path"; got != want {
+		t.Fatalf("got %q, want %q", got, want)
 	}
 }
