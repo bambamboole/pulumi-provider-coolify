@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.2](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.1...v0.12.2) (2026-10-21)
+
+
+### Bug Fixes
+
+* create compose applications whose compose file Coolify loads asynchronously and compare their domains without ports ([#35](https://github.com/bambamboole/pulumi-provider-coolify/issues/35)) ([9d2c0b3](https://github.com/bambamboole/pulumi-provider-coolify/commit/9d2c0b37602dac81b1645c39808f8acb724fbbe4))
+
 ## [0.12.1](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.0...v0.12.1) (2026-09-08)
 
 
