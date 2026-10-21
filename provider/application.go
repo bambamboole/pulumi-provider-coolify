@@ -4,8 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"reflect"
 	"sort"
+	"strings"
+	"time"
 
 	p "github.com/pulumi/pulumi-go-provider"
 	"github.com/pulumi/pulumi-go-provider/infer"
@@ -320,7 +323,7 @@ func (Application) Update(ctx context.Context, req infer.UpdateRequest[Applicati
 			return infer.UpdateResponse[ApplicationState]{}, err
 		}
 	}
-	app, err := applyApplication(ctx, c, current, req.Inputs, false)
+	app, err := applyApplication(ctx, c, current, req.Inputs, req.State.DockerComposeDomains, false)
 	if err != nil {
 		return infer.UpdateResponse[ApplicationState]{}, err
 	}
@@ -398,7 +401,7 @@ func createApplication(ctx context.Context, c *coolify.Client, inputs Applicatio
 					inputs.Name, inputs.EnvironmentName, keyUUID, inputs.PrivateKeyUUID)
 			}
 		}
-		return applyApplication(ctx, c, candidate, inputs, false)
+		return applyApplication(ctx, c, candidate, inputs, nil, false)
 	}
 
 	uuid, err := createApplicationBySource(ctx, c, environment, inputs)
@@ -411,7 +414,7 @@ func createApplication(ctx context.Context, c *coolify.Client, inputs Applicatio
 	}
 	// The create endpoints only receive the identity and source; everything
 	// else is applied through the same patch as an update.
-	return applyApplication(ctx, c, created, inputs, inputs.InstantDeploy)
+	return applyApplication(ctx, c, created, inputs, nil, inputs.InstantDeploy)
 }
 
 func createApplicationBySource(ctx context.Context, c *coolify.Client, environment coolify.Environment, inputs ApplicationArgs) (string, error) {
@@ -431,8 +434,11 @@ func createApplicationBySource(ctx context.Context, c *coolify.Client, environme
 			GitBranch:       inputs.GitBranch,
 			GitCommitSha:    coolify.PtrIfNonZero(inputs.GitCommitSHA),
 			BuildPack:       api.CreatePublicApplicationJSONBodyBuildPack(inputs.BuildPack),
-			PortsExposes:    coolify.PtrIfNonZero(inputs.PortsExposes),
-			InstantDeploy:   instantDeploy,
+			// Coolify loads the compose file from this location right after
+			// creating the application, so it must be known up front.
+			DockerComposeLocation: coolify.PtrIfNonZero(inputs.DockerComposeLocation),
+			PortsExposes:          coolify.PtrIfNonZero(inputs.PortsExposes),
+			InstantDeploy:         instantDeploy,
 		})
 	case ApplicationSourcePrivateDeployKey:
 		return c.CreatePrivateDeployKeyApplication(ctx, api.CreatePrivateDeployKeyApplicationJSONRequestBody{
@@ -446,9 +452,12 @@ func createApplicationBySource(ctx context.Context, c *coolify.Client, environme
 			GitBranch:       inputs.GitBranch,
 			GitCommitSha:    coolify.PtrIfNonZero(inputs.GitCommitSHA),
 			BuildPack:       api.CreatePrivateDeployKeyApplicationJSONBodyBuildPack(inputs.BuildPack),
-			PrivateKeyUuid:  inputs.PrivateKeyUUID,
-			PortsExposes:    coolify.PtrIfNonZero(inputs.PortsExposes),
-			InstantDeploy:   instantDeploy,
+			// Coolify loads the compose file from this location right after
+			// creating the application, so it must be known up front.
+			DockerComposeLocation: coolify.PtrIfNonZero(inputs.DockerComposeLocation),
+			PrivateKeyUuid:        inputs.PrivateKeyUUID,
+			PortsExposes:          coolify.PtrIfNonZero(inputs.PortsExposes),
+			InstantDeploy:         instantDeploy,
 		})
 	case ApplicationSourcePrivateGitHubApp:
 		return c.CreatePrivateGithubAppApplication(ctx, api.CreatePrivateGithubAppApplicationJSONRequestBody{
@@ -462,9 +471,12 @@ func createApplicationBySource(ctx context.Context, c *coolify.Client, environme
 			GitBranch:       inputs.GitBranch,
 			GitCommitSha:    coolify.PtrIfNonZero(inputs.GitCommitSHA),
 			BuildPack:       api.CreatePrivateGithubAppApplicationJSONBodyBuildPack(inputs.BuildPack),
-			GithubAppUuid:   inputs.GitHubAppUUID,
-			PortsExposes:    coolify.PtrIfNonZero(inputs.PortsExposes),
-			InstantDeploy:   instantDeploy,
+			// Coolify loads the compose file from this location right after
+			// creating the application, so it must be known up front.
+			DockerComposeLocation: coolify.PtrIfNonZero(inputs.DockerComposeLocation),
+			GithubAppUuid:         inputs.GitHubAppUUID,
+			PortsExposes:          coolify.PtrIfNonZero(inputs.PortsExposes),
+			InstantDeploy:         instantDeploy,
 		})
 	case ApplicationSourceDockerImage:
 		return c.CreateDockerImageApplication(ctx, api.CreateDockerimageApplicationJSONRequestBody{
@@ -498,9 +510,12 @@ func createApplicationBySource(ctx context.Context, c *coolify.Client, environme
 // applyApplication patches the fields of current that differ from the inputs,
 // reconciles the environment variables and returns the refreshed application.
 // With deploy set, the patch also triggers a deployment.
-func applyApplication(ctx context.Context, c *coolify.Client, current api.Application, inputs ApplicationArgs, deploy bool) (api.Application, error) {
+//
+// previousComposeDomains are the compose domains of the recorded state, nil
+// on create and adoption; see applicationPatch.
+func applyApplication(ctx context.Context, c *coolify.Client, current api.Application, inputs ApplicationArgs, previousComposeDomains map[string]string, deploy bool) (api.Application, error) {
 	uuid := coolify.Deref(current.Uuid)
-	body, changed := applicationPatch(current, inputs)
+	body, changed := applicationPatch(current, inputs, previousComposeDomains)
 	// The GitHub App is compared against the one Coolify reports so an adopted
 	// application or one changed in the UI is moved to the declared app.
 	if inputs.Source == ApplicationSourcePrivateGitHubApp && inputs.GitHubAppUUID != "" {
@@ -517,6 +532,21 @@ func applyApplication(ctx context.Context, c *coolify.Client, current api.Applic
 		body.InstantDeploy = coolify.Ptr(true)
 		changed = true
 	}
+	// Coolify rejects compose domains until it has loaded the compose file
+	// from the repository, which it does asynchronously after creating the
+	// application. The other settings go first, then the domains once the
+	// file is there.
+	if body.DockerComposeDomains != nil && coolify.Deref(current.DockerComposeRaw) == "" {
+		domains := body.DockerComposeDomains
+		body.DockerComposeDomains = nil
+		if err := c.UpdateApplication(ctx, uuid, body); err != nil {
+			return api.Application{}, err
+		}
+		if err := waitForComposeFile(ctx, c, uuid, inputs.DockerComposeLocation); err != nil {
+			return api.Application{}, err
+		}
+		body = api.UpdateApplicationByUuidJSONRequestBody{DockerComposeDomains: domains}
+	}
 	if changed {
 		if err := c.UpdateApplication(ctx, uuid, body); err != nil {
 			return api.Application{}, err
@@ -531,7 +561,11 @@ func applyApplication(ctx context.Context, c *coolify.Client, current api.Applic
 	return c.GetApplication(ctx, uuid)
 }
 
-func applicationPatch(current api.Application, inputs ApplicationArgs) (api.UpdateApplicationByUuidJSONRequestBody, bool) {
+// applicationPatch returns the update body for the fields of current that
+// differ from the inputs. Coolify stores compose domains without their ports
+// and keeps the ports internally, so domains are compared without ports; a
+// change of only a port is detected against previousComposeDomains.
+func applicationPatch(current api.Application, inputs ApplicationArgs, previousComposeDomains map[string]string) (api.UpdateApplicationByUuidJSONRequestBody, bool) {
 	var body api.UpdateApplicationByUuidJSONRequestBody
 	var patch patch
 	settings := coolify.Deref(current.Settings)
@@ -558,7 +592,9 @@ func applicationPatch(current api.Application, inputs ApplicationArgs) (api.Upda
 	patch.str(&body.BaseDirectory, inputs.BaseDirectory, coolify.Deref(current.BaseDirectory))
 	patch.str(&body.PublishDirectory, inputs.PublishDirectory, coolify.Deref(current.PublishDirectory))
 	patch.str(&body.DockerComposeLocation, inputs.DockerComposeLocation, coolify.Deref(current.DockerComposeLocation))
-	if len(inputs.DockerComposeDomains) > 0 && !reflect.DeepEqual(inputs.DockerComposeDomains, parseComposeDomains(coolify.Deref(current.DockerComposeDomains))) {
+	if len(inputs.DockerComposeDomains) > 0 &&
+		(!composeDomainsEqual(inputs.DockerComposeDomains, parseComposeDomains(coolify.Deref(current.DockerComposeDomains))) ||
+			previousComposeDomains != nil && !reflect.DeepEqual(inputs.DockerComposeDomains, previousComposeDomains)) {
 		body.DockerComposeDomains = composeDomainsBody(inputs.DockerComposeDomains)
 		patch.changed = true
 	}
@@ -623,7 +659,11 @@ func applicationInputs(previous ApplicationArgs, app api.Application) Applicatio
 	inputs.PublishDirectory = ifSet(previous.PublishDirectory, coolify.Deref(app.PublishDirectory))
 	inputs.DockerComposeLocation = ifSet(previous.DockerComposeLocation, coolify.Deref(app.DockerComposeLocation))
 	if len(previous.DockerComposeDomains) > 0 {
-		inputs.DockerComposeDomains = parseComposeDomains(coolify.Deref(app.DockerComposeDomains))
+		// The declared domains are kept while they match what Coolify reports
+		// without ports, so the ports Coolify hides are no drift.
+		if reported := parseComposeDomains(coolify.Deref(app.DockerComposeDomains)); !composeDomainsEqual(previous.DockerComposeDomains, reported) {
+			inputs.DockerComposeDomains = reported
+		}
 	}
 	inputs.AutoDeployEnabled = coolify.Deref(settings.IsAutoDeployEnabled)
 	inputs.ForceHTTPSEnabled = coolify.Deref(settings.IsForceHttpsEnabled)
@@ -721,6 +761,66 @@ func parseComposeDomains(raw string) map[string]string {
 		return nil
 	}
 	return out
+}
+
+// composeDomainsEqual compares two service to domains maps with the ports
+// removed from every URL, as Coolify reports them.
+func composeDomainsEqual(a, b map[string]string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for name, domains := range a {
+		other, ok := b[name]
+		if !ok || withoutPorts(domains) != withoutPorts(other) {
+			return false
+		}
+	}
+	return true
+}
+
+// withoutPorts removes the port from each URL of a comma separated list.
+func withoutPorts(domains string) string {
+	urls := strings.Split(domains, ",")
+	for i, raw := range urls {
+		raw = strings.TrimSpace(raw)
+		if u, err := url.Parse(raw); err == nil && u.Host != "" {
+			u.Host = u.Hostname()
+			raw = u.String()
+		}
+		urls[i] = raw
+	}
+	return strings.Join(urls, ",")
+}
+
+// Polling of the compose file Coolify loads after creating an application;
+// variables so tests can shorten them.
+var (
+	composeFileTimeout      = 2 * time.Minute
+	composeFilePollInterval = 2 * time.Second
+)
+
+// waitForComposeFile waits until Coolify has loaded the compose file of the
+// application from its repository.
+func waitForComposeFile(ctx context.Context, c *coolify.Client, uuid, location string) error {
+	deadline := time.Now().Add(composeFileTimeout)
+	for {
+		app, err := c.GetApplication(ctx, uuid)
+		if err != nil {
+			return err
+		}
+		if coolify.Deref(app.DockerComposeRaw) != "" {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return fmt.Errorf("coolify has not loaded the compose file %q of application %s from its repository within %s; check dockerComposeLocation and that the source can read the repository, then reload the compose file in Coolify",
+				firstNonEmpty(location, coolify.Deref(app.DockerComposeLocation)), uuid, composeFileTimeout)
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(composeFilePollInterval):
+		}
+	}
 }
 
 func applicationState(inputs ApplicationArgs, app api.Application) ApplicationState {
