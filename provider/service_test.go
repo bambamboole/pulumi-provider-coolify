@@ -388,3 +388,67 @@ func TestServiceDomainsPublicURLPresence(t *testing.T) {
 		})
 	}
 }
+
+func TestServiceOverwriteEnvironmentVariablesPatchesExistingKeys(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := context.Background()
+	projectUUID := fake.addProject("Main", "production")
+	existing := fake.addService(map[string]any{
+		"name": "plausible", "service_type": "plausible", "environment_id": fake.environmentID(projectUUID, "production"),
+	})
+	fake.addEnvVar(existing, "CLIENT_ID", "old", false)
+	fake.addEnvVar(existing, "BASE_URL", "https://plausible.example.com", false)
+
+	args := serviceArgs(projectUUID)
+	args.EnvironmentVariables = map[string]string{"CLIENT_ID": "new", "BASE_URL": "https://plausible.example.com"}
+	if _, err := createService(ctx, c, args); err != nil {
+		t.Fatalf("createService: %v", err)
+	}
+	if n := fake.countRequests("PATCH", "/api/v1/services/"+existing+"/envs"); n != 0 {
+		t.Fatalf("existing keys must not be patched without overwrite, got %d patches", n)
+	}
+
+	args.OverwriteEnvironmentVariables = true
+	if _, err := createService(ctx, c, args); err != nil {
+		t.Fatalf("createService: %v", err)
+	}
+	vars, _ := c.ListServiceEnvVars(ctx, existing)
+	got := map[string]string{}
+	for _, env := range vars {
+		got[*env.Key] = *env.Value
+	}
+	if got["CLIENT_ID"] != "new" || got["BASE_URL"] != "https://plausible.example.com" {
+		t.Fatalf("unexpected env vars: %+v", got)
+	}
+	if n := fake.countRequests("PATCH", "/api/v1/services/"+existing+"/envs"); n != 1 {
+		t.Fatalf("expected exactly one env var patch, got %d", n)
+	}
+}
+
+func TestServiceDiffComparesEnvironmentValuesOnlyWhenOverwriting(t *testing.T) {
+	// Diff consults the provider's default tags.
+	ctx := withDefaultTags(context.Background())
+	olds := serviceArgs("u-project")
+	olds.EnvironmentVariables = map[string]string{"CLIENT_ID": "old"}
+	news := serviceArgs("u-project")
+	news.EnvironmentVariables = map[string]string{"CLIENT_ID": "new"}
+	state := ServiceState{ServiceArgs: olds, UUID: "u-service"}
+	diff, err := Service{}.Diff(ctx, infer.DiffRequest[ServiceArgs, ServiceState]{ID: "u-service", State: state, Inputs: news})
+	if err != nil {
+		t.Fatalf("Diff: %v", err)
+	}
+	if diff.HasChanges {
+		t.Fatalf("a changed value must not diff without overwrite: %+v", diff.DetailedDiff)
+	}
+	news.OverwriteEnvironmentVariables = true
+	olds.OverwriteEnvironmentVariables = true
+	state.ServiceArgs = olds
+	diff, err = Service{}.Diff(ctx, infer.DiffRequest[ServiceArgs, ServiceState]{ID: "u-service", State: state, Inputs: news})
+	if err != nil {
+		t.Fatalf("Diff: %v", err)
+	}
+	if _, ok := diff.DetailedDiff["environmentVariables"]; !ok || !diff.HasChanges {
+		t.Fatalf("a changed value must diff with overwrite: %+v", diff.DetailedDiff)
+	}
+}

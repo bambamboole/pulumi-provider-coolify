@@ -46,6 +46,8 @@ type ServiceArgs struct {
 	Domains map[string]string `pulumi:"domains,optional"`
 	// Environment variables managed by key, see Application.
 	EnvironmentVariables map[string]string `pulumi:"environmentVariables,optional"`
+	// Also patch existing keys to their declared values, see Application.
+	OverwriteEnvironmentVariables bool `pulumi:"overwriteEnvironmentVariables,optional"`
 	// Tags attached to the service in addition to the provider's default tags.
 	Tags []string `pulumi:"tags,optional"`
 }
@@ -76,7 +78,8 @@ func (args *ServiceArgs) Annotate(a infer.Annotator) {
 	a.Describe(&args.InstantDeploy, "Start the service right after creating it. Only relevant on create.")
 	a.Describe(&args.ConnectToDockerNetwork, "Connect the service to Coolify's predefined Docker network.")
 	a.Describe(&args.Domains, "Domain URLs keyed by compose service name, applied through Coolify's native service URLs API. Values are comma-separated HTTP(S) URLs; a port selects the container port. Omitted keys are unmanaged; an empty string clears that container's domains. Requires Coolify v4.3.17 or newer.")
-	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.")
+	a.Describe(&args.EnvironmentVariables, "Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched unless overwriteEnvironmentVariables is set, and undeclared keys are left untouched.")
+	a.Describe(&args.OverwriteEnvironmentVariables, "Also patch existing keys to their declared values, so a changed declared value is applied to Coolify and shows up as an update. Undeclared keys are still left untouched.")
 	a.Describe(&args.Tags, "Tags attached to the service in addition to the provider's default tags. Declared tags are attached, tags removed from the declaration are detached, tags added in the Coolify UI are left untouched.")
 }
 
@@ -137,9 +140,13 @@ func (Service) Diff(ctx context.Context, req infer.DiffRequest[ServiceArgs, Serv
 	// Only relevant on create.
 	delete(diff, "instantDeploy")
 	delete(diff, "destinationUuid")
-	delete(diff, "environmentVariables")
-	if environmentVariablesNeedUpdate(req.State.EnvironmentVariables, req.Inputs.EnvironmentVariables) {
-		diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+	// Environment variables are additive by key unless the declared values are
+	// managed too, see Application.Diff.
+	if !req.Inputs.OverwriteEnvironmentVariables {
+		delete(diff, "environmentVariables")
+		if environmentVariablesNeedUpdate(req.State.EnvironmentVariables, req.Inputs.EnvironmentVariables) {
+			diff["environmentVariables"] = p.PropertyDiff{Kind: p.Update}
+		}
 	}
 	delete(diff, "tags")
 	if tagsDiffer(effectiveTags(ctx, req.Inputs.Tags), req.State.AppliedTags) {
@@ -310,7 +317,7 @@ func applyService(ctx context.Context, c *coolify.Client, current coolify.Servic
 			return coolify.Service{}, err
 		}
 	}
-	if err := ensureEnvironmentVariables(ctx, serviceEnvVars(c, uuid), inputs.EnvironmentVariables, false); err != nil {
+	if err := ensureEnvironmentVariables(ctx, serviceEnvVars(c, uuid), inputs.EnvironmentVariables, inputs.OverwriteEnvironmentVariables); err != nil {
 		return coolify.Service{}, err
 	}
 	if !patch.changed {
@@ -334,6 +341,15 @@ func serviceEnvVars(c *coolify.Client, uuid string) envVars {
 				IsShownOnce: coolify.Ptr(true),
 			})
 			return err
+		},
+		update: func(ctx context.Context, key, value string) error {
+			return c.UpdateServiceEnvVar(ctx, uuid, api.UpdateEnvByServiceUuidJSONRequestBody{
+				Key:         key,
+				Value:       value,
+				IsLiteral:   coolify.Ptr(true),
+				IsPreview:   coolify.Ptr(false),
+				IsShownOnce: coolify.Ptr(true),
+			})
 		},
 	}
 }

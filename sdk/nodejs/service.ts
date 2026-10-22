@@ -63,7 +63,7 @@ export class Service extends pulumi.CustomResource {
      */
     declare public readonly environmentName: pulumi.Output<string>;
     /**
-     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched unless overwriteEnvironmentVariables is set, and undeclared keys are left untouched.
      */
     declare public readonly environmentVariables: pulumi.Output<{[key: string]: string} | undefined>;
     /**
@@ -74,6 +74,10 @@ export class Service extends pulumi.CustomResource {
      * Service name. Defaults to the Pulumi resource name. An existing service with this name in the environment is adopted.
      */
     declare public readonly name: pulumi.Output<string | undefined>;
+    /**
+     * Also patch existing keys to their declared values, so a changed declared value is applied to Coolify and shows up as an update. Undeclared keys are still left untouched.
+     */
+    declare public readonly overwriteEnvironmentVariables: pulumi.Output<boolean | undefined>;
     /**
      * UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the service to the new project in place.
      */
@@ -124,6 +128,7 @@ export class Service extends pulumi.CustomResource {
             resourceInputs["environmentVariables"] = args?.environmentVariables;
             resourceInputs["instantDeploy"] = args?.instantDeploy;
             resourceInputs["name"] = args?.name;
+            resourceInputs["overwriteEnvironmentVariables"] = args?.overwriteEnvironmentVariables;
             resourceInputs["projectUuid"] = args?.projectUuid;
             resourceInputs["serverUuid"] = args?.serverUuid;
             resourceInputs["tags"] = args?.tags;
@@ -141,6 +146,7 @@ export class Service extends pulumi.CustomResource {
             resourceInputs["environmentVariables"] = undefined /*out*/;
             resourceInputs["instantDeploy"] = undefined /*out*/;
             resourceInputs["name"] = undefined /*out*/;
+            resourceInputs["overwriteEnvironmentVariables"] = undefined /*out*/;
             resourceInputs["projectUuid"] = undefined /*out*/;
             resourceInputs["serverUuid"] = undefined /*out*/;
             resourceInputs["tags"] = undefined /*out*/;
@@ -181,7 +187,7 @@ export interface ServiceArgs {
      */
     environmentName: pulumi.Input<string>;
     /**
-     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched and undeclared keys are left untouched.
+     * Environment variables managed by key. Declared keys missing in Coolify are created as hidden values; existing keys are never patched unless overwriteEnvironmentVariables is set, and undeclared keys are left untouched.
      */
     environmentVariables?: pulumi.Input<{[key: string]: pulumi.Input<string>} | undefined>;
     /**
@@ -192,6 +198,10 @@ export interface ServiceArgs {
      * Service name. Defaults to the Pulumi resource name. An existing service with this name in the environment is adopted.
      */
     name?: pulumi.Input<string | undefined>;
+    /**
+     * Also patch existing keys to their declared values, so a changed declared value is applied to Coolify and shows up as an update. Undeclared keys are still left untouched.
+     */
+    overwriteEnvironmentVariables?: pulumi.Input<boolean | undefined>;
     /**
      * UUID of the Coolify project (the uuid output of a Project resource). Changing it moves the service to the new project in place.
      */
