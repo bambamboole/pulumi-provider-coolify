@@ -98,6 +98,7 @@ output-options:
     - restart-service-by-uuid
     - list-envs-by-service-uuid
     - create-env-by-service-uuid
+    - update-env-by-service-uuid
     # Storages (persistent volumes and file/directory mounts) and volume backups
     - list-storages-by-application-uuid
     - create-storage-by-application-uuid

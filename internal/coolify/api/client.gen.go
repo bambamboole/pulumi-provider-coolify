@@ -4783,6 +4783,27 @@ type UpdateServiceByUuidJSONBody struct {
 // UpdateServiceByUuid409JSONResponseBodyConflictsResourceType defines parameters for UpdateServiceByUuid.
 type UpdateServiceByUuid409JSONResponseBodyConflictsResourceType string
 
+// UpdateEnvByServiceUuidJSONBody defines parameters for UpdateEnvByServiceUuid.
+type UpdateEnvByServiceUuidJSONBody struct {
+	// IsLiteral The flag to indicate if the environment variable is a literal, nothing espaced.
+	IsLiteral *bool `json:"is_literal,omitempty"`
+
+	// IsMultiline The flag to indicate if the environment variable is multiline.
+	IsMultiline *bool `json:"is_multiline,omitempty"`
+
+	// IsPreview The flag to indicate if the environment variable is used in preview deployments.
+	IsPreview *bool `json:"is_preview,omitempty"`
+
+	// IsShownOnce The flag to indicate if the environment variable's value is shown on the UI.
+	IsShownOnce *bool `json:"is_shown_once,omitempty"`
+
+	// Key The key of the environment variable.
+	Key string `json:"key"`
+
+	// Value The value of the environment variable.
+	Value string `json:"value"`
+}
+
 // CreateEnvByServiceUuidJSONBody defines parameters for CreateEnvByServiceUuid.
 type CreateEnvByServiceUuidJSONBody struct {
 	// IsLiteral The flag to indicate if the environment variable is a literal, nothing espaced.
@@ -5012,6 +5033,9 @@ type CreateServiceJSONRequestBody CreateServiceJSONBody
 
 // UpdateServiceByUuidJSONRequestBody defines body for UpdateServiceByUuid for application/json ContentType.
 type UpdateServiceByUuidJSONRequestBody UpdateServiceByUuidJSONBody
+
+// UpdateEnvByServiceUuidJSONRequestBody defines body for UpdateEnvByServiceUuid for application/json ContentType.
+type UpdateEnvByServiceUuidJSONRequestBody UpdateEnvByServiceUuidJSONBody
 
 // CreateEnvByServiceUuidJSONRequestBody defines body for CreateEnvByServiceUuid for application/json ContentType.
 type CreateEnvByServiceUuidJSONRequestBody CreateEnvByServiceUuidJSONBody
@@ -6525,6 +6549,24 @@ type ClientInterface interface {
 	//
 	// Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
 	ListEnvsByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateEnvByServiceUuidWithBody Update Env
+	//
+	// Update env by service UUID.
+	//
+	// Takes any type of body and a specified content type.
+	//
+	// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+	UpdateEnvByServiceUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// UpdateEnvByServiceUuid Update Env
+	//
+	// Update env by service UUID.
+	//
+	// Takes a body of the `application/json` content type.
+	//
+	// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+	UpdateEnvByServiceUuid(ctx context.Context, uuid string, body UpdateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	// CreateEnvByServiceUuidWithBody Create Env
 	//
@@ -9812,6 +9854,44 @@ func (c *Client) UpdateServiceByUuid(ctx context.Context, uuid string, body Upda
 // Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
 func (c *Client) ListEnvsByServiceUuid(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewListEnvsByServiceUuidRequest(c.Server, uuid)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateEnvByServiceUuidWithBody Update Env
+//
+// Update env by service UUID.
+//
+// Takes any type of body and a specified content type.
+//
+// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+func (c *Client) UpdateEnvByServiceUuidWithBody(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEnvByServiceUuidRequestWithBody(c.Server, uuid, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+// UpdateEnvByServiceUuid Update Env
+//
+// Update env by service UUID.
+//
+// Takes a body of the `application/json` content type.
+//
+// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+func (c *Client) UpdateEnvByServiceUuid(ctx context.Context, uuid string, body UpdateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewUpdateEnvByServiceUuidRequest(c.Server, uuid, body)
 	if err != nil {
 		return nil, err
 	}
@@ -15056,6 +15136,53 @@ func NewListEnvsByServiceUuidRequest(server string, uuid string) (*http.Request,
 	return req, nil
 }
 
+// NewUpdateEnvByServiceUuidRequest calls the generic UpdateEnvByServiceUuid builder with application/json body
+func NewUpdateEnvByServiceUuidRequest(server string, uuid string, body UpdateEnvByServiceUuidJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewUpdateEnvByServiceUuidRequestWithBody(server, uuid, "application/json", bodyReader)
+}
+
+// NewUpdateEnvByServiceUuidRequestWithBody constructs an http.Request for the UpdateEnvByServiceUuid method, with any body, and a specified content type
+func NewUpdateEnvByServiceUuidRequestWithBody(server string, uuid string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithOptions("simple", false, "uuid", uuid, runtime.StyleParamOptions{ParamLocation: runtime.ParamLocationPath, Type: "string", Format: ""})
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/services/%s/envs", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 // NewCreateEnvByServiceUuidRequest calls the generic CreateEnvByServiceUuid builder with application/json body
 func NewCreateEnvByServiceUuidRequest(server string, uuid string, body CreateEnvByServiceUuidJSONRequestBody) (*http.Request, error) {
 	var bodyReader io.Reader
@@ -17233,6 +17360,24 @@ type ClientWithResponsesInterface interface {
 	//
 	// Corresponds with GET /services/{uuid}/envs (the `ListEnvsByServiceUuid` operationId).
 	ListEnvsByServiceUuidWithResponse(ctx context.Context, uuid string, reqEditors ...RequestEditorFn) (*ListEnvsByServiceUuidResponse, error)
+
+	// UpdateEnvByServiceUuidWithBodyWithResponse Update Env
+	//
+	// Update env by service UUID.
+	//
+	// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+	UpdateEnvByServiceUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEnvByServiceUuidResponse, error)
+
+	// UpdateEnvByServiceUuidWithResponse Update Env
+	//
+	// Update env by service UUID.
+	//
+	// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+	//
+	// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+	UpdateEnvByServiceUuidWithResponse(ctx context.Context, uuid string, body UpdateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEnvByServiceUuidResponse, error)
 
 	// CreateEnvByServiceUuidWithBodyWithResponse Create Env
 	//
@@ -24685,6 +24830,75 @@ func (r ListEnvsByServiceUuidResponse) ContentType() string {
 	return ""
 }
 
+type UpdateEnvByServiceUuidResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	// JSON201 the response for an HTTP 201 `application/json` response
+	JSON201 *EnvironmentVariable
+	// JSON400 the response for an HTTP 400 `application/json` response
+	JSON400 *N400
+	// JSON401 the response for an HTTP 401 `application/json` response
+	JSON401 *N401
+	// JSON404 the response for an HTTP 404 `application/json` response
+	JSON404 *N404
+	// JSON422 the response for an HTTP 422 `application/json` response
+	JSON422 *N422
+}
+
+// GetJSON201 returns the response for an HTTP 201 `application/json` response
+func (r UpdateEnvByServiceUuidResponse) GetJSON201() *EnvironmentVariable {
+	return r.JSON201
+}
+
+// GetJSON400 returns the response for an HTTP 400 `application/json` response
+func (r UpdateEnvByServiceUuidResponse) GetJSON400() *N400 {
+	return r.JSON400
+}
+
+// GetJSON401 returns the response for an HTTP 401 `application/json` response
+func (r UpdateEnvByServiceUuidResponse) GetJSON401() *N401 {
+	return r.JSON401
+}
+
+// GetJSON404 returns the response for an HTTP 404 `application/json` response
+func (r UpdateEnvByServiceUuidResponse) GetJSON404() *N404 {
+	return r.JSON404
+}
+
+// GetJSON422 returns the response for an HTTP 422 `application/json` response
+func (r UpdateEnvByServiceUuidResponse) GetJSON422() *N422 {
+	return r.JSON422
+}
+
+// GetBody returns the raw response body bytes
+func (r UpdateEnvByServiceUuidResponse) GetBody() []byte {
+	return r.Body
+}
+
+// Status returns HTTPResponse.Status
+func (r UpdateEnvByServiceUuidResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r UpdateEnvByServiceUuidResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
+// ContentType is a convenience method to retrieve the Content-Type value from the HTTP response headers
+func (r UpdateEnvByServiceUuidResponse) ContentType() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Header.Get("Content-Type")
+	}
+	return ""
+}
+
 type CreateEnvByServiceUuidResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
@@ -28084,6 +28298,36 @@ func (c *ClientWithResponses) ListEnvsByServiceUuidWithResponse(ctx context.Cont
 		return nil, err
 	}
 	return ParseListEnvsByServiceUuidResponse(rsp)
+}
+
+// UpdateEnvByServiceUuidWithBodyWithResponse Update Env
+//
+// Update env by service UUID.
+//
+// Takes any type of body and a specified content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+func (c *ClientWithResponses) UpdateEnvByServiceUuidWithBodyWithResponse(ctx context.Context, uuid string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateEnvByServiceUuidResponse, error) {
+	rsp, err := c.UpdateEnvByServiceUuidWithBody(ctx, uuid, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEnvByServiceUuidResponse(rsp)
+}
+
+// UpdateEnvByServiceUuidWithResponse Update Env
+//
+// Update env by service UUID.
+//
+// Takes a body of the `application/json` content type, and returns a wrapper object for the known response body format(s).
+//
+// Corresponds with PATCH /services/{uuid}/envs (the `UpdateEnvByServiceUuid` operationId).
+func (c *ClientWithResponses) UpdateEnvByServiceUuidWithResponse(ctx context.Context, uuid string, body UpdateEnvByServiceUuidJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateEnvByServiceUuidResponse, error) {
+	rsp, err := c.UpdateEnvByServiceUuid(ctx, uuid, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseUpdateEnvByServiceUuidResponse(rsp)
 }
 
 // CreateEnvByServiceUuidWithBodyWithResponse Create Env
@@ -33881,6 +34125,60 @@ func ParseListEnvsByServiceUuidResponse(rsp *http.Response) (*ListEnvsByServiceU
 			return nil, err
 		}
 		response.JSON404 = &dest
+
+	}
+
+	return response, nil
+}
+
+// ParseUpdateEnvByServiceUuidResponse parses an HTTP response from a UpdateEnvByServiceUuidWithResponse call
+func ParseUpdateEnvByServiceUuidResponse(rsp *http.Response) (*UpdateEnvByServiceUuidResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &UpdateEnvByServiceUuidResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest EnvironmentVariable
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest N400
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 401:
+		var dest N401
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON401 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest N404
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 422:
+		var dest N422
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON422 = &dest
 
 	}
 
