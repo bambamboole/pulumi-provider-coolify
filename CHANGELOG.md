@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.3](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.2...v0.12.3) (2026-10-22)
+
+
+### Bug Fixes
+
+* let services overwrite changed environment variable values ([#38](https://github.com/bambamboole/pulumi-provider-coolify/issues/38)) ([96c5978](https://github.com/bambamboole/pulumi-provider-coolify/commit/96c59785d45493891d59e25d8fad89961dc1a386))
+
 ## [0.12.2](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.1...v0.12.2) (2026-10-21)
 
 
