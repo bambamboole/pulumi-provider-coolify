@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.3...v0.13.0) (2026-10-30)
+
+
+### Features
+
+* import existing applications with their placement and source ([#40](https://github.com/bambamboole/pulumi-provider-coolify/issues/40)) ([19daf3b](https://github.com/bambamboole/pulumi-provider-coolify/commit/19daf3b325d5e1de8248c77033161bb050e11876))
+
 ## [0.12.3](https://github.com/bambamboole/pulumi-provider-coolify/compare/v0.12.2...v0.12.3) (2026-10-22)
 
 
