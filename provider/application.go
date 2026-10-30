@@ -343,7 +343,16 @@ func (Application) Read(ctx context.Context, req infer.ReadRequest[ApplicationAr
 	if err != nil {
 		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
 	}
-	inputs := applicationInputs(req.Inputs, app)
+	var inputs ApplicationArgs
+	if isApplicationImport(req.Inputs) {
+		placement, err := c.GetApplicationPlacement(ctx, req.ID)
+		if err != nil {
+			return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
+		}
+		inputs = importedApplicationInputs(app, placement)
+	} else {
+		inputs = applicationInputs(req.Inputs, app)
+	}
 	refs, err := resolveApplicationSourceRefs(ctx, c, app, inputs.Source)
 	if err != nil {
 		return infer.ReadResponse[ApplicationArgs, ApplicationState]{}, err
@@ -821,6 +830,104 @@ func waitForComposeFile(ctx context.Context, c *coolify.Client, uuid, location s
 		case <-time.After(composeFilePollInterval):
 		}
 	}
+}
+
+// isApplicationImport tells a `pulumi import` apart from a refresh: the
+// import carries no inputs, while every managed application has a source.
+func isApplicationImport(inputs ApplicationArgs) bool {
+	return inputs.Source == "" && inputs.ProjectUUID == "" && inputs.ServerUUID == ""
+}
+
+// Coolify stores this repository on applications that are not built from a
+// repository: Docker images and inline Dockerfiles.
+const placeholderGitRepository = "coollabsio/coolify"
+
+// importedApplicationSource derives the source of an existing application
+// from its build pack and the references Coolify keeps.
+func importedApplicationSource(app api.Application) ApplicationSource {
+	switch string(coolify.Deref(app.BuildPack)) {
+	case "dockerimage":
+		return ApplicationSourceDockerImage
+	case "dockerfile":
+		if coolify.Deref(app.GitRepository) == placeholderGitRepository || coolify.Deref(app.GitRepository) == "" {
+			return ApplicationSourceDockerfile
+		}
+	}
+	switch {
+	case coolify.Deref(app.SourceId) != 0:
+		return ApplicationSourcePrivateGitHubApp
+	case coolify.Deref(app.PrivateKeyId) != 0:
+		return ApplicationSourcePrivateDeployKey
+	default:
+		return ApplicationSourcePublicGit
+	}
+}
+
+// importedApplicationInputs declares an existing application the way a
+// program would: the placement, the source with the fields that belong to it
+// and the settings Coolify reports. Defaults Coolify fills in on its own
+// ("/" as base directory, "HEAD" as commit, "0" as limit) stay undeclared, so
+// the import matches a program that leaves them out.
+func importedApplicationInputs(app api.Application, placement coolify.ApplicationPlacement) ApplicationArgs {
+	settings := coolify.Deref(app.Settings)
+	source := importedApplicationSource(app)
+	unlessDefault := func(value string, defaults ...string) string {
+		for _, d := range defaults {
+			if value == d {
+				return ""
+			}
+		}
+		return value
+	}
+	inputs := ApplicationArgs{
+		ProjectUUID:                placement.ProjectUUID,
+		EnvironmentName:            placement.EnvironmentName,
+		ServerUUID:                 placement.ServerUUID,
+		Source:                     source,
+		Name:                       coolify.Deref(app.Name),
+		Description:                coolify.Deref(app.Description),
+		Domains:                    coolify.Deref(app.Fqdn),
+		PortsExposes:               coolify.Deref(app.PortsExposes),
+		PortsMappings:              coolify.Deref(app.PortsMappings),
+		AutoDeployEnabled:          coolify.Deref(settings.IsAutoDeployEnabled),
+		ForceHTTPSEnabled:          coolify.Deref(settings.IsForceHttpsEnabled),
+		PreviewDeploymentsEnabled:  coolify.Deref(settings.IsPreviewDeploymentsEnabled),
+		ConnectToDockerNetwork:     coolify.Deref(settings.ConnectToDockerNetwork),
+		IncludeSourceCommitInBuild: coolify.Deref(settings.IncludeSourceCommitInBuild),
+		HealthCheckEnabled:         coolify.Deref(app.HealthCheckEnabled),
+		LimitsMemory:               unlessDefault(coolify.Deref(app.LimitsMemory), "0"),
+		LimitsCPUs:                 unlessDefault(coolify.Deref(app.LimitsCpus), "0"),
+	}
+	if inputs.HealthCheckEnabled {
+		inputs.HealthCheckPath = coolify.Deref(app.HealthCheckPath)
+		inputs.HealthCheckPort = coolify.Deref(app.HealthCheckPort)
+		inputs.HealthCheckMethod = coolify.Deref(app.HealthCheckMethod)
+	}
+	switch source {
+	case ApplicationSourceDockerImage:
+		inputs.DockerRegistryImageName = coolify.Deref(app.DockerRegistryImageName)
+		inputs.DockerRegistryImageTag = unlessDefault(coolify.Deref(app.DockerRegistryImageTag), "latest")
+	case ApplicationSourceDockerfile:
+		inputs.Dockerfile = coolify.Deref(app.Dockerfile)
+	default:
+		inputs.GitRepository = coolify.Deref(app.GitRepository)
+		inputs.GitBranch = coolify.Deref(app.GitBranch)
+		inputs.GitCommitSHA = unlessDefault(coolify.Deref(app.GitCommitSha), "HEAD")
+		inputs.BuildPack = string(coolify.Deref(app.BuildPack))
+		inputs.BaseDirectory = unlessDefault(coolify.Deref(app.BaseDirectory), "/")
+		inputs.PublishDirectory = unlessDefault(coolify.Deref(app.PublishDirectory), "/")
+		inputs.InstallCommand = coolify.Deref(app.InstallCommand)
+		inputs.BuildCommand = coolify.Deref(app.BuildCommand)
+		inputs.StartCommand = coolify.Deref(app.StartCommand)
+		switch inputs.BuildPack {
+		case "dockerfile":
+			inputs.DockerfileLocation = unlessDefault(coolify.Deref(app.DockerfileLocation), "/Dockerfile")
+		case "dockercompose":
+			inputs.DockerComposeLocation = coolify.Deref(app.DockerComposeLocation)
+			inputs.DockerComposeDomains = parseComposeDomains(coolify.Deref(app.DockerComposeDomains))
+		}
+	}
+	return inputs
 }
 
 func applicationState(inputs ApplicationArgs, app api.Application) ApplicationState {
