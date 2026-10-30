@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -484,5 +485,98 @@ func TestWithoutPorts(t *testing.T) {
 	got := withoutPorts("https://a.example:8080, https://b.example,http://c.example:80/path")
 	if want := "https://a.example,https://b.example,http://c.example/path"; got != want {
 		t.Fatalf("got %q, want %q", got, want)
+	}
+}
+
+func TestApplicationImportDeclaresPlacementAndSource(t *testing.T) {
+	fake := newFakeCoolify(t)
+	c := fake.client()
+	ctx := withClient(context.Background(), c)
+	projectUUID := fake.addProject("PDF UA Kit", "production")
+	uuid := fake.addApplication(map[string]any{
+		"name": "docker-image-abc", "description": "",
+		"environment_id":             fake.environmentID(projectUUID, "production"),
+		"build_pack":                 "dockerimage",
+		"docker_registry_image_name": "bambamboole/pdf-ua-api",
+		"docker_registry_image_tag":  "1.13.0",
+		"git_repository":             "coollabsio/coolify", "git_branch": "main", "git_commit_sha": "HEAD",
+		"base_directory": "/", "dockerfile_location": "/Dockerfile", "docker_compose_location": "/docker-compose.yaml",
+		"fqdn": "https://pdf-ua-api.c1.example.com", "ports_exposes": "8080",
+		"health_check_enabled": false, "health_check_path": "/", "limits_memory": "0", "limits_cpus": "0",
+		"settings": map[string]any{
+			"is_auto_deploy_enabled": true, "is_force_https_enabled": true,
+			"is_preview_deployments_enabled": false, "connect_to_docker_network": false,
+		},
+		"destination": map[string]any{"server": map[string]any{"uuid": "u-c1"}},
+		"environment": map[string]any{"name": "production", "project": map[string]any{"uuid": projectUUID}},
+	})
+
+	read, err := (Application{}).Read(ctx, infer.ReadRequest[ApplicationArgs, ApplicationState]{ID: uuid})
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+	want := ApplicationArgs{
+		ProjectUUID: projectUUID, EnvironmentName: "production", ServerUUID: "u-c1",
+		Source: ApplicationSourceDockerImage, Name: "docker-image-abc",
+		DockerRegistryImageName: "bambamboole/pdf-ua-api", DockerRegistryImageTag: "1.13.0",
+		Domains: "https://pdf-ua-api.c1.example.com", PortsExposes: "8080",
+		AutoDeployEnabled: true, ForceHTTPSEnabled: true,
+	}
+	got := read.Inputs
+	got.Tags = nil
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("imported inputs = %+v, want %+v", got, want)
+	}
+	if read.State.UUID != uuid || read.State.FQDN != want.Domains {
+		t.Fatalf("state = %+v", read.State)
+	}
+}
+
+func TestImportedApplicationSource(t *testing.T) {
+	str := func(s string) *string { return &s }
+	num := func(n int) *int { return &n }
+	buildPack := func(s string) *api.ApplicationBuildPack { v := api.ApplicationBuildPack(s); return &v }
+	cases := []struct {
+		name string
+		app  api.Application
+		want ApplicationSource
+	}{
+		{"docker image", api.Application{BuildPack: buildPack("dockerimage"), GitRepository: str("coollabsio/coolify")}, ApplicationSourceDockerImage},
+		{"inline dockerfile", api.Application{BuildPack: buildPack("dockerfile"), GitRepository: str("coollabsio/coolify"), Dockerfile: str("FROM nginx")}, ApplicationSourceDockerfile},
+		{"dockerfile in repository", api.Application{BuildPack: buildPack("dockerfile"), GitRepository: str("acme/api"), SourceId: num(3)}, ApplicationSourcePrivateGitHubApp},
+		{"deploy key", api.Application{BuildPack: buildPack("nixpacks"), GitRepository: str("git@github.com:acme/api.git"), PrivateKeyId: num(2)}, ApplicationSourcePrivateDeployKey},
+		{"public", api.Application{BuildPack: buildPack("dockercompose"), GitRepository: str("https://github.com/acme/api")}, ApplicationSourcePublicGit},
+	}
+	for _, tc := range cases {
+		if got := importedApplicationSource(tc.app); got != tc.want {
+			t.Errorf("%s: source = %q, want %q", tc.name, got, tc.want)
+		}
+	}
+}
+
+func TestImportedGitApplicationLeavesDefaultsUndeclared(t *testing.T) {
+	str := func(s string) *string { return &s }
+	num := func(n int) *int { return &n }
+	buildPack := api.ApplicationBuildPack("dockercompose")
+	app := api.Application{
+		Name: str("artisan-os"), BuildPack: &buildPack, SourceId: num(1),
+		GitRepository: str("artisan-os/artisan-os"), GitBranch: str("main"), GitCommitSha: str("HEAD"),
+		BaseDirectory: str("/"), DockerComposeLocation: str("/compose-production.yml"),
+		DockerComposeDomains: str(`{"web":{"domain":"https:\/\/artisan-os.de:8080"}}`),
+		HealthCheckEnabled:   func() *bool { b := true; return &b }(), HealthCheckPath: str("/up"), HealthCheckPort: str("8080"), HealthCheckMethod: str("GET"),
+		LimitsMemory: str("1536m"), LimitsCpus: str("0"),
+	}
+	got := importedApplicationInputs(app, coolify.ApplicationPlacement{ProjectUUID: "u-p", EnvironmentName: "production", ServerUUID: "u-s"})
+	if got.Source != ApplicationSourcePrivateGitHubApp || got.BuildPack != "dockercompose" || got.GitCommitSHA != "" || got.BaseDirectory != "" {
+		t.Fatalf("git fields = %+v", got)
+	}
+	if got.DockerComposeLocation != "/compose-production.yml" || got.DockerComposeDomains["web"] != "https://artisan-os.de:8080" {
+		t.Fatalf("compose fields = %+v", got)
+	}
+	if !got.HealthCheckEnabled || got.HealthCheckPath != "/up" || got.LimitsMemory != "1536m" || got.LimitsCPUs != "" {
+		t.Fatalf("settings = %+v", got)
+	}
+	if got.DockerRegistryImageName != "" || got.Dockerfile != "" {
+		t.Fatalf("fields of other sources were declared: %+v", got)
 	}
 }

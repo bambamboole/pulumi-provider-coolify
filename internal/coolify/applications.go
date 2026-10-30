@@ -65,3 +65,47 @@ func (c *Client) DeleteApplicationEnvVar(ctx context.Context, applicationUUID, e
 func (c *Client) MoveApplication(ctx context.Context, uuid, environmentUUID string) error {
 	return check(c.api.MoveApplicationByUuid(ctx, uuid, api.MoveApplicationByUuidJSONRequestBody{EnvironmentUuid: environmentUUID}))
 }
+
+// ApplicationPlacement is where an application lives: the generated
+// Application type only carries the numeric destination and environment IDs,
+// while the single-application endpoint nests the destination with its
+// server and the environment with its project.
+type ApplicationPlacement struct {
+	ProjectUUID     string
+	EnvironmentName string
+	ServerUUID      string
+}
+
+type applicationPlacementResponse struct {
+	Destination *struct {
+		Server *struct {
+			Uuid *string `json:"uuid"`
+		} `json:"server"`
+	} `json:"destination"`
+	Environment *struct {
+		Name    *string `json:"name"`
+		Project *struct {
+			Uuid *string `json:"uuid"`
+		} `json:"project"`
+	} `json:"environment"`
+}
+
+// GetApplicationPlacement reads the project, environment and server of an
+// application from the nested objects of the single-application endpoint.
+func (c *Client) GetApplicationPlacement(ctx context.Context, uuid string) (ApplicationPlacement, error) {
+	response, err := decode[applicationPlacementResponse](c.api.GetApplicationByUuid(ctx, uuid))
+	if err != nil {
+		return ApplicationPlacement{}, err
+	}
+	var placement ApplicationPlacement
+	if response.Destination != nil && response.Destination.Server != nil {
+		placement.ServerUUID = Deref(response.Destination.Server.Uuid)
+	}
+	if response.Environment != nil {
+		placement.EnvironmentName = Deref(response.Environment.Name)
+		if response.Environment.Project != nil {
+			placement.ProjectUUID = Deref(response.Environment.Project.Uuid)
+		}
+	}
+	return placement, nil
+}
